@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import ImperialDashboard from '@/components/imperial-dashboard';
 import { 
   Pizza, 
   Mail, 
@@ -145,6 +146,10 @@ export default function App() {
     }
     setAiLoading(false);
   };
+
+  if (isAuthenticated) {
+    return <ImperialDashboard />;
+  }
 
   if (!isAuthenticated) {
     return (
