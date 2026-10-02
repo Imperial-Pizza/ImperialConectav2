@@ -1,4 +1,4 @@
-import ImperialDashboard from '@/components/imperial-dashboard';
+import ImperialDashboard from '@/features/dashboard/components/ImperialDashboard';
 
 export default function DashboardPage() {
   return <ImperialDashboard />;
