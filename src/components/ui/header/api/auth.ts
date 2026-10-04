@@ -38,7 +38,7 @@ export async function getMe() {
 export async function logout() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002/api';
   
-  const token = localStorage.getItem('imperial_token');
+  const token = localStorage.getItem('imperial_token') || sessionStorage.getItem('imperial_token');
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
   };
@@ -47,16 +47,21 @@ export async function logout() {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${apiUrl}/auth/logout`, {
-    method: 'POST',
-    headers,
-  });
+  // Limpa o token do storage do navegador para deslogar imediatamente
+  localStorage.removeItem('imperial_token');
+  sessionStorage.removeItem('imperial_token');
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error('Erro na API auth/logout:', response.status, errorText);
-    throw new Error('Failed to logout');
+  try {
+    const response = await fetch(`${apiUrl}/auth/logout`, {
+      method: 'POST',
+      headers,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Erro na API auth/logout:', response.status, errorText);
+    }
+  } catch (error) {
+    console.error('Erro de rede ao deslogar:', error);
   }
-
-  return response.json();
 }
