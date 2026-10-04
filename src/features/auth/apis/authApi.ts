@@ -1,4 +1,4 @@
-﻿// src/features/auth/apis/authApi.ts
+// src/features/auth/apis/authApi.ts
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002/api';
 
@@ -21,33 +21,20 @@ export const authApi = {
     return response.json();
   },
 
-  getMe: async (token: string) => {
-    const response = await fetch(`${API_URL}/auth/me`, {
-      method: 'GET',
+  loginWithGoogle: async (googleToken: string) => {
+    const response = await fetch(`${API_URL}/auth/google`, {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${token}`
+        'Accept': 'application/json'
       },
+      body: JSON.stringify({ token: googleToken }),
     });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
-      throw new Error(errorData?.error || 'Sessão expirada ou inválida');
+      throw new Error(errorData?.error || 'Erro ao realizar login com Google');
     }
-
-    return response.json();
-  },
-
-  logout: async (token: string) => {
-    const response = await fetch(`${API_URL}/auth/logout`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-    });
 
     return response.json();
   }

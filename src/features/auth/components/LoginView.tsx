@@ -1,14 +1,15 @@
-﻿'use client';
+'use client';
 
 import { LoginForm } from './Forms/LoginForm';
 import { LoginHero } from './AuthRight/LoginHero';
 import { authApi } from '../apis/authApi';
 import toast, { Toaster } from 'react-hot-toast';
+import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-export default function LoginView() {
+function LoginContent() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -16,7 +17,6 @@ export default function LoginView() {
   const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   
-  // React Bits style animation state hook for shiny text effect
   const [shineIndex, setShineIndex] = useState(0);
   useEffect(() => {
     const timer = setInterval(() => {
@@ -25,7 +25,6 @@ export default function LoginView() {
     return () => clearInterval(timer);
   }, []);
 
-  // Handle login
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -48,31 +47,59 @@ export default function LoginView() {
     }
   };
 
-return (
-  <main className="min-h-screen flex bg-white">
-    <Toaster position="top-right" />
-    <LoginForm
-      email={email}
-      password={password}
-      showPassword={showPassword}
-      rememberMe={rememberMe}
-      isLoading={isLoading}
-      onEmailChange={setEmail}
-      onPasswordChange={setPassword}
-      onTogglePassword={() => setShowPassword(!showPassword)}
-      onRememberMeChange={() => setRememberMe(!rememberMe)}
-      onSubmit={handleLogin}
-      onGoogleLogin={() => {
-        setIsLoading(true);
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setIsLoading(true);
+      try {
+        const response = await authApi.loginWithGoogle(tokenResponse.access_token);
+        
+        if (rememberMe) {
+          localStorage.setItem('imperial_token', response.token);
+        } else {
+          sessionStorage.setItem('imperial_token', response.token);
+        }
+        
+        toast.success('Login com Google realizado com sucesso! 🎉');
+        router.push('/dashboard');
+      } catch (error: any) {
+        toast.error(error.message || 'Falha no login com Google.');
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    onError: () => {
+      toast.error('O login com Google foi cancelado ou falhou.');
+    }
+  });
 
-        setTimeout(() => {
-          setIsLoading(false);
-          router.push('/dashboard');
-        }, 1000);
-      }}
-    />
+  return (
+    <main className="min-h-screen flex bg-white">
+      <Toaster position="top-right" />
+      <LoginForm
+        email={email}
+        password={password}
+        showPassword={showPassword}
+        rememberMe={rememberMe}
+        isLoading={isLoading}
+        onEmailChange={setEmail}
+        onPasswordChange={setPassword}
+        onTogglePassword={() => setShowPassword(!showPassword)}
+        onRememberMeChange={() => setRememberMe(!rememberMe)}
+        onSubmit={handleLogin}
+        onGoogleLogin={() => googleLogin()}
+      />
 
-    <LoginHero shineIndex={shineIndex} />
-  </main>
-);
+      <LoginHero shineIndex={shineIndex} />
+    </main>
+  );
+}
+
+export default function LoginView() {
+  const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
+  
+  return (
+    <GoogleOAuthProvider clientId={clientId}>
+      <LoginContent />
+    </GoogleOAuthProvider>
+  );
 }
