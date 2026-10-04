@@ -25,6 +25,7 @@ import {
   Fingerprint,
   Megaphone
 } from 'lucide-react';
+import { Header } from '@/components/ui/header/Header';
 
 export default function DashboardView() {
   const [activeModule, setActiveModule] = useState('hub');
@@ -45,28 +46,7 @@ export default function DashboardView() {
   const [newNoticeTitle, setNewNoticeTitle] = useState('');
   const [newNoticeDesc, setNewNoticeDesc] = useState('');
 
-  // Ponto state for Batida de Ponto module
-  const [pontoStatus, setPontoStatus] = useState('Registrar Entrada');
-  const [pontoLogs, setPontoLogs] = useState([
-    { id: 1, type: 'Entrada', time: '08:00 - Hoje', status: 'Confirmado' },
-    { id: 2, type: 'SaÃ­da AlmoÃ§o', time: '12:00 - Hoje', status: 'Confirmado' },
-    { id: 3, type: 'Retorno AlmoÃ§o', time: '13:00 - Hoje', status: 'Confirmado' },
-  ]);
-
-  const user = {
-    name: 'Arthur Guilherme Ribeiro Duarte',
-    email: 'arthurnexora@gmail.com',
-    role: 'Administrador Geral / Coordenador de Tecnologia',
-    avatar: 'A',
-    lastAccess: 'Hoje, 14:32'
-  };
-
   // Recent system notifications
-  const [notifications, setNotifications] = useState([
-    { id: 1, title: 'AtualizaÃ§Ã£o do KDS v4.2', time: 'HÃ¡ 10 min', desc: 'Melhorias de desempenho no tempo de forno e comandas.' },
-    { id: 2, title: 'Fechamento de Caixa', time: 'HÃ¡ 1 hora', desc: 'Caixa diÃ¡rio encerrado com sucesso pelo gerente de turno.' },
-    { id: 3, title: 'Novo Insumo Cadastrado', time: 'HÃ¡ 3 horas', desc: 'Farinha especial italiana adicionada ao estoque principal.' }
-  ]);
 
   // Quadro de Avisos data positioned at the bottom
   const [notices, setNotices] = useState([
@@ -260,137 +240,33 @@ export default function DashboardView() {
       />
 
       {/* Header section matching max-w-7xl and horizontal padding */}
-      <motion.header 
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="w-full border-b border-slate-200/80 bg-white/90 backdrop-blur-md sticky top-0 z-40 shadow-sm"
-      >
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveModule('hub')}>
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-red-600 to-amber-500 flex items-center justify-center shadow-md shadow-red-600/20">
-              <Pizza className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-black text-lg tracking-wider text-slate-900">IMPERIAL</span>
-                <span className="text-[10px] bg-red-50 text-red-600 border border-red-200 px-2 py-0.5 rounded-full font-bold">PIZZA OS</span>
-              </div>
-              <span className="text-xs text-slate-500 font-medium">Sistema Integrado de OperaÃ§Ãµes</span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4 relative">
-            {activeModule !== 'hub' && (
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setActiveModule('hub')}
-                className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all border border-slate-200 flex items-center gap-2"
-              >
-                <span>Voltar ao Hub Central</span>
-              </motion.button>
-            )}
-
-            {/* Notification Bell Dropdown */}
-            <div className="relative">
-              <button 
-                onClick={() => setNotificationsOpen(!notificationsOpen)}
-                className="relative w-10 h-10 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 transition-all shadow-sm"
-              >
-                <Bell className="w-4 h-4 text-slate-700" />
-                <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-600 animate-pulse" />
-              </button>
-
-              <AnimatePresence>
-                {notificationsOpen && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    className="absolute right-0 mt-2 w-80 bg-white border border-slate-200 rounded-2xl shadow-xl py-3 z-50 overflow-hidden"
-                  >
-                    <div className="px-4 pb-2 border-b border-slate-100 flex items-center justify-between">
-                      <p className="text-xs font-bold text-slate-900 uppercase tracking-wider">AtualizaÃ§Ãµes Recentes</p>
-                      <span className="text-[10px] bg-red-50 text-red-600 font-bold px-2 py-0.5 rounded-full border border-red-200">3 novas</span>
-                    </div>
-                    <div className="divide-y divide-slate-100 max-h-64 overflow-y-auto">
-                      {notifications.map(n => (
-                        <div key={n.id} className="px-4 py-3 hover:bg-slate-50 transition-colors space-y-1">
-                          <div className="flex items-center justify-between">
-                            <p className="text-xs font-bold text-slate-900">{n.title}</p>
-                            <span className="text-[10px] text-slate-400">{n.time}</span>
-                          </div>
-                          <p className="text-[11px] text-slate-500 leading-relaxed">{n.desc}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* User Dropdown Button */}
-            <div className="relative">
-              <button 
-                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                className="flex items-center gap-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl transition-all shadow-sm"
-              >
-                <div className="w-7 h-7 rounded-lg bg-red-600 text-white font-bold text-xs flex items-center justify-center">
-                  {user.avatar}
-                </div>
-                <span className="text-xs font-bold text-slate-700">{user.name.split(' ')[0]}</span>
-                <span className="text-slate-400 text-[10px]">â–¼</span>
-              </button>
-
-              <AnimatePresence>
-                {userDropdownOpen && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    className="absolute right-0 mt-2 w-64 bg-white border border-slate-200 rounded-2xl shadow-xl py-2 z-50 overflow-hidden"
-                  >
-                    <div className="px-4 py-2 border-b border-slate-100">
-                      <p className="text-xs font-bold text-slate-900">{user.name}</p>
-                      <p className="text-[10px] text-slate-500 truncate">{user.email}</p>
-                    </div>
-                    <button 
-                      onClick={() => { setUserDropdownOpen(false); setShowAddBenefitModal(true); }}
-                      className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors"
-                    >
-                      <Plus className="w-4 h-4 text-red-600" />
-                      <span>Adicionar Carrossel BenefÃ­cio</span>
-                    </button>
-                    <button 
-                      onClick={() => { setUserDropdownOpen(false); setShowAddEventModal(true); }}
-                      className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors"
-                    >
-                      <Sparkles className="w-4 h-4 text-amber-500" />
-                      <span>Adicionar Carrossel Evento</span>
-                    </button>
-                    <button 
-                      onClick={() => { setUserDropdownOpen(false); setShowAddNoticeModal(true); }}
-                      className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors"
-                    >
-                      <Megaphone className="w-4 h-4 text-blue-600" />
-                      <span>Novo Aviso</span>
-                    </button>
-                    <div className="border-t border-slate-100 my-1" />
-                    <button 
-                      onClick={() => { setUserDropdownOpen(false); }}
-                      className="w-full text-left px-4 py-2.5 text-xs font-medium text-red-600 hover:bg-red-50 flex items-center gap-2.5 transition-colors"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      <span>Deslogar</span>
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </div>
-        </div>
-      </motion.header>
+<Header
+  activeModule={activeModule}
+  notificationsOpen={notificationsOpen}
+  userDropdownOpen={userDropdownOpen}
+  onToggleNotifications={() =>
+    setNotificationsOpen(!notificationsOpen)
+  }
+  onToggleUserDropdown={() =>
+    setUserDropdownOpen(!userDropdownOpen)
+  }
+  onGoToHub={() => setActiveModule('hub')}
+  onAddBenefit={() => {
+    setUserDropdownOpen(false);
+    setShowAddBenefitModal(true);
+  }}
+  onAddEvent={() => {
+    setUserDropdownOpen(false);
+    setShowAddEventModal(true);
+  }}
+  onAddNotice={() => {
+    setUserDropdownOpen(false);
+    setShowAddNoticeModal(true);
+  }}
+  onLogout={() => {
+    setUserDropdownOpen(false);
+  }}
+/>
 
       {/* Main content body */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-8 relative z-10 space-y-10">
