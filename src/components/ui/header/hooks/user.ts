@@ -5,6 +5,7 @@ export interface User {
   name: string;
   email: string;
   role: string;
+  sector?: string;
   avatar: string;
   lastAccess: string;
 }

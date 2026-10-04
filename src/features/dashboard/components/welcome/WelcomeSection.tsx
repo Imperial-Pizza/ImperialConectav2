@@ -105,14 +105,14 @@ export function WelcomeSection() {
         {/* User Information */}
         <div className="space-y-3 py-3 border-y border-slate-100">
 
-          {/* Role */}
-          <div className="text-[11px] text-slate-500 flex flex-col gap-0.5">
+          {/* Sector */}
+          <div className="text-[11px] text-slate-500 flex justify-between items-center">
             <span className="font-semibold text-slate-400">
-              Função:
+              Setor:
             </span>
 
-            <span className="font-bold text-slate-800">
-              {user.role}
+            <span className="font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md">
+              {user.sector || user.role || 'Não definido'}
             </span>
           </div>
 
