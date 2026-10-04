@@ -4,6 +4,7 @@ import { LoginForm } from './Forms/LoginForm';
 import { LoginHero } from './AuthRight/LoginHero';
 import { authApi } from '../apis/authApi';
 import toast, { Toaster } from 'react-hot-toast';
+import { Preloader } from '@/components/ui/Preloader';
 import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
 
 import React, { useState, useEffect } from 'react';
@@ -73,7 +74,8 @@ function LoginContent() {
   });
 
   return (
-    <main className="min-h-screen flex bg-white">
+    <main className="min-h-screen flex bg-white relative">
+      {isLoading && <Preloader fullScreen={true} message="ASSANDO SUAS INFORMAÇÕES..." />}
       <Toaster position="top-right" />
       <LoginForm
         email={email}
