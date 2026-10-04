@@ -1,3 +1,6 @@
+import { useState, useEffect } from 'react';
+import { getMe } from '../api/auth';
+
 export interface User {
   name: string;
   email: string;
@@ -6,16 +9,28 @@ export interface User {
   lastAccess: string;
 }
 
-const currentUser: User = {
-  name: 'Arthur Guilherme Ribeiro Duarte',
-  email: 'arthurnexora@gmail.com',
-  role: 'Administrador Geral / Coordenador de Tecnologia',
-  avatar: 'A',
-  lastAccess: 'Hoje, 14:32',
-};
-
 export function useUser() {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadUser() {
+      try {
+        const data = await getMe();
+        if (data) {
+          setUser(data);
+        }
+      } catch (error) {
+        console.error('Failed to load user', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadUser();
+  }, []);
+
   return {
-    user: currentUser,
+    user,
+    isLoading,
   };
 }

@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { Header } from '@/components/ui/header/Header';
 import { WelcomeSection } from './welcome/WelcomeSection';
+import { logout } from '@/components/ui/header/api/auth';
 
 export default function DashboardView() {
   const [activeModule, setActiveModule] = useState('hub');
@@ -267,8 +268,14 @@ export default function DashboardView() {
     setUserDropdownOpen(false);
     setShowAddNoticeModal(true);
   }}
-  onLogout={() => {
+  onLogout={async () => {
     setUserDropdownOpen(false);
+    try {
+      await logout();
+      window.location.href = '/'; // Redireciona após logout
+    } catch (error) {
+      console.error('Logout failed', error);
+    }
   }}
 />
 

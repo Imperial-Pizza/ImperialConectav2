@@ -6,7 +6,16 @@ import { Clock, Sparkles } from 'lucide-react';
 import { useUser } from '@/components/ui/header/hooks/user';
 
 export function WelcomeSection() {
-  const { user } = useUser();
+  const { user, isLoading } = useUser();
+
+  if (isLoading || !user) {
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 bg-slate-900 rounded-3xl h-64 animate-pulse border border-slate-800"></div>
+        <div className="bg-white border border-slate-200/80 rounded-3xl h-64 animate-pulse"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

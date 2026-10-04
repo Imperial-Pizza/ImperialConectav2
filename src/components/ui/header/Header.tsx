@@ -21,7 +21,6 @@ interface User {
 
 interface HeaderProps {
   activeModule: string;
-  user: User;
 
   notificationsOpen: boolean;
   userDropdownOpen: boolean;
@@ -51,7 +50,11 @@ export function Header({
   onLogout,
 }: HeaderProps) {
   const { notifications } = useNotifications();
-  const { user } = useUser();
+  const { user, isLoading } = useUser();
+
+  if (isLoading || !user) {
+    return <header className="w-full h-[76px] bg-white/90 backdrop-blur-md sticky top-0 z-40 shadow-sm border-b border-slate-200/80 flex items-center px-6"><div className="w-full animate-pulse bg-slate-100 h-10 rounded-xl"></div></header>;
+  }
 
   return (
     <motion.header
