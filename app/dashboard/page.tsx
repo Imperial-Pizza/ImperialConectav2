@@ -1,5 +1,5 @@
-import ImperialDashboard from '@/features/dashboard/components/ImperialDashboard';
+import DashboardView from '@/features/dashboard/components/DashboardView';
 
-export default function DashboardPage() {
-  return <ImperialDashboard />;
+export default function App() {
+  return <DashboardView />;
 }

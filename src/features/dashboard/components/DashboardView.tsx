@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -26,7 +26,7 @@ import {
   Megaphone
 } from 'lucide-react';
 
-export default function App() {
+export default function DashboardView() {
   const [activeModule, setActiveModule] = useState('hub');
   const [shineIndex, setShineIndex] = useState(0);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
@@ -49,8 +49,8 @@ export default function App() {
   const [pontoStatus, setPontoStatus] = useState('Registrar Entrada');
   const [pontoLogs, setPontoLogs] = useState([
     { id: 1, type: 'Entrada', time: '08:00 - Hoje', status: 'Confirmado' },
-    { id: 2, type: 'Saída Almoço', time: '12:00 - Hoje', status: 'Confirmado' },
-    { id: 3, type: 'Retorno Almoço', time: '13:00 - Hoje', status: 'Confirmado' },
+    { id: 2, type: 'SaÃ­da AlmoÃ§o', time: '12:00 - Hoje', status: 'Confirmado' },
+    { id: 3, type: 'Retorno AlmoÃ§o', time: '13:00 - Hoje', status: 'Confirmado' },
   ]);
 
   const user = {
@@ -63,48 +63,48 @@ export default function App() {
 
   // Recent system notifications
   const [notifications, setNotifications] = useState([
-    { id: 1, title: 'Atualização do KDS v4.2', time: 'Há 10 min', desc: 'Melhorias de desempenho no tempo de forno e comandas.' },
-    { id: 2, title: 'Fechamento de Caixa', time: 'Há 1 hora', desc: 'Caixa diário encerrado com sucesso pelo gerente de turno.' },
-    { id: 3, title: 'Novo Insumo Cadastrado', time: 'Há 3 horas', desc: 'Farinha especial italiana adicionada ao estoque principal.' }
+    { id: 1, title: 'AtualizaÃ§Ã£o do KDS v4.2', time: 'HÃ¡ 10 min', desc: 'Melhorias de desempenho no tempo de forno e comandas.' },
+    { id: 2, title: 'Fechamento de Caixa', time: 'HÃ¡ 1 hora', desc: 'Caixa diÃ¡rio encerrado com sucesso pelo gerente de turno.' },
+    { id: 3, title: 'Novo Insumo Cadastrado', time: 'HÃ¡ 3 horas', desc: 'Farinha especial italiana adicionada ao estoque principal.' }
   ]);
 
   // Quadro de Avisos data positioned at the bottom
   const [notices, setNotices] = useState([
-    { id: 1, tag: 'Urgente', title: 'Manutenção Preventiva do Forno 01', desc: 'Agendada para esta segunda-feira às 06:00 antes da abertura da loja.', time: 'Hoje' },
-    { id: 2, tag: 'Geral', title: 'Novo Padrão de Montagem de Pizzas', desc: 'Consultar o manual atualizado na aba de Treinamentos.', time: 'Ontem' },
-    { id: 3, tag: 'Aviso', title: 'Reunião de Alinhamento de Turno', desc: 'Sexta-feira às 15:00 na sala de reuniões principal.', time: 'Há 2 dias' }
+    { id: 1, tag: 'Urgente', title: 'ManutenÃ§Ã£o Preventiva do Forno 01', desc: 'Agendada para esta segunda-feira Ã s 06:00 antes da abertura da loja.', time: 'Hoje' },
+    { id: 2, tag: 'Geral', title: 'Novo PadrÃ£o de Montagem de Pizzas', desc: 'Consultar o manual atualizado na aba de Treinamentos.', time: 'Ontem' },
+    { id: 3, tag: 'Aviso', title: 'ReuniÃ£o de Alinhamento de Turno', desc: 'Sexta-feira Ã s 15:00 na sala de reuniÃµes principal.', time: 'HÃ¡ 2 dias' }
   ]);
 
   // System Logs data
   const [systemLogs, setSystemLogs] = useState([
     { id: 1, user: 'Arthur Guilherme', action: 'LOGIN_SUCCESS', module: 'Auth', time: '14:32:10', ip: '192.168.1.45' },
-    { id: 2, user: 'Mayrlon Sérgio', action: 'UPDATE_KDS_STATUS', module: 'Cozinha', time: '14:20:15', ip: '192.168.1.12' },
+    { id: 2, user: 'Mayrlon SÃ©rgio', action: 'UPDATE_KDS_STATUS', module: 'Cozinha', time: '14:20:15', ip: '192.168.1.12' },
     { id: 3, user: 'Valeria Souza', action: 'CREATE_COMANDA', module: 'Atendimento', time: '14:15:02', ip: '192.168.1.18' },
     { id: 4, user: 'Sistema', action: 'BACKUP_AUTOMATIC', module: 'Database', time: '14:00:00', ip: 'localhost' },
   ]);
 
   // Benefits data with custom gradients
   const [benefits, setBenefits] = useState([
-    { id: 1, title: 'Atendimento Ágil', desc: 'Foco total na experiência com comandas digitais e suporte contínuo.', gradient: 'from-blue-600 via-indigo-600 to-violet-600', icon: UtensilsCrossed },
-    { id: 2, title: 'KDS & Forno Inteligente', desc: 'Controle de tempo de forno e produção de pizzas em tempo real.', gradient: 'from-red-600 via-rose-600 to-orange-500', icon: ChefHat },
-    { id: 3, title: 'Gestão de Estoque', desc: 'Rastreabilidade completa de insumos, massas e fornecedores.', gradient: 'from-emerald-600 via-teal-600 to-cyan-600', icon: Package },
-    { id: 4, title: 'Controle Financeiro', desc: 'Caixa diário, relatórios detalhados e faturamento automatizado.', gradient: 'from-amber-500 via-orange-600 to-red-600', icon: DollarSign },
+    { id: 1, title: 'Atendimento Ãgil', desc: 'Foco total na experiÃªncia com comandas digitais e suporte contÃ­nuo.', gradient: 'from-blue-600 via-indigo-600 to-violet-600', icon: UtensilsCrossed },
+    { id: 2, title: 'KDS & Forno Inteligente', desc: 'Controle de tempo de forno e produÃ§Ã£o de pizzas em tempo real.', gradient: 'from-red-600 via-rose-600 to-orange-500', icon: ChefHat },
+    { id: 3, title: 'GestÃ£o de Estoque', desc: 'Rastreabilidade completa de insumos, massas e fornecedores.', gradient: 'from-emerald-600 via-teal-600 to-cyan-600', icon: Package },
+    { id: 4, title: 'Controle Financeiro', desc: 'Caixa diÃ¡rio, relatÃ³rios detalhados e faturamento automatizado.', gradient: 'from-amber-500 via-orange-600 to-red-600', icon: DollarSign },
   ]);
 
   // Events carousel data
   const [events, setEvents] = useState([
-    { id: 1, title: 'Treinamento de Forno', desc: 'Capacitação avançada da equipe de montagem.', image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500&auto=format&fit=crop&q=60' },
-    { id: 2, title: 'Aniversário da Loja', desc: 'Comemoração oficial com clientes e parceiros.', image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=500&auto=format&fit=crop&q=60' },
-    { id: 3, title: 'Sexta Musical', desc: 'Noite de música ao vivo na Imperial Pizza.', image: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=60' }
+    { id: 1, title: 'Treinamento de Forno', desc: 'CapacitaÃ§Ã£o avanÃ§ada da equipe de montagem.', image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500&auto=format&fit=crop&q=60' },
+    { id: 2, title: 'AniversÃ¡rio da Loja', desc: 'ComemoraÃ§Ã£o oficial com clientes e parceiros.', image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=500&auto=format&fit=crop&q=60' },
+    { id: 3, title: 'Sexta Musical', desc: 'Noite de mÃºsica ao vivo na Imperial Pizza.', image: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=60' }
   ]);
 
   // Top Montadores data
   const topMontadores = [
-    { rank: 1, name: 'Mayrlon Sérgio', role: 'Montador', count: '90 pizzas' },
+    { rank: 1, name: 'Mayrlon SÃ©rgio', role: 'Montador', count: '90 pizzas' },
     { rank: 2, name: 'Valeria Souza', role: 'Montador', count: '83 pizzas' },
     { rank: 3, name: 'Italo Sousa', role: 'Montador', count: '79 pizzas' },
     { rank: 4, name: 'Papa Adama', role: 'Montador', count: '66 pizzas' },
-    { rank: 5, name: 'Osana Tomás', role: 'Montador', count: '60 pizzas' },
+    { rank: 5, name: 'Osana TomÃ¡s', role: 'Montador', count: '60 pizzas' },
   ];
 
   const benefitsScrollRef = useRef(null);
@@ -169,7 +169,7 @@ export default function App() {
     setBenefits([...benefits, {
       id: Date.now(),
       title: newBenefitTitle,
-      desc: newBenefitDesc || 'Novo benefício cadastrado no sistema.',
+      desc: newBenefitDesc || 'Novo benefÃ­cio cadastrado no sistema.',
       gradient: gradients[Math.floor(Math.random() * gradients.length)],
       icon: Sparkles
     }]);
@@ -199,7 +199,7 @@ export default function App() {
       id: Date.now(),
       tag: 'Aviso',
       title: newNoticeTitle,
-      desc: newNoticeDesc || 'Novo aviso interno divulgado pela administração.',
+      desc: newNoticeDesc || 'Novo aviso interno divulgado pela administraÃ§Ã£o.',
       time: 'Agora'
     }, ...notices]);
     setNewNoticeTitle('');
@@ -217,22 +217,22 @@ export default function App() {
       status: 'Registrado com Sucesso'
     };
     setPontoLogs([newLog, ...pontoLogs]);
-    if (pontoStatus === 'Registrar Entrada') setPontoStatus('Registrar Saída Almoço');
-    else if (pontoStatus === 'Registrar Saída Almoço') setPontoStatus('Retorno Almoço');
-    else if (pontoStatus === 'Retorno Almoço') setPontoStatus('Registrar Saída');
+    if (pontoStatus === 'Registrar Entrada') setPontoStatus('Registrar SaÃ­da AlmoÃ§o');
+    else if (pontoStatus === 'Registrar SaÃ­da AlmoÃ§o') setPontoStatus('Retorno AlmoÃ§o');
+    else if (pontoStatus === 'Retorno AlmoÃ§o') setPontoStatus('Registrar SaÃ­da');
     else setPontoStatus('Ponto Encerrado');
   };
 
   const modules = [
-    { id: 'dashboard', name: 'Dashboard', desc: 'Visão geral da operação e KPIs em tempo real', icon: LayoutDashboard, color: 'from-red-600 to-amber-500' },
-    { id: 'atendimento', name: 'Atendimento', desc: 'Gestão de mesas, salão e comandas ativas', icon: UtensilsCrossed, color: 'from-amber-500 to-orange-600' },
-    { id: 'cozinha', name: 'Cozinha', desc: 'KDS, produção de pizzas e controle de forno', icon: ChefHat, color: 'from-red-700 to-red-500' },
+    { id: 'dashboard', name: 'Dashboard', desc: 'VisÃ£o geral da operaÃ§Ã£o e KPIs em tempo real', icon: LayoutDashboard, color: 'from-red-600 to-amber-500' },
+    { id: 'atendimento', name: 'Atendimento', desc: 'GestÃ£o de mesas, salÃ£o e comandas ativas', icon: UtensilsCrossed, color: 'from-amber-500 to-orange-600' },
+    { id: 'cozinha', name: 'Cozinha', desc: 'KDS, produÃ§Ã£o de pizzas e controle de forno', icon: ChefHat, color: 'from-red-700 to-red-500' },
     { id: 'estoque', name: 'Estoque', desc: 'Controle de massas, insumos e fornecedores', icon: Package, color: 'from-emerald-600 to-teal-600' },
-    { id: 'financeiro', name: 'Financeiro', desc: 'Caixa diário, relatórios de vendas e faturamento', icon: DollarSign, color: 'from-blue-600 to-indigo-600' },
-    { id: 'relatorios', name: 'Relatórios', desc: 'Indicadores gerenciais e métricas avançadas', icon: BarChart3, color: 'from-purple-600 to-pink-600' },
-    { id: 'logs', name: 'Logs do Sistema', desc: 'Auditoria de acessos e histórico de ações operacionais', icon: FileText, color: 'from-indigo-700 to-slate-800' },
+    { id: 'financeiro', name: 'Financeiro', desc: 'Caixa diÃ¡rio, relatÃ³rios de vendas e faturamento', icon: DollarSign, color: 'from-blue-600 to-indigo-600' },
+    { id: 'relatorios', name: 'RelatÃ³rios', desc: 'Indicadores gerenciais e mÃ©tricas avanÃ§adas', icon: BarChart3, color: 'from-purple-600 to-pink-600' },
+    { id: 'logs', name: 'Logs do Sistema', desc: 'Auditoria de acessos e histÃ³rico de aÃ§Ãµes operacionais', icon: FileText, color: 'from-indigo-700 to-slate-800' },
     { id: 'ponto', name: 'Batida de Ponto', desc: 'Controle de jornada e registro de ponto da equipe', icon: Fingerprint, color: 'from-teal-600 to-emerald-700' },
-    { id: 'administracao', name: 'Administração', desc: 'Configurações do sistema, usuários e permissões', icon: Settings, color: 'from-slate-700 to-slate-900' },
+    { id: 'administracao', name: 'AdministraÃ§Ã£o', desc: 'ConfiguraÃ§Ãµes do sistema, usuÃ¡rios e permissÃµes', icon: Settings, color: 'from-slate-700 to-slate-900' },
   ];
 
   const filteredModules = modules.filter(mod => 
@@ -276,7 +276,7 @@ export default function App() {
                 <span className="font-black text-lg tracking-wider text-slate-900">IMPERIAL</span>
                 <span className="text-[10px] bg-red-50 text-red-600 border border-red-200 px-2 py-0.5 rounded-full font-bold">PIZZA OS</span>
               </div>
-              <span className="text-xs text-slate-500 font-medium">Sistema Integrado de Operações</span>
+              <span className="text-xs text-slate-500 font-medium">Sistema Integrado de OperaÃ§Ãµes</span>
             </div>
           </div>
 
@@ -311,7 +311,7 @@ export default function App() {
                     className="absolute right-0 mt-2 w-80 bg-white border border-slate-200 rounded-2xl shadow-xl py-3 z-50 overflow-hidden"
                   >
                     <div className="px-4 pb-2 border-b border-slate-100 flex items-center justify-between">
-                      <p className="text-xs font-bold text-slate-900 uppercase tracking-wider">Atualizações Recentes</p>
+                      <p className="text-xs font-bold text-slate-900 uppercase tracking-wider">AtualizaÃ§Ãµes Recentes</p>
                       <span className="text-[10px] bg-red-50 text-red-600 font-bold px-2 py-0.5 rounded-full border border-red-200">3 novas</span>
                     </div>
                     <div className="divide-y divide-slate-100 max-h-64 overflow-y-auto">
@@ -340,7 +340,7 @@ export default function App() {
                   {user.avatar}
                 </div>
                 <span className="text-xs font-bold text-slate-700">{user.name.split(' ')[0]}</span>
-                <span className="text-slate-400 text-[10px]">▼</span>
+                <span className="text-slate-400 text-[10px]">â–¼</span>
               </button>
 
               <AnimatePresence>
@@ -360,7 +360,7 @@ export default function App() {
                       className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors"
                     >
                       <Plus className="w-4 h-4 text-red-600" />
-                      <span>Adicionar Carrossel Benefício</span>
+                      <span>Adicionar Carrossel BenefÃ­cio</span>
                     </button>
                     <button 
                       onClick={() => { setUserDropdownOpen(false); setShowAddEventModal(true); }}
@@ -417,13 +417,13 @@ export default function App() {
                     Bem-vindo de volta, <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-amber-400">{user.name.split(' ')[0]}</span>!
                   </h1>
                   <p className="text-slate-300 text-xs sm:text-sm max-w-xl leading-relaxed">
-                    Selecione abaixo o módulo desejado para gerenciar as operações da Imperial Pizza com agilidade e total controle em tempo real.
+                    Selecione abaixo o mÃ³dulo desejado para gerenciar as operaÃ§Ãµes da Imperial Pizza com agilidade e total controle em tempo real.
                   </p>
                 </div>
                 <div className="pt-6 flex items-center gap-4 text-xs text-slate-400 relative z-10 border-t border-slate-800 mt-6">
                   <div className="flex items-center gap-1.5">
                     <Clock className="w-4 h-4 text-amber-400" />
-                    <span>Último acesso: {user.lastAccess}</span>
+                    <span>Ãšltimo acesso: {user.lastAccess}</span>
                   </div>
                 </div>
               </motion.div>
@@ -447,7 +447,7 @@ export default function App() {
 
                 <div className="space-y-3 py-3 border-y border-slate-100">
                   <div className="text-[11px] text-slate-500 flex flex-col gap-0.5">
-                    <span className="font-semibold text-slate-400">Função:</span>
+                    <span className="font-semibold text-slate-400">FunÃ§Ã£o:</span>
                     <span className="font-bold text-slate-800">{user.role}</span>
                   </div>
                   <div className="text-[11px] text-slate-500 flex justify-between items-center">
@@ -459,18 +459,18 @@ export default function App() {
                 </div>
 
                 <div className="text-center text-[10px] text-slate-400">
-                  Imperial Pizza OS • Painel Administrativo Seguro
+                  Imperial Pizza OS â€¢ Painel Administrativo Seguro
                 </div>
               </motion.div>
 
             </div>
 
-            {/* SEÇÃO 1: CARROSSEL DE BENEFÍCIOS */}
+            {/* SEÃ‡ÃƒO 1: CARROSSEL DE BENEFÃCIOS */}
             <div className="space-y-4 pt-2">
               <div className="flex items-center justify-between">
                 <div>
                   <span className="text-[10px] uppercase tracking-wider bg-red-50 text-red-600 border border-red-200 px-2.5 py-0.5 rounded-full font-bold">React Bits Showcase</span>
-                  <h2 className="text-xl font-black text-slate-900 tracking-tight mt-1">Pilares da Excelência Operacional</h2>
+                  <h2 className="text-xl font-black text-slate-900 tracking-tight mt-1">Pilares da ExcelÃªncia Operacional</h2>
                 </div>
                 <div className="flex items-center gap-2">
                   <button 
@@ -525,8 +525,8 @@ export default function App() {
             <div className="space-y-4 pt-2">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h2 className="text-xl font-black text-slate-900 tracking-tight">Módulos do Sistema</h2>
-                  <span className="text-xs text-slate-500 font-medium">{filteredModules.length} de {modules.length} módulos disponíveis</span>
+                  <h2 className="text-xl font-black text-slate-900 tracking-tight">MÃ³dulos do Sistema</h2>
+                  <span className="text-xs text-slate-500 font-medium">{filteredModules.length} de {modules.length} mÃ³dulos disponÃ­veis</span>
                 </div>
                 
                 <div className="relative w-full sm:w-72">
@@ -537,7 +537,7 @@ export default function App() {
                     type="text"
                     value={moduleSearchQuery}
                     onChange={(e) => setModuleSearchQuery(e.target.value)}
-                    placeholder="Pesquisar módulos..."
+                    placeholder="Pesquisar mÃ³dulos..."
                     className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-2xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:border-red-600 shadow-sm transition-all"
                   />
                 </div>
@@ -545,7 +545,7 @@ export default function App() {
 
               {filteredModules.length === 0 ? (
                 <div className="bg-white border border-slate-200 rounded-3xl p-12 text-center space-y-2">
-                  <p className="text-sm font-bold text-slate-800">Nenhum módulo encontrado</p>
+                  <p className="text-sm font-bold text-slate-800">Nenhum mÃ³dulo encontrado</p>
                   <p className="text-xs text-slate-500">Tente buscar por outro termo no campo de pesquisa acima.</p>
                 </div>
               ) : (
@@ -578,7 +578,7 @@ export default function App() {
                         </div>
 
                         <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-700">
-                          <span className="text-red-600">Acessar módulo</span>
+                          <span className="text-red-600">Acessar mÃ³dulo</span>
                           <ArrowRight className="w-4 h-4 text-red-600 group-hover:translate-x-1 transition-transform" />
                         </div>
                       </motion.div>
@@ -588,7 +588,7 @@ export default function App() {
               )}
             </div>
 
-            {/* SEÇÃO 2: CARROSSEL DE EVENTOS & TOP MONTADORES */}
+            {/* SEÃ‡ÃƒO 2: CARROSSEL DE EVENTOS & TOP MONTADORES */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-2">
               
               {/* Event Carousel (span-7) */}
@@ -596,7 +596,7 @@ export default function App() {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-lg font-black text-slate-900 tracking-tight">Eventos da Imperial</h3>
-                    <p className="text-xs text-slate-500 font-medium">Programação especial e treinamentos internos</p>
+                    <p className="text-xs text-slate-500 font-medium">ProgramaÃ§Ã£o especial e treinamentos internos</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <button 
@@ -637,12 +637,12 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Top Montadores do Mês (span-5) */}
+              {/* Top Montadores do MÃªs (span-5) */}
               <div className="lg:col-span-5 bg-white border border-slate-200/80 rounded-3xl p-6 shadow-sm flex flex-col justify-between space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                   <div>
                     <h3 className="text-lg font-black text-slate-900 tracking-tight">Top Montadores</h3>
-                    <p className="text-xs text-slate-500 font-medium">Ranking deste Mês</p>
+                    <p className="text-xs text-slate-500 font-medium">Ranking deste MÃªs</p>
                   </div>
                 </div>
 
@@ -672,7 +672,7 @@ export default function App() {
 
             </div>
 
-            {/* SEÇÃO 3: QUADRO DE AVISOS (Bottom Session) */}
+            {/* SEÃ‡ÃƒO 3: QUADRO DE AVISOS (Bottom Session) */}
             <motion.div 
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -741,16 +741,16 @@ export default function App() {
               </div>
 
               <div className="space-y-4">
-                <p className="text-xs text-slate-500 font-medium">Registro em tempo real de acessos, modificações e auditorias de segurança na Imperial Pizza.</p>
+                <p className="text-xs text-slate-500 font-medium">Registro em tempo real de acessos, modificaÃ§Ãµes e auditorias de seguranÃ§a na Imperial Pizza.</p>
                 <div className="border border-slate-200 rounded-2xl overflow-hidden">
                   <table className="w-full text-left text-xs">
                     <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold">
                       <tr>
-                        <th className="p-3.5">Usuário / Sistema</th>
-                        <th className="p-3.5">Ação Realizada</th>
-                        <th className="p-3.5">Módulo</th>
-                        <th className="p-3.5">Horário</th>
-                        <th className="p-3.5">Endereço IP</th>
+                        <th className="p-3.5">UsuÃ¡rio / Sistema</th>
+                        <th className="p-3.5">AÃ§Ã£o Realizada</th>
+                        <th className="p-3.5">MÃ³dulo</th>
+                        <th className="p-3.5">HorÃ¡rio</th>
+                        <th className="p-3.5">EndereÃ§o IP</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
@@ -801,7 +801,7 @@ export default function App() {
                   <div className="space-y-2">
                     <span className="text-[10px] uppercase font-bold tracking-widest bg-white/20 px-3 py-1 rounded-full">Terminal Seguro</span>
                     <h3 className="text-xl font-black">Controle de Jornada</h3>
-                    <p className="text-xs text-slate-300">Registre sua entrada, intervalos e saída com total conformidade trabalhista.</p>
+                    <p className="text-xs text-slate-300">Registre sua entrada, intervalos e saÃ­da com total conformidade trabalhista.</p>
                   </div>
                   <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/20 text-center space-y-3">
                     <p className="text-xs text-teal-200 font-bold">Status Atual:</p>
@@ -823,7 +823,7 @@ export default function App() {
                       <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold">
                         <tr>
                           <th className="p-3.5">Tipo de Registro</th>
-                          <th className="p-3.5">Horário</th>
+                          <th className="p-3.5">HorÃ¡rio</th>
                           <th className="p-3.5">Status</th>
                         </tr>
                       </thead>
@@ -859,7 +859,7 @@ export default function App() {
                     <Pizza className="w-7 h-7" />
                   </div>
                   <div>
-                    <span className="text-[10px] bg-red-50 text-red-600 border border-red-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">Módulo Ativo</span>
+                    <span className="text-[10px] bg-red-50 text-red-600 border border-red-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">MÃ³dulo Ativo</span>
                     <h2 className="text-2xl font-black text-slate-900 capitalize mt-1">{activeModule}</h2>
                   </div>
                 </div>
@@ -876,9 +876,9 @@ export default function App() {
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
                 <div className="space-y-2 max-w-md mx-auto">
-                  <h3 className="text-lg font-bold text-slate-900">Módulo {activeModule} Carregado com Sucesso</h3>
+                  <h3 className="text-lg font-bold text-slate-900">MÃ³dulo {activeModule} Carregado com Sucesso</h3>
                   <p className="text-xs text-slate-500 leading-relaxed">
-                    Este ambiente está conectado ao ecossistema da Imperial Pizza. Todos os dados e registros deste módulo estão sincronizados em tempo real.
+                    Este ambiente estÃ¡ conectado ao ecossistema da Imperial Pizza. Todos os dados e registros deste mÃ³dulo estÃ£o sincronizados em tempo real.
                   </p>
                 </div>
                 <div className="pt-4">
@@ -886,7 +886,7 @@ export default function App() {
                     onClick={() => setActiveModule('hub')}
                     className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-red-600/20"
                   >
-                    Retornar ao Hub de Módulos
+                    Retornar ao Hub de MÃ³dulos
                   </button>
                 </div>
               </div>
@@ -898,18 +898,18 @@ export default function App() {
 
       {/* Footer */}
       <footer className="w-full border-t border-slate-200/80 bg-white py-6 px-6 text-center text-xs text-slate-500 space-y-1 shadow-inner">
-        <p className="font-bold text-slate-700">IMPERIAL PIZZA • SISTEMA DE OPERAÇÕES V4.0</p>
-        <p>© 2026 Imperial Pizza. Todos os direitos reservados.</p>
+        <p className="font-bold text-slate-700">IMPERIAL PIZZA â€¢ SISTEMA DE OPERAÃ‡Ã•ES V4.0</p>
+        <p>Â© 2026 Imperial Pizza. Todos os direitos reservados.</p>
       </footer>
 
-      {/* Modal: Adicionar Benefício */}
+      {/* Modal: Adicionar BenefÃ­cio */}
       {showAddBenefitModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-slate-200">
-            <h3 className="text-lg font-black text-slate-900">Adicionar Benefício ao Carrossel</h3>
+            <h3 className="text-lg font-black text-slate-900">Adicionar BenefÃ­cio ao Carrossel</h3>
             <form onSubmit={handleAddBenefit} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Título do Benefício</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">TÃ­tulo do BenefÃ­cio</label>
                 <input 
                   type="text" 
                   value={newBenefitTitle} 
@@ -920,11 +920,11 @@ export default function App() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Descrição</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">DescriÃ§Ã£o</label>
                 <textarea 
                   value={newBenefitDesc} 
                   onChange={(e) => setNewBenefitDesc(e.target.value)}
-                  placeholder="Explique o benefício..." 
+                  placeholder="Explique o benefÃ­cio..." 
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-red-600 h-20 resize-none"
                 />
               </div>
@@ -941,10 +941,10 @@ export default function App() {
       {showAddEventModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-slate-200">
-            <h3 className="text-lg font-black text-slate-900">Adicionar Evento à Programação</h3>
+            <h3 className="text-lg font-black text-slate-900">Adicionar Evento Ã  ProgramaÃ§Ã£o</h3>
             <form onSubmit={handleAddEvent} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Título do Evento</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">TÃ­tulo do Evento</label>
                 <input 
                   type="text" 
                   value={newEventTitle} 
@@ -955,7 +955,7 @@ export default function App() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Descrição</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">DescriÃ§Ã£o</label>
                 <textarea 
                   value={newEventDesc} 
                   onChange={(e) => setNewEventDesc(e.target.value)}
@@ -979,18 +979,18 @@ export default function App() {
             <h3 className="text-lg font-black text-slate-900">Publicar Novo Aviso</h3>
             <form onSubmit={handleAddNotice} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Título do Aviso</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">TÃ­tulo do Aviso</label>
                 <input 
                   type="text" 
                   value={newNoticeTitle} 
                   onChange={(e) => setNewNoticeTitle(e.target.value)}
-                  placeholder="Ex: Manutenção Preventiva" 
+                  placeholder="Ex: ManutenÃ§Ã£o Preventiva" 
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-red-600"
                   required
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Descrição do Comunicado</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">DescriÃ§Ã£o do Comunicado</label>
                 <textarea 
                   value={newNoticeDesc} 
                   onChange={(e) => setNewNoticeDesc(e.target.value)}
@@ -1010,3 +1010,4 @@ export default function App() {
     </div>
   );
 }
+
