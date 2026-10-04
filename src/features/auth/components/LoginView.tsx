@@ -3,6 +3,7 @@
 import { LoginForm } from './Forms/LoginForm';
 import { LoginHero } from './AuthRight/LoginHero';
 import { authApi } from '../apis/authApi';
+import toast, { Toaster } from 'react-hot-toast';
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -31,16 +32,17 @@ export default function LoginView() {
     
     try {
       const response = await authApi.login(email, password);
-      // Aqui você pode salvar o token via cookies, localStorage, Zustand, etc.
+      
       if (rememberMe) {
         localStorage.setItem('imperial_token', response.token);
       } else {
         sessionStorage.setItem('imperial_token', response.token);
       }
       
+      toast.success('Login realizado com sucesso! 🎉');
       router.push('/dashboard');
     } catch (error: any) {
-      alert(error.message || 'Falha na autenticação. Verifique os dados!');
+      toast.error(error.message || 'Falha na autenticação. Verifique os dados!');
     } finally {
       setIsLoading(false);
     }
@@ -48,6 +50,7 @@ export default function LoginView() {
 
 return (
   <main className="min-h-screen flex bg-white">
+    <Toaster position="top-right" />
     <LoginForm
       email={email}
       password={password}
