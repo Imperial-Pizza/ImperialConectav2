@@ -185,4 +185,4 @@ export interface UpdateProfileResponse {
   profile: UserProfile | null;
 }
 
-export type ProfileTab = 'pessoal' | 'seguranca' | 'contrato' | 'financeiro' | 'frequencia' | 'feedback' | '1on1' | 'documentos' | 'historico';
+export type ProfileTab = 'pessoal' | 'seguranca' | 'contrato' | 'financeiro' | 'frequencia' | 'feedback' | '1on1' | 'documentos';

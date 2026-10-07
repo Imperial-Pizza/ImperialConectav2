@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { AppShell } from '@/layouts/AppShell';
 import { StatusBanner } from '@/components/ui/StatusBanner';
 import { usePerfil } from '@/features/perfil/hooks/usePerfil';
-import { ProfileTab, UpdateProfilePayload } from '@/features/perfil/types';
+import { ProfileTab } from '@/features/perfil/types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   User as UserIcon, 
@@ -15,9 +15,6 @@ import {
   Key, 
   Phone, 
   Clock, 
-  Edit3, 
-  Save, 
-  CheckCircle2,
   Loader2,
   Calendar,
   FileText,
@@ -60,51 +57,10 @@ const StatusBadge = ({ status }: { status?: string | null }) => {
 };
 
 export default function PerfilPage() {
-  const { data: apiData, isLoading, isSaving, error, save } = usePerfil();
+  const { data: apiData, isLoading, error } = usePerfil();
   
   const [profileTab, setProfileTab] = useState<ProfileTab>('pessoal');
-  const [isEditingProfile, setIsEditingProfile] = useState(false);
-  const [successMsg, setSuccessMsg] = useState('');
-  
-  const [editForm, setEditForm] = useState<UpdateProfilePayload>({});
 
-  useEffect(() => {
-    if (apiData?.profile && !isEditingProfile) {
-      setEditForm({
-        sobrenome: apiData.profile.sobrenome || '',
-        nome_social: apiData.profile.nome_social || '',
-        cpf: apiData.profile.cpf || '',
-        rg: apiData.profile.rg || '',
-        telefone: apiData.profile.telefone || '',
-        email_corporativo: apiData.profile.email_corporativo || '',
-        endereco: apiData.profile.endereco || '',
-        data_nascimento: apiData.profile.data_nascimento || '',
-        contato_emergencia_nome: apiData.profile.contato_emergencia_nome || '',
-        contato_emergencia_telefone: apiData.profile.contato_emergencia_telefone || '',
-        contato_emergencia_parentesco: apiData.profile.contato_emergencia_parentesco || '',
-        chave_pix: apiData.profile.chave_pix || '',
-        tipo_chave_pix: apiData.profile.tipo_chave_pix || '',
-        nome_titular: apiData.profile.nome_titular || '',
-        cpf_cnpj_titular: apiData.profile.cpf_cnpj_titular || '',
-        banco_agencia: apiData.profile.banco_agencia || '',
-        banco_conta: apiData.profile.banco_conta || '',
-        tipo_conta: apiData.profile.tipo_conta || '',
-      });
-    }
-  }, [apiData, isEditingProfile]);
-
-  const handleSaveProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!apiData) return;
-    
-    const success = await save(editForm);
-    
-    if (success) {
-      setIsEditingProfile(false);
-      setSuccessMsg('Perfil atualizado com sucesso!');
-      setTimeout(() => setSuccessMsg(''), 4000);
-    }
-  };
 
   if (isLoading) {
     return (
@@ -139,16 +95,7 @@ export default function PerfilPage() {
           </StatusBanner>
         )}
 
-        {successMsg && (
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-emerald-50 border border-emerald-200 text-emerald-700 px-5 py-3 rounded-2xl text-xs font-bold flex items-center gap-2 shadow-sm mb-6"
-          >
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>{successMsg}</span>
-          </motion.div>
-        )}
+
 
         <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm space-y-8 min-h-[600px]">
           
@@ -175,29 +122,11 @@ export default function PerfilPage() {
             </div>
 
             <div className="flex items-center gap-3">
-              {!isEditingProfile ? (
-                <button
-                  onClick={() => setIsEditingProfile(true)}
-                  className="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-all shadow-md shadow-red-600/20 flex items-center gap-2 shrink-0"
-                >
-                  <Edit3 className="w-4 h-4" />
-                  <span>Editar Informações</span>
-                </button>
-              ) : (
-                <button
-                  onClick={handleSaveProfile}
-                  disabled={isSaving}
-                  className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-md shadow-emerald-600/20 flex items-center gap-2 shrink-0 disabled:opacity-50"
-                >
-                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                  <span>{isSaving ? 'Salvando...' : 'Salvar Alterações'}</span>
-                </button>
-              )}
+              {/* O botão de edição foi removido daqui para focar apenas na visualização do prontuário */}
             </div>
           </div>
 
-          {!isEditingProfile ? (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 pt-2">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 pt-2">
               
               <div className="lg:col-span-3 space-y-2 shrink-0">
                 <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400 px-3 mb-2">Navegação do Prontuário</p>
@@ -211,7 +140,6 @@ export default function PerfilPage() {
                   { id: 'feedback', icon: HeartHandshake, label: 'Avaliação & Feedback' },
                   { id: '1on1', icon: MessageSquare, label: '1:1 & Gestão' },
                   { id: 'documentos', icon: FileText, label: 'Documentos' },
-                  { id: 'historico', icon: History, label: 'Histórico / Auditoria' },
                 ].map((tab) => (
                   <button
                     key={tab.id}
@@ -307,18 +235,6 @@ export default function PerfilPage() {
                             </div>
                             <div><span className="text-slate-400 font-semibold block">Última Alteração de Senha</span><span className="font-bold text-slate-800">{formatDate(user.ultima_alteracao_senha) || 'Não informado'}</span></div>
                           </div>
-                        </div>
-                      </div>
-                      
-                      <div className="bg-white border border-slate-200 rounded-2xl p-6">
-                        <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 mb-4">Sessões Ativas</h3>
-                        <div className="flex items-center gap-4 p-4 border border-slate-100 rounded-xl bg-slate-50">
-                          <Smartphone className="w-6 h-6 text-slate-400" />
-                          <div className="flex-1">
-                            <p className="text-xs font-bold text-slate-800">Sessão Atual (Este dispositivo)</p>
-                            <p className="text-[10px] text-slate-500">Logado desde {formatDate(user.ultimo_acesso)}</p>
-                          </div>
-                          <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-1 rounded-md font-bold">Ativo</span>
                         </div>
                       </div>
                     </motion.div>
@@ -512,132 +428,12 @@ export default function PerfilPage() {
                     </motion.div>
                   )}
 
-                  {profileTab === 'historico' && (
-                    <motion.div key="historico" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="space-y-6">
-                      <div className="bg-white border border-slate-200 rounded-2xl p-6">
-                        <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 mb-4 flex items-center gap-2">
-                          <History className="w-4 h-4 text-slate-500" /> Trilha de Auditoria
-                        </h3>
-                        <div className="space-y-4">
-                          <div className="flex gap-4 p-4 border border-slate-100 rounded-xl bg-slate-50">
-                            <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center shrink-0">
-                              <AlertCircle className="w-4 h-4 text-slate-500" />
-                            </div>
-                            <div className="flex-1 text-xs">
-                              <p className="font-bold text-slate-800">Sistema</p>
-                              <p className="text-slate-600 mt-0.5">Perfil atualizado (Dados importados).</p>
-                              <p className="text-[10px] text-slate-400 mt-1">{formatDate(profile?.updated_at || profile?.created_at)}</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
+
 
                 </AnimatePresence>
               </div>
 
             </div>
-          ) : (
-            <form onSubmit={handleSaveProfile} className="space-y-8 pt-2">
-              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-6">
-                <h3 className="text-sm font-black text-slate-900 uppercase tracking-wide border-b border-slate-200 pb-3 flex items-center gap-2">
-                  <UserIcon className="w-4 h-4 text-red-600" /> Dados Pessoais
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Sobrenome</label>
-                    <input type="text" value={editForm.sobrenome || ''} onChange={(e) => setEditForm({...editForm, sobrenome: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:border-red-600" required />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Nome Social / Apelido</label>
-                    <input type="text" value={editForm.nome_social || ''} onChange={(e) => setEditForm({...editForm, nome_social: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:border-red-600" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Data de Nascimento</label>
-                    <input type="date" value={editForm.data_nascimento || ''} onChange={(e) => setEditForm({...editForm, data_nascimento: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:border-red-600" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">CPF</label>
-                    <input type="text" value={editForm.cpf || ''} onChange={(e) => setEditForm({...editForm, cpf: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:border-red-600" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">RG</label>
-                    <input type="text" value={editForm.rg || ''} onChange={(e) => setEditForm({...editForm, rg: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:border-red-600" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-6">
-                <h3 className="text-sm font-black text-slate-900 uppercase tracking-wide border-b border-slate-200 pb-3 flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-indigo-600" /> Contato & Endereço
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Telefone Pessoal</label>
-                    <input type="text" value={editForm.telefone || ''} onChange={(e) => setEditForm({...editForm, telefone: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:border-red-600" required />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">E-mail Corporativo</label>
-                    <input type="email" value={editForm.email_corporativo || ''} onChange={(e) => setEditForm({...editForm, email_corporativo: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:border-red-600" />
-                  </div>
-                  <div className="md:col-span-3">
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Endereço Completo</label>
-                    <input type="text" value={editForm.endereco || ''} onChange={(e) => setEditForm({...editForm, endereco: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:border-red-600" placeholder="Rua, Número, Bairro, Cidade - UF" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-6">
-                <h3 className="text-sm font-black text-slate-900 uppercase tracking-wide border-b border-slate-200 pb-3 flex items-center gap-2">
-                  <CreditCard className="w-4 h-4 text-emerald-600" /> Financeiro & PIX
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Chave PIX</label>
-                    <input type="text" value={editForm.chave_pix || ''} onChange={(e) => setEditForm({...editForm, chave_pix: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:border-red-600" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Tipo da Chave PIX</label>
-                    <select value={editForm.tipo_chave_pix || ''} onChange={(e) => setEditForm({...editForm, tipo_chave_pix: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:border-red-600">
-                      <option value="">Selecione...</option>
-                      <option value="CPF/CNPJ">CPF/CNPJ</option>
-                      <option value="E-mail">E-mail</option>
-                      <option value="Telefone">Telefone</option>
-                      <option value="Aleatória">Chave Aleatória</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-6">
-                <h3 className="text-sm font-black text-slate-900 uppercase tracking-wide border-b border-slate-200 pb-3 flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-rose-600" /> Contato de Emergência
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Nome (Emergência)</label>
-                    <input type="text" value={editForm.contato_emergencia_nome || ''} onChange={(e) => setEditForm({...editForm, contato_emergencia_nome: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:border-red-600" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Telefone (Emergência)</label>
-                    <input type="text" value={editForm.contato_emergencia_telefone || ''} onChange={(e) => setEditForm({...editForm, contato_emergencia_telefone: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:border-red-600" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Grau de Parentesco</label>
-                    <input type="text" value={editForm.contato_emergencia_parentesco || ''} onChange={(e) => setEditForm({...editForm, contato_emergencia_parentesco: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:border-red-600" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 sticky bottom-0 bg-white p-4 -mx-4 shadow-[0_-10px_20px_rgba(0,0,0,0.02)]">
-                <button type="button" onClick={() => setIsEditingProfile(false)} className="px-5 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200 transition-colors">Cancelar</button>
-                <button type="submit" disabled={isSaving} className="px-6 py-2.5 rounded-xl bg-red-600 text-white text-xs font-bold shadow-md hover:bg-red-700 transition-colors disabled:opacity-50">
-                  {isSaving ? 'Salvando...' : 'Salvar Alterações'}
-                </button>
-              </div>
-            </form>
-          )}
 
         </div>
       </div>
