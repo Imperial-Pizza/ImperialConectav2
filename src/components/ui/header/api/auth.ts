@@ -19,6 +19,16 @@ export async function getMe() {
   if (!response.ok) {
     const errorText = await response.text();
     console.error('Erro na API auth/me:', response.status, errorText);
+    
+    // Se o token for inválido (400) ou não autorizado (401), desloga o usuário
+    if (response.status === 400 || response.status === 401) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('imperial_token');
+        sessionStorage.removeItem('imperial_token');
+        window.location.href = '/'; // Ou '/login' dependendo da rota de entrada
+      }
+    }
+    
     throw new Error('Failed to fetch user data');
   }
 
