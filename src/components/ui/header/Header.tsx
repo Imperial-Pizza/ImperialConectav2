@@ -1,6 +1,7 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import { useNotifications } from './hooks/notifications';
 import { useUser } from './hooks/user';
 
@@ -11,6 +12,8 @@ import {
   Sparkles,
   Megaphone,
   LogOut,
+  User as UserIcon,
+  Target,
 } from 'lucide-react';
 
 interface User {
@@ -30,9 +33,10 @@ interface HeaderProps {
 
   onGoToHub: () => void;
 
-  onAddBenefit: () => void;
-  onAddEvent: () => void;
-  onAddNotice: () => void;
+  // Ações opcionais: só aparecem no dropdown quando informadas (ex.: Hub)
+  onAddBenefit?: () => void;
+  onAddEvent?: () => void;
+  onAddNotice?: () => void;
 
   onLogout?: () => void;
 }
@@ -51,6 +55,7 @@ export function Header({
 }: HeaderProps) {
   const { notifications } = useNotifications();
   const { user, isLoading } = useUser();
+  const router = useRouter();
 
   if (isLoading || !user) {
     return <header className="w-full h-[76px] bg-white/90 backdrop-blur-md sticky top-0 z-40 shadow-sm border-b border-slate-200/80 flex items-center px-6"><div className="w-full animate-pulse bg-slate-100 h-10 rounded-xl"></div></header>;
@@ -246,41 +251,81 @@ export function Header({
                     </p>
                   </div>
 
-                  {/* Add Benefit */}
+                  {/* Meu Perfil Completo */}
                   <button
-                    onClick={onAddBenefit}
+                    onClick={() => {
+                      onToggleUserDropdown();
+                      router.push('/perfil');
+                    }}
                     className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors"
                   >
-                    <Plus className="w-4 h-4 text-red-600" />
+                    <UserIcon className="w-4 h-4 text-red-600" />
 
                     <span>
-                      Adicionar Carrossel Benefício
+                      Meu Perfil Completo
                     </span>
                   </button>
+
+                  {/* Central de Metas */}
+                  <button
+                    onClick={() => {
+                      onToggleUserDropdown();
+                      router.push('/metas');
+                    }}
+                    className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors"
+                  >
+                    <Target className="w-4 h-4 text-rose-600" />
+
+                    <span>
+                      Central de Metas
+                    </span>
+                  </button>
+
+                  {(onAddBenefit || onAddEvent || onAddNotice) && (
+                    <div className="border-t border-slate-100 my-1" />
+                  )}
+
+                  {/* Add Benefit */}
+                  {onAddBenefit && (
+                    <button
+                      onClick={onAddBenefit}
+                      className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors"
+                    >
+                      <Plus className="w-4 h-4 text-red-600" />
+
+                      <span>
+                        Adicionar Carrossel Benefício
+                      </span>
+                    </button>
+                  )}
 
                   {/* Add Event */}
-                  <button
-                    onClick={onAddEvent}
-                    className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors"
-                  >
-                    <Sparkles className="w-4 h-4 text-amber-500" />
+                  {onAddEvent && (
+                    <button
+                      onClick={onAddEvent}
+                      className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors"
+                    >
+                      <Sparkles className="w-4 h-4 text-amber-500" />
 
-                    <span>
-                      Adicionar Carrossel Evento
-                    </span>
-                  </button>
+                      <span>
+                        Adicionar Carrossel Evento
+                      </span>
+                    </button>
+                  )}
 
                   {/* Add Notice */}
-                  <button
-                    onClick={onAddNotice}
-                    className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors"
-                  >
-                    <Megaphone className="w-4 h-4 text-blue-600" />
+                  {onAddNotice && (
+                    <button
+                      onClick={onAddNotice}
+                      className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors"
+                    >
+                      <Megaphone className="w-4 h-4 text-blue-600" />
 
-                    <span>
-                      Novo Aviso
-                    </span>
-                  </button>
+                      <span>
+                        Novo Aviso
+                      </span>
+                    </button>
+                  )}
 
                   {/* Divider */}
                   <div className="border-t border-slate-100 my-1" />
