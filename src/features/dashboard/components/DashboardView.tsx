@@ -30,6 +30,8 @@ import { WelcomeSection } from './welcome/WelcomeSection';
 import BeneficiosSection from './Beneficios/BeneficiosSection';
 import ModulesSection from './Modules/ModulesSection';
 import EventosSection from './eventos/EventosSection';
+import AvisosSection from './Avisos/AvisosSection';
+import Footer from './Footer/Footer';
 import { logout } from '@/components/ui/header/api/auth';
 
 export default function DashboardView() {
@@ -170,9 +172,9 @@ export default function DashboardView() {
       status: 'Registrado com Sucesso'
     };
     setPontoLogs([newLog, ...pontoLogs]);
-    if (pontoStatus === 'Registrar Entrada') setPontoStatus('Registrar SaÃ­da AlmoÃ§o');
-    else if (pontoStatus === 'Registrar SaÃ­da AlmoÃ§o') setPontoStatus('Retorno AlmoÃ§o');
-    else if (pontoStatus === 'Retorno AlmoÃ§o') setPontoStatus('Registrar SaÃ­da');
+    if (pontoStatus === 'Registrar Entrada') setPontoStatus('Registrar Saída Almoço');
+    else if (pontoStatus === 'Registrar Saída Almoço') setPontoStatus('Retorno Almoço');
+    else if (pontoStatus === 'Retorno Almoço') setPontoStatus('Registrar Saída');
     else setPontoStatus('Ponto Encerrado');
   };
 
@@ -268,52 +270,11 @@ export default function DashboardView() {
 />
 
             {/* SEÃ‡ÃƒO 3: QUADRO DE AVISOS (Bottom Session) */}
-            <motion.div 
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="bg-white border border-slate-200/80 rounded-3xl p-8 shadow-sm space-y-6"
-            >
-              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-red-50 text-red-600 border border-red-200 flex items-center justify-center shadow-inner">
-                    <Megaphone className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="font-black text-lg text-slate-900">Quadro de Avisos da Imperial Pizza</h3>
-                    <p className="text-xs text-slate-500">Comunicados oficiais e avisos importantes para a equipe e colaboradores</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {notices.map(notice => (
-                  <div key={notice.id} className="bg-slate-50 border border-slate-200/80 rounded-2xl p-5 space-y-3 flex flex-col justify-between hover:border-red-200 transition-colors">
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
-                          notice.tag === 'Urgente' ? 'bg-red-50 text-red-600 border-red-200' :
-                          notice.tag === 'Geral' ? 'bg-indigo-50 text-indigo-600 border-indigo-200' :
-                          'bg-amber-50 text-amber-600 border-amber-200'
-                        }`}>
-                          {notice.tag}
-                        </span>
-                        <span className="text-[10px] text-slate-400">{notice.time}</span>
-                      </div>
-                      <h4 className="text-sm font-bold text-slate-900">{notice.title}</h4>
-                      <p className="text-xs text-slate-600 leading-relaxed">{notice.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
+<AvisosSection notices={notices} />
       </main>
 
       {/* Footer */}
-      <footer className="w-full border-t border-slate-200/80 bg-white py-6 px-6 text-center text-xs text-slate-500 space-y-1 shadow-inner">
-        <p className="font-bold text-slate-700">IMPERIAL PIZZA â€¢ SISTEMA DE OPERAÃ‡Ã•ES V4.0</p>
-        <p>Â© 2026 Imperial Pizza. Todos os direitos reservados.</p>
-      </footer>
+<Footer />
 
     </div>
   );
