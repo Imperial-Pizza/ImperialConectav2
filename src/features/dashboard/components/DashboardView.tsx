@@ -27,6 +27,8 @@ import {
 } from 'lucide-react';
 import { Header } from '@/components/ui/header/Header';
 import { WelcomeSection } from './welcome/WelcomeSection';
+import BeneficiosSection from './Beneficios/BeneficiosSection';
+import ModulesSection from './Modules/ModulesSection';
 import { logout } from '@/components/ui/header/api/auth';
 
 export default function DashboardView() {
@@ -68,13 +70,6 @@ export default function DashboardView() {
     { id: 4, user: 'Sistema', action: 'BACKUP_AUTOMATIC', module: 'Database', time: '14:00:00', ip: 'localhost' },
   ]);
 
-  // Benefits data with custom gradients
-  const [benefits, setBenefits] = useState([
-    { id: 1, title: 'Atendimento Ãgil', desc: 'Foco total na experiÃªncia com comandas digitais e suporte contÃ­nuo.', gradient: 'from-blue-600 via-indigo-600 to-violet-600', icon: UtensilsCrossed },
-    { id: 2, title: 'KDS & Forno Inteligente', desc: 'Controle de tempo de forno e produÃ§Ã£o de pizzas em tempo real.', gradient: 'from-red-600 via-rose-600 to-orange-500', icon: ChefHat },
-    { id: 3, title: 'GestÃ£o de Estoque', desc: 'Rastreabilidade completa de insumos, massas e fornecedores.', gradient: 'from-emerald-600 via-teal-600 to-cyan-600', icon: Package },
-    { id: 4, title: 'Controle Financeiro', desc: 'Caixa diÃ¡rio, relatÃ³rios detalhados e faturamento automatizado.', gradient: 'from-amber-500 via-orange-600 to-red-600', icon: DollarSign },
-  ]);
 
   // Events carousel data
   const [events, setEvents] = useState([
@@ -92,26 +87,9 @@ export default function DashboardView() {
     { rank: 5, name: 'Osana TomÃ¡s', role: 'Montador', count: '60 pizzas' },
   ];
 
-  const benefitsScrollRef = useRef(null);
-  const eventsScrollRef = useRef(null);
+  const eventsScrollRef = useRef<HTMLDivElement>(null);
 
-  const scrollBenefits = (direction) => {
-    if (benefitsScrollRef.current) {
-      const { scrollLeft, clientWidth, scrollWidth } = benefitsScrollRef.current;
-      const scrollAmount = clientWidth / 2;
-      if (direction === 'right') {
-        if (scrollLeft + clientWidth >= scrollWidth - 10) {
-          benefitsScrollRef.current.scrollTo({ left: 0, behavior: 'smooth' });
-        } else {
-          benefitsScrollRef.current.scrollTo({ left: scrollLeft + scrollAmount, behavior: 'smooth' });
-        }
-      } else {
-        benefitsScrollRef.current.scrollTo({ left: scrollLeft - scrollAmount, behavior: 'smooth' });
-      }
-    }
-  };
-
-  const scrollEvents = (direction) => {
+  const scrollEvents = (direction: 'left' | 'right') => {
     if (eventsScrollRef.current) {
       const { scrollLeft, clientWidth, scrollWidth } = eventsScrollRef.current;
       const scrollAmount = 280;
@@ -133,7 +111,6 @@ export default function DashboardView() {
     }, 50);
 
     const autoScrollInterval = setInterval(() => {
-      scrollBenefits('right');
       scrollEvents('right');
     }, 3500);
 
@@ -151,16 +128,6 @@ export default function DashboardView() {
       'from-pink-600 via-rose-600 to-red-600',
       'from-amber-500 via-yellow-600 to-emerald-600'
     ];
-    setBenefits([...benefits, {
-      id: Date.now(),
-      title: newBenefitTitle,
-      desc: newBenefitDesc || 'Novo benefÃ­cio cadastrado no sistema.',
-      gradient: gradients[Math.floor(Math.random() * gradients.length)],
-      icon: Sparkles
-    }]);
-    setNewBenefitTitle('');
-    setNewBenefitDesc('');
-    setShowAddBenefitModal(false);
   };
 
   const handleAddEvent = (e) => {
@@ -281,134 +248,17 @@ export default function DashboardView() {
 
       {/* Main content body */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-8 relative z-10 space-y-10">
-        
-        {activeModule === 'hub' ? (
-          <>
-            {/* Welcome Banner & Original User Profile Card Section */}
-<WelcomeSection />
+        {/* Welcome Banner & Original User Profile Card Section */}
+        <WelcomeSection />
 
             {/* SEÃ‡ÃƒO 1: CARROSSEL DE BENEFÃCIOS */}
-            <div className="space-y-4 pt-2">
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] uppercase tracking-wider bg-red-50 text-red-600 border border-red-200 px-2.5 py-0.5 rounded-full font-bold">React Bits Showcase</span>
-                  <h2 className="text-xl font-black text-slate-900 tracking-tight mt-1">Pilares da ExcelÃªncia Operacional</h2>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button 
-                    onClick={() => scrollBenefits('left')}
-                    className="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors shadow-sm"
-                  >
-                    <ChevronLeft className="w-5 h-5" />
-                  </button>
-                  <button 
-                    onClick={() => scrollBenefits('right')}
-                    className="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors shadow-sm"
-                  >
-                    <ChevronRight className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Benefits Horizontal Scroll Container */}
-              <div 
-                ref={benefitsScrollRef}
-                className="flex gap-5 overflow-x-auto pb-4 pt-1 px-1 no-scrollbar scroll-smooth"
-                style={{ scrollbarWidth: 'none' }}
-              >
-                {benefits.map((item) => {
-                  const IconComp = item.icon || Sparkles;
-                  return (
-                    <motion.div 
-                      key={item.id}
-                      whileHover={{ y: -4 }}
-                      className={`min-w-[320px] sm:min-w-[380px] h-44 rounded-3xl bg-gradient-to-br ${item.gradient} p-6 text-white shadow-lg flex flex-col justify-between relative overflow-hidden shrink-0`}
-                    >
-                      <div className="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none" />
-                      <div className="flex items-start justify-between relative z-10">
-                        <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-inner">
-                          <IconComp className="w-6 h-6 text-white" />
-                        </div>
-                        <span className="text-[10px] uppercase font-bold tracking-widest bg-white/20 backdrop-blur-md px-3 py-1 rounded-full border border-white/20">
-                          Destaque
-                        </span>
-                      </div>
-                      <div className="space-y-1 relative z-10">
-                        <h3 className="text-lg font-black tracking-tight">{item.title}</h3>
-                        <p className="text-xs text-white/90 font-medium line-clamp-2 leading-relaxed">{item.desc}</p>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </div>
+<BeneficiosSection />
 
             {/* Hub Modules Grid with Search Input */}
-            <div className="space-y-4 pt-2">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-xl font-black text-slate-900 tracking-tight">MÃ³dulos do Sistema</h2>
-                  <span className="text-xs text-slate-500 font-medium">{filteredModules.length} de {modules.length} mÃ³dulos disponÃ­veis</span>
-                </div>
-                
-                <div className="relative w-full sm:w-72">
-                  <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
-                    <Search className="w-4 h-4" />
-                  </span>
-                  <input
-                    type="text"
-                    value={moduleSearchQuery}
-                    onChange={(e) => setModuleSearchQuery(e.target.value)}
-                    placeholder="Pesquisar mÃ³dulos..."
-                    className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-2xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:border-red-600 shadow-sm transition-all"
-                  />
-                </div>
-              </div>
-
-              {filteredModules.length === 0 ? (
-                <div className="bg-white border border-slate-200 rounded-3xl p-12 text-center space-y-2">
-                  <p className="text-sm font-bold text-slate-800">Nenhum mÃ³dulo encontrado</p>
-                  <p className="text-xs text-slate-500">Tente buscar por outro termo no campo de pesquisa acima.</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredModules.map((mod, index) => {
-                    const IconComp = mod.icon;
-                    return (
-                      <motion.div
-                        key={mod.id}
-                        initial={{ y: 20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ duration: 0.4, delay: index * 0.05 }}
-                        whileHover={{ y: -4, scale: 1.01 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => setActiveModule(mod.id)}
-                        className="bg-white border border-slate-200/80 rounded-3xl p-6 shadow-sm hover:shadow-md cursor-pointer transition-all flex flex-col justify-between space-y-6 group"
-                      >
-                        <div className="space-y-4">
-                          <div className={`w-12 h-12 rounded-2xl bg-gradient-to-tr ${mod.color} text-white flex items-center justify-center shadow-md shadow-red-600/10 group-hover:scale-110 transition-transform`}>
-                            <IconComp className="w-6 h-6" />
-                          </div>
-                          <div className="space-y-1">
-                            <h3 className="text-lg font-bold text-slate-900 group-hover:text-red-600 transition-colors">
-                              {mod.name}
-                            </h3>
-                            <p className="text-xs text-slate-500 leading-relaxed font-normal">
-                              {mod.desc}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-700">
-                          <span className="text-red-600">Acessar mÃ³dulo</span>
-                          <ArrowRight className="w-4 h-4 text-red-600 group-hover:translate-x-1 transition-transform" />
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+<ModulesSection
+  modules={modules}
+  onSelectModule={setActiveModule}
+/>
 
             {/* SEÃ‡ÃƒO 2: CARROSSEL DE EVENTOS & TOP MONTADORES */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-2">
@@ -534,188 +384,6 @@ export default function DashboardView() {
                 ))}
               </div>
             </motion.div>
-          </>
-        ) : activeModule === 'logs' ? (
-          /* Logs Module View */
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="space-y-6"
-          >
-            <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm space-y-6">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 border border-indigo-200 flex items-center justify-center shadow-inner">
-                    <FileText className="w-7 h-7" />
-                  </div>
-                  <div>
-                    <span className="text-[10px] bg-indigo-50 text-indigo-600 border border-indigo-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">Auditoria</span>
-                    <h2 className="text-2xl font-black text-slate-900 mt-1">Logs do Sistema</h2>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setActiveModule('hub')}
-                  className="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-all shadow-sm"
-                >
-                  Voltar ao Hub
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                <p className="text-xs text-slate-500 font-medium">Registro em tempo real de acessos, modificaÃ§Ãµes e auditorias de seguranÃ§a na Imperial Pizza.</p>
-                <div className="border border-slate-200 rounded-2xl overflow-hidden">
-                  <table className="w-full text-left text-xs">
-                    <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold">
-                      <tr>
-                        <th className="p-3.5">UsuÃ¡rio / Sistema</th>
-                        <th className="p-3.5">AÃ§Ã£o Realizada</th>
-                        <th className="p-3.5">MÃ³dulo</th>
-                        <th className="p-3.5">HorÃ¡rio</th>
-                        <th className="p-3.5">EndereÃ§o IP</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {systemLogs.map(log => (
-                        <tr key={log.id} className="hover:bg-slate-50 transition-colors">
-                          <td className="p-3.5 font-bold text-slate-900">{log.user}</td>
-                          <td className="p-3.5 font-mono text-indigo-600">{log.action}</td>
-                          <td className="p-3.5 text-slate-600">{log.module}</td>
-                          <td className="p-3.5 text-slate-500">{log.time}</td>
-                          <td className="p-3.5 text-slate-400 font-mono text-[11px]">{log.ip}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        ) : activeModule === 'ponto' ? (
-          /* Batida de Ponto Module View */
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="space-y-6"
-          >
-            <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm space-y-6">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-teal-50 text-teal-600 border border-teal-200 flex items-center justify-center shadow-inner">
-                    <Fingerprint className="w-7 h-7" />
-                  </div>
-                  <div>
-                    <span className="text-[10px] bg-teal-50 text-teal-600 border border-teal-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">Recursos Humanos</span>
-                    <h2 className="text-2xl font-black text-slate-900 mt-1">Batida de Ponto Digital</h2>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setActiveModule('hub')}
-                  className="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-all shadow-sm"
-                >
-                  Voltar ao Hub
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="bg-gradient-to-br from-teal-900 to-emerald-900 text-white p-6 rounded-3xl shadow-md flex flex-col justify-between space-y-6">
-                  <div className="space-y-2">
-                    <span className="text-[10px] uppercase font-bold tracking-widest bg-white/20 px-3 py-1 rounded-full">Terminal Seguro</span>
-                    <h3 className="text-xl font-black">Controle de Jornada</h3>
-                    <p className="text-xs text-slate-300">Registre sua entrada, intervalos e saÃ­da com total conformidade trabalhista.</p>
-                  </div>
-                  <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/20 text-center space-y-3">
-                    <p className="text-xs text-teal-200 font-bold">Status Atual:</p>
-                    <p className="text-lg font-black">{pontoStatus}</p>
-                    <button 
-                      onClick={handleRegistrarPonto}
-                      disabled={pontoStatus === 'Ponto Encerrado'}
-                      className="w-full py-3 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all shadow-lg"
-                    >
-                      {pontoStatus === 'Ponto Encerrado' ? 'Jornada Finalizada' : 'Confirmar Ponto Agora'}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="lg:col-span-2 space-y-4">
-                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-wide">Registros de Ponto de Hoje</h3>
-                  <div className="border border-slate-200 rounded-2xl overflow-hidden">
-                    <table className="w-full text-left text-xs">
-                      <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold">
-                        <tr>
-                          <th className="p-3.5">Tipo de Registro</th>
-                          <th className="p-3.5">HorÃ¡rio</th>
-                          <th className="p-3.5">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        {pontoLogs.map(log => (
-                          <tr key={log.id} className="hover:bg-slate-50 transition-colors">
-                            <td className="p-3.5 font-bold text-slate-900">{log.type}</td>
-                            <td className="p-3.5 text-slate-600">{log.time}</td>
-                            <td className="p-3.5 text-emerald-600 font-bold flex items-center gap-1.5">
-                              <CheckCircle2 className="w-3.5 h-3.5" /> {log.status}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        ) : (
-          /* Active Module View */
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="space-y-8"
-          >
-            <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm space-y-6">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-red-50 text-red-600 border border-red-200 flex items-center justify-center shadow-inner">
-                    <Pizza className="w-7 h-7" />
-                  </div>
-                  <div>
-                    <span className="text-[10px] bg-red-50 text-red-600 border border-red-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">MÃ³dulo Ativo</span>
-                    <h2 className="text-2xl font-black text-slate-900 capitalize mt-1">{activeModule}</h2>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setActiveModule('hub')}
-                  className="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-all shadow-sm"
-                >
-                  Voltar para o Hub
-                </button>
-              </div>
-
-              <div className="py-12 text-center space-y-4">
-                <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto border border-emerald-200">
-                  <CheckCircle2 className="w-8 h-8" />
-                </div>
-                <div className="space-y-2 max-w-md mx-auto">
-                  <h3 className="text-lg font-bold text-slate-900">MÃ³dulo {activeModule} Carregado com Sucesso</h3>
-                  <p className="text-xs text-slate-500 leading-relaxed">
-                    Este ambiente estÃ¡ conectado ao ecossistema da Imperial Pizza. Todos os dados e registros deste mÃ³dulo estÃ£o sincronizados em tempo real.
-                  </p>
-                </div>
-                <div className="pt-4">
-                  <button
-                    onClick={() => setActiveModule('hub')}
-                    className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-red-600/20"
-                  >
-                    Retornar ao Hub de MÃ³dulos
-                  </button>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-
       </main>
 
       {/* Footer */}
@@ -723,111 +391,6 @@ export default function DashboardView() {
         <p className="font-bold text-slate-700">IMPERIAL PIZZA â€¢ SISTEMA DE OPERAÃ‡Ã•ES V4.0</p>
         <p>Â© 2026 Imperial Pizza. Todos os direitos reservados.</p>
       </footer>
-
-      {/* Modal: Adicionar BenefÃ­cio */}
-      {showAddBenefitModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-slate-200">
-            <h3 className="text-lg font-black text-slate-900">Adicionar BenefÃ­cio ao Carrossel</h3>
-            <form onSubmit={handleAddBenefit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">TÃ­tulo do BenefÃ­cio</label>
-                <input 
-                  type="text" 
-                  value={newBenefitTitle} 
-                  onChange={(e) => setNewBenefitTitle(e.target.value)}
-                  placeholder="Ex: Entrega Expressa" 
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-red-600"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">DescriÃ§Ã£o</label>
-                <textarea 
-                  value={newBenefitDesc} 
-                  onChange={(e) => setNewBenefitDesc(e.target.value)}
-                  placeholder="Explique o benefÃ­cio..." 
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-red-600 h-20 resize-none"
-                />
-              </div>
-              <div className="flex justify-end gap-2 pt-2">
-                <button type="button" onClick={() => setShowAddBenefitModal(false)} className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold">Cancelar</button>
-                <button type="submit" className="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-bold shadow-md">Adicionar</button>
-              </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
-
-      {/* Modal: Adicionar Evento */}
-      {showAddEventModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-slate-200">
-            <h3 className="text-lg font-black text-slate-900">Adicionar Evento Ã  ProgramaÃ§Ã£o</h3>
-            <form onSubmit={handleAddEvent} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">TÃ­tulo do Evento</label>
-                <input 
-                  type="text" 
-                  value={newEventTitle} 
-                  onChange={(e) => setNewEventTitle(e.target.value)}
-                  placeholder="Ex: Workshop de Massas" 
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-red-600"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">DescriÃ§Ã£o</label>
-                <textarea 
-                  value={newEventDesc} 
-                  onChange={(e) => setNewEventDesc(e.target.value)}
-                  placeholder="Detalhes do evento..." 
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-red-600 h-20 resize-none"
-                />
-              </div>
-              <div className="flex justify-end gap-2 pt-2">
-                <button type="button" onClick={() => setShowAddEventModal(false)} className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold">Cancelar</button>
-                <button type="submit" className="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-bold shadow-md">Adicionar Evento</button>
-              </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
-
-      {/* Modal: Adicionar Aviso no Quadro */}
-      {showAddNoticeModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-slate-200">
-            <h3 className="text-lg font-black text-slate-900">Publicar Novo Aviso</h3>
-            <form onSubmit={handleAddNotice} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">TÃ­tulo do Aviso</label>
-                <input 
-                  type="text" 
-                  value={newNoticeTitle} 
-                  onChange={(e) => setNewNoticeTitle(e.target.value)}
-                  placeholder="Ex: ManutenÃ§Ã£o Preventiva" 
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-red-600"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">DescriÃ§Ã£o do Comunicado</label>
-                <textarea 
-                  value={newNoticeDesc} 
-                  onChange={(e) => setNewNoticeDesc(e.target.value)}
-                  placeholder="Detalhes do aviso..." 
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-red-600 h-20 resize-none"
-                />
-              </div>
-              <div className="flex justify-end gap-2 pt-2">
-                <button type="button" onClick={() => setShowAddNoticeModal(false)} className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold">Cancelar</button>
-                <button type="submit" className="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-bold shadow-md">Publicar</button>
-              </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
 
     </div>
   );
