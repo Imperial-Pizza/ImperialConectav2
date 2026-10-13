@@ -122,9 +122,12 @@ export function Header({
           ================================================== */}
           <div className="relative">
             <button
-              onClick={onToggleNotifications}
-              className="relative w-10 h-10 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 transition-all shadow-sm"
-              aria-label="Abrir notificações"
+              onClick={() => {
+                // onToggleNotifications();
+              }}
+              className="relative w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-600 transition-all shadow-sm cursor-not-allowed"
+              style={{ cursor: 'not-allowed' }}
+              aria-label="Notificações desativadas"
             >
               <Bell className="w-4 h-4 text-slate-700" />
 
@@ -204,7 +207,8 @@ export function Header({
           <div className="relative">
             <button
               onClick={onToggleUserDropdown}
-              className="flex items-center gap-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl transition-all shadow-sm"
+              className="flex items-center gap-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl transition-all shadow-sm cursor-pointer"
+              style={{ cursor: 'pointer' }}
               aria-label="Abrir menu do usuário"
             >
               <div className="w-7 h-7 rounded-lg bg-red-600 text-white font-bold text-xs flex items-center justify-center">
@@ -254,10 +258,11 @@ export function Header({
                   {/* Meu Perfil Completo */}
                   <button
                     onClick={() => {
-                      onToggleUserDropdown();
-                      router.push('/perfil');
+                      // onToggleUserDropdown();
+                      // router.push('/perfil');
                     }}
-                    className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors"
+                    className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors cursor-not-allowed"
+                    style={{ cursor: 'not-allowed' }}
                   >
                     <UserIcon className="w-4 h-4 text-red-600" />
 
@@ -269,10 +274,11 @@ export function Header({
                   {/* Central de Metas */}
                   <button
                     onClick={() => {
-                      onToggleUserDropdown();
-                      router.push('/metas');
+                      // onToggleUserDropdown();
+                      // router.push('/metas');
                     }}
-                    className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors"
+                    className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors cursor-not-allowed"
+                    style={{ cursor: 'not-allowed' }}
                   >
                     <Target className="w-4 h-4 text-rose-600" />
 
@@ -288,8 +294,11 @@ export function Header({
                   {/* Add Benefit */}
                   {onAddBenefit && (
                     <button
-                      onClick={onAddBenefit}
-                      className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors"
+                      onClick={() => {
+                        // onAddBenefit();
+                      }}
+                      className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors cursor-not-allowed"
+                      style={{ cursor: 'not-allowed' }}
                     >
                       <Plus className="w-4 h-4 text-red-600" />
 
@@ -302,8 +311,11 @@ export function Header({
                   {/* Add Event */}
                   {onAddEvent && (
                     <button
-                      onClick={onAddEvent}
-                      className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors"
+                      onClick={() => {
+                        // onAddEvent();
+                      }}
+                      className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors cursor-not-allowed"
+                      style={{ cursor: 'not-allowed' }}
                     >
                       <Sparkles className="w-4 h-4 text-amber-500" />
 
@@ -316,8 +328,11 @@ export function Header({
                   {/* Add Notice */}
                   {onAddNotice && (
                     <button
-                      onClick={onAddNotice}
-                      className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors"
+                      onClick={() => {
+                        // onAddNotice();
+                      }}
+                      className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors cursor-not-allowed"
+                      style={{ cursor: 'not-allowed' }}
                     >
                       <Megaphone className="w-4 h-4 text-blue-600" />
 
@@ -333,7 +348,8 @@ export function Header({
                   {/* Logout */}
                   <button
                     onClick={onLogout}
-                    className="w-full text-left px-4 py-2.5 text-xs font-medium text-red-600 hover:bg-red-50 flex items-center gap-2.5 transition-colors"
+                    className="w-full text-left px-4 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-600 hover:text-white flex items-center gap-2.5 transition-colors cursor-pointer"
+                    style={{ cursor: 'pointer' }}
                   >
                     <LogOut className="w-4 h-4" />
 

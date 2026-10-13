@@ -37,24 +37,7 @@ const formatDate = (dateString?: string | null) => {
   return date.toLocaleDateString('pt-BR');
 };
 
-const StatusBadge = ({ status }: { status?: string | null }) => {
-  if (!status) return <span className="text-[10px] bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-full font-bold">Desconhecido</span>;
-  
-  const colors: Record<string, string> = {
-    'Ativo': 'bg-emerald-50 text-emerald-600 border border-emerald-200',
-    'Férias': 'bg-amber-50 text-amber-600 border border-amber-200',
-    'Afastado': 'bg-orange-50 text-orange-600 border border-orange-200',
-    'Desligado': 'bg-red-50 text-red-600 border border-red-200',
-  };
-  
-  const colorClass = colors[status] || 'bg-slate-50 text-slate-600 border border-slate-200';
-  
-  return (
-    <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold tracking-wider uppercase ${colorClass}`}>
-      {status}
-    </span>
-  );
-};
+
 
 export default function PerfilPage() {
   const { data: apiData, isLoading, error } = usePerfil();
@@ -105,19 +88,10 @@ export default function PerfilPage() {
                 {user.name.charAt(0)}
               </div>
               <div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <StatusBadge status={profile?.status_funcionario || 'Ativo'} />
-                  <span className="text-[10px] bg-red-50 text-red-600 border border-red-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider mb-1">
-                    Setor: {user.sector || 'Não definido'}
-                  </span>
-                  <span className="text-[10px] bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-full font-bold mb-1">
-                    ID: #{user.id}
-                  </span>
-                </div>
                 <h2 className="text-2xl font-black text-slate-900 mt-1">
-                  {profile?.nome_social || user.name} {profile?.sobrenome || ''}
+                  {profile?.nome_social || user.name} {profile?.sobrenome && profile.sobrenome !== 'string' ? profile.sobrenome : ''}
                 </h2>
-                <p className="text-xs text-slate-500">{profile?.funcao_principal || user.role}</p>
+                <p className="text-xs text-slate-500 font-medium">{profile?.funcao_principal || user.role}</p>
               </div>
             </div>
 
