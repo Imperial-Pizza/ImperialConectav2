@@ -29,6 +29,7 @@ import { Header } from '@/components/ui/header/Header';
 import { WelcomeSection } from './welcome/WelcomeSection';
 import BeneficiosSection from './Beneficios/BeneficiosSection';
 import ModulesSection from './Modules/ModulesSection';
+import EventosSection from './eventos/EventosSection';
 import { logout } from '@/components/ui/header/api/auth';
 
 export default function DashboardView() {
@@ -261,88 +262,10 @@ export default function DashboardView() {
 />
 
             {/* SEÃ‡ÃƒO 2: CARROSSEL DE EVENTOS & TOP MONTADORES */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-2">
-              
-              {/* Event Carousel (span-7) */}
-              <div className="lg:col-span-7 bg-white border border-slate-200/80 rounded-3xl p-6 shadow-sm flex flex-col justify-between space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-lg font-black text-slate-900 tracking-tight">Eventos da Imperial</h3>
-                    <p className="text-xs text-slate-500 font-medium">ProgramaÃ§Ã£o especial e treinamentos internos</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button 
-                      onClick={() => scrollEvents('left')}
-                      className="w-8 h-8 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition-colors"
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                    </button>
-                    <button 
-                      onClick={() => scrollEvents('right')}
-                      className="w-8 h-8 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition-colors"
-                    >
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-
-                <div 
-                  ref={eventsScrollRef}
-                  className="flex gap-4 overflow-x-auto pb-2 pt-1 no-scrollbar scroll-smooth"
-                  style={{ scrollbarWidth: 'none' }}
-                >
-                  {events.map((ev) => (
-                    <div 
-                      key={ev.id}
-                      className="min-w-[260px] max-w-[260px] bg-slate-900 rounded-2xl overflow-hidden shadow-md flex flex-col justify-between shrink-0 border border-slate-800"
-                    >
-                      <div className="h-32 relative overflow-hidden">
-                        <img src={ev.image} alt={ev.title} className="w-full h-full object-cover opacity-80 hover:scale-105 transition-transform duration-500" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
-                      </div>
-                      <div className="p-4 space-y-1">
-                        <h4 className="font-bold text-white text-xs truncate">{ev.title}</h4>
-                        <p className="text-[11px] text-slate-400 line-clamp-2">{ev.desc}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Top Montadores do MÃªs (span-5) */}
-              <div className="lg:col-span-5 bg-white border border-slate-200/80 rounded-3xl p-6 shadow-sm flex flex-col justify-between space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <div>
-                    <h3 className="text-lg font-black text-slate-900 tracking-tight">Top Montadores</h3>
-                    <p className="text-xs text-slate-500 font-medium">Ranking deste MÃªs</p>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  {topMontadores.map((m) => (
-                    <div key={m.rank} className="flex items-center justify-between py-1 border-b border-slate-50 last:border-0">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs ${
-                          m.rank === 1 ? 'bg-amber-100 text-amber-700 border border-amber-300' :
-                          m.rank === 2 ? 'bg-slate-100 text-slate-700 border border-slate-200' :
-                          m.rank === 3 ? 'bg-orange-50 text-orange-700 border border-orange-200' : 'bg-slate-50 text-slate-500'
-                        }`}>
-                          {m.rank}
-                        </div>
-                        <div>
-                          <p className="text-xs font-bold text-slate-900">{m.name}</p>
-                          <p className="text-[10px] text-slate-500">{m.role}</p>
-                        </div>
-                      </div>
-                      <span className="text-xs font-black text-red-600 bg-red-50 px-2.5 py-1 rounded-xl border border-red-100">
-                        {m.count}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-            </div>
+<EventosSection
+  events={events}
+  topMontadores={topMontadores}
+/>
 
             {/* SEÃ‡ÃƒO 3: QUADRO DE AVISOS (Bottom Session) */}
             <motion.div 
