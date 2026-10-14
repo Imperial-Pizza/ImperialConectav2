@@ -6,6 +6,7 @@ export interface DashboardModule {
   desc: string;
   color: string;
   icon: LucideIcon;
+  available?: boolean;
 }
 
 export interface ModulesSectionProps {

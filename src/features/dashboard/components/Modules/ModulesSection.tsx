@@ -51,7 +51,7 @@ export default function ModulesSection({
           </h2>
 
           <span className="text-xs font-medium text-slate-500">
-            {filteredModules.length} de {modules.length} módulos disponíveis
+            {modules.filter((m) => m.available).length} de {modules.length} módulos ativos no momento
           </span>
         </div>
 
