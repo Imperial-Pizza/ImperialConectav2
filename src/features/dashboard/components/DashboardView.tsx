@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 import { Header } from '@/components/ui/header/Header';
 import { logout } from '@/components/ui/header/api/auth';
@@ -11,11 +12,24 @@ import ModulesSection from './Modules/ModulesSection';
 import EventosSection from './eventos/EventosSection';
 import AvisosSection from './Avisos/AvisosSection';
 import Footer from './Footer/Footer';
+import { modules } from './Modules/mock';
 
 export default function DashboardView() {
   const [activeModule, setActiveModule] = useState('hub');
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const router = useRouter();
+
+  const handleSelectModule = (moduleId: string) => {
+    const target = modules.find((module) => module.id === moduleId);
+
+    if (target?.href) {
+      router.push(target.href);
+      return;
+    }
+
+    setActiveModule(moduleId);
+  };
 
   const handleLogout = async () => {
     setUserDropdownOpen(false);
@@ -63,7 +77,7 @@ export default function DashboardView() {
         <BeneficiosSection />
 
         <ModulesSection
-          onSelectModule={setActiveModule}
+          onSelectModule={handleSelectModule}
         />
 
         <EventosSection />

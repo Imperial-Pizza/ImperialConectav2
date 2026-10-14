@@ -44,6 +44,7 @@ export const modules: DashboardModule[] = [
     icon: Package,
     color: 'from-emerald-600 to-teal-600',
     available: true,
+    href: '/estoque',
   },
   {
     id: 'financeiro',

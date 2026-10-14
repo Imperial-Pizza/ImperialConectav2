@@ -7,6 +7,8 @@ export interface DashboardModule {
   color: string;
   icon: LucideIcon;
   available?: boolean;
+  /** Rota da página do módulo, quando ele possui tela própria */
+  href?: string;
 }
 
 export interface ModulesSectionProps {
