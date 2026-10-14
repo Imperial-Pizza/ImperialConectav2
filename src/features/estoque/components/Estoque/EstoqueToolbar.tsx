@@ -1,15 +1,15 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { 
-  Download, 
-  FileSpreadsheet, 
-  FileText, 
-  LayoutGrid, 
-  LayoutList, 
-  Plus, 
-  Search, 
-  Upload, 
+import {
+  Download,
+  FileSpreadsheet,
+  FileText,
+  LayoutGrid,
+  LayoutList,
+  Plus,
+  Search,
+  Upload,
   ChevronDown,
   PackageCheck
 } from 'lucide-react';
@@ -60,7 +60,7 @@ export function EstoqueToolbar({
   return (
     <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
-        
+
         {/* Título e Subtítulo */}
         <div className="flex items-start sm:items-center gap-3.5">
           <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center shadow-md shadow-emerald-600/20 shrink-0">
@@ -90,8 +90,8 @@ export function EstoqueToolbar({
         />
 
         {/* Barra de Ações e Filtros */}
-        <div className="flex flex-wrap items-center gap-2.5">
-          
+        <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
+
           {/* Campo de Busca */}
           <div className="relative flex-1 min-w-[200px] sm:min-w-[220px]">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
@@ -126,9 +126,9 @@ export function EstoqueToolbar({
           </div>
 
           {/* Alternador Lista / Cards (Ícones Padrão) */}
-          <div 
-            className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80 shrink-0 shadow-2xs" 
-            role="group" 
+          <div
+            className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80 shrink-0 shadow-2xs"
+            role="group"
             aria-label="Modo de visualização"
           >
             <button
@@ -137,11 +137,10 @@ export function EstoqueToolbar({
               title="Visualização em Lista"
               aria-label="Visualização em Lista"
               aria-pressed={viewMode === 'table'}
-              className={`p-2 rounded-lg transition-all cursor-pointer ${
-                viewMode === 'table'
+              className={`p-2 rounded-lg transition-all cursor-pointer ${viewMode === 'table'
                   ? 'bg-white text-slate-900 shadow-xs'
                   : 'text-slate-400 hover:text-slate-700'
-              }`}
+                }`}
             >
               <LayoutList className="w-4 h-4" />
             </button>
@@ -151,11 +150,10 @@ export function EstoqueToolbar({
               title="Visualização em Cards"
               aria-label="Visualização em Cards"
               aria-pressed={viewMode === 'cards'}
-              className={`p-2 rounded-lg transition-all cursor-pointer ${
-                viewMode === 'cards'
+              className={`p-2 rounded-lg transition-all cursor-pointer ${viewMode === 'cards'
                   ? 'bg-white text-slate-900 shadow-xs'
                   : 'text-slate-400 hover:text-slate-700'
-              }`}
+                }`}
             >
               <LayoutGrid className="w-4 h-4" />
             </button>
@@ -213,15 +211,17 @@ export function EstoqueToolbar({
             )}
           </div>
 
-          {/* Botão Novo Insumo */}
-          <button
-            type="button"
-            onClick={onAddInsumo}
-            className="px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 active:scale-[0.98] text-white text-xs font-black transition-all shadow-md shadow-red-600/25 flex items-center gap-2 shrink-0 cursor-pointer"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Novo Insumo</span>
-          </button>
+          {/* Botão Novo Insumo - Isolado no canto final (justify-end / ml-auto) */}
+          <div className="w-full sm:w-auto flex justify-end sm:ml-auto">
+            <button
+              type="button"
+              onClick={onAddInsumo}
+              className="px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 active:scale-[0.98] text-white text-xs font-black transition-all shadow-md shadow-red-600/25 flex items-center gap-2 shrink-0 cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Novo Insumo</span>
+            </button>
+          </div>
 
         </div>
       </div>
