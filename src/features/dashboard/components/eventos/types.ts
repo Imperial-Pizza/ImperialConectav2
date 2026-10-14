@@ -13,6 +13,6 @@ export interface MontadorRanking {
 }
 
 export interface EventosSectionProps {
-  events: DashboardEvent[];
-  topMontadores: MontadorRanking[];
+  events?: DashboardEvent[];
+  topMontadores?: MontadorRanking[];
 }

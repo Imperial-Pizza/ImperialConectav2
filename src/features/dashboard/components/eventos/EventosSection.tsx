@@ -2,12 +2,13 @@
 
 import { EventCarousel } from './EventCarousel';
 import { TopMontadores } from './TopMontadores';
+import { initialEvents, topMontadores as defaultTopMontadores } from './mock';
 
 import type { EventosSectionProps } from './types';
 
 export default function EventosSection({
-  events,
-  topMontadores,
+  events = initialEvents,
+  topMontadores = defaultTopMontadores,
 }: EventosSectionProps) {
   return (
     <section
