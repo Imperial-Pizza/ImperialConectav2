@@ -1,6 +1,7 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import { useNotifications } from './hooks/notifications';
 import { useUser } from './hooks/user';
 
@@ -11,6 +12,8 @@ import {
   Sparkles,
   Megaphone,
   LogOut,
+  User as UserIcon,
+  Target,
 } from 'lucide-react';
 
 interface User {
@@ -30,9 +33,10 @@ interface HeaderProps {
 
   onGoToHub: () => void;
 
-  onAddBenefit: () => void;
-  onAddEvent: () => void;
-  onAddNotice: () => void;
+  // Ações opcionais: só aparecem no dropdown quando informadas (ex.: Hub)
+  onAddBenefit?: () => void;
+  onAddEvent?: () => void;
+  onAddNotice?: () => void;
 
   onLogout?: () => void;
 }
@@ -51,6 +55,7 @@ export function Header({
 }: HeaderProps) {
   const { notifications } = useNotifications();
   const { user, isLoading } = useUser();
+  const router = useRouter();
 
   if (isLoading || !user) {
     return <header className="w-full h-[76px] bg-white/90 backdrop-blur-md sticky top-0 z-40 shadow-sm border-b border-slate-200/80 flex items-center px-6"><div className="w-full animate-pulse bg-slate-100 h-10 rounded-xl"></div></header>;
@@ -117,9 +122,12 @@ export function Header({
           ================================================== */}
           <div className="relative">
             <button
-              onClick={onToggleNotifications}
-              className="relative w-10 h-10 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 transition-all shadow-sm"
-              aria-label="Abrir notificações"
+              onClick={() => {
+                // onToggleNotifications();
+              }}
+              className="relative w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-600 transition-all shadow-sm cursor-not-allowed"
+              style={{ cursor: 'not-allowed' }}
+              aria-label="Notificações desativadas"
             >
               <Bell className="w-4 h-4 text-slate-700" />
 
@@ -199,7 +207,8 @@ export function Header({
           <div className="relative">
             <button
               onClick={onToggleUserDropdown}
-              className="flex items-center gap-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl transition-all shadow-sm"
+              className="flex items-center gap-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl transition-all shadow-sm cursor-pointer"
+              style={{ cursor: 'pointer' }}
               aria-label="Abrir menu do usuário"
             >
               <div className="w-7 h-7 rounded-lg bg-red-600 text-white font-bold text-xs flex items-center justify-center">
@@ -246,10 +255,47 @@ export function Header({
                     </p>
                   </div>
 
+                  {/* Meu Perfil Completo */}
+                  <button
+                    onClick={() => {
+                      // onToggleUserDropdown();
+                      // router.push('/perfil');
+                    }}
+                    className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors cursor-not-allowed"
+                    style={{ cursor: 'not-allowed' }}
+                  >
+                    <UserIcon className="w-4 h-4 text-red-600" />
+
+                    <span>
+                      Meu Perfil Completo
+                    </span>
+                  </button>
+
+                  {/* Central de Metas */}
+                  <button
+                    onClick={() => {
+                      // onToggleUserDropdown();
+                      // router.push('/metas');
+                    }}
+                    className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors cursor-not-allowed"
+                    style={{ cursor: 'not-allowed' }}
+                  >
+                    <Target className="w-4 h-4 text-rose-600" />
+
+                    <span>
+                      Central de Metas
+                    </span>
+                  </button>
+
+                  <div className="border-t border-slate-100 my-1" />
+
                   {/* Add Benefit */}
                   <button
-                    onClick={onAddBenefit}
-                    className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors"
+                    onClick={() => {
+                      // onAddBenefit?.();
+                    }}
+                    className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors cursor-not-allowed"
+                    style={{ cursor: 'not-allowed' }}
                   >
                     <Plus className="w-4 h-4 text-red-600" />
 
@@ -260,8 +306,11 @@ export function Header({
 
                   {/* Add Event */}
                   <button
-                    onClick={onAddEvent}
-                    className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors"
+                    onClick={() => {
+                      // onAddEvent?.();
+                    }}
+                    className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors cursor-not-allowed"
+                    style={{ cursor: 'not-allowed' }}
                   >
                     <Sparkles className="w-4 h-4 text-amber-500" />
 
@@ -272,8 +321,11 @@ export function Header({
 
                   {/* Add Notice */}
                   <button
-                    onClick={onAddNotice}
-                    className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors"
+                    onClick={() => {
+                      // onAddNotice?.();
+                    }}
+                    className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors cursor-not-allowed"
+                    style={{ cursor: 'not-allowed' }}
                   >
                     <Megaphone className="w-4 h-4 text-blue-600" />
 
@@ -288,7 +340,8 @@ export function Header({
                   {/* Logout */}
                   <button
                     onClick={onLogout}
-                    className="w-full text-left px-4 py-2.5 text-xs font-medium text-red-600 hover:bg-red-50 flex items-center gap-2.5 transition-colors"
+                    className="w-full text-left px-4 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-600 hover:text-white flex items-center gap-2.5 transition-colors cursor-pointer"
+                    style={{ cursor: 'pointer' }}
                   >
                     <LogOut className="w-4 h-4" />
 
