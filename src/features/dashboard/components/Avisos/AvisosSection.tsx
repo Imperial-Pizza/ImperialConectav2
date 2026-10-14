@@ -4,10 +4,34 @@ import { Megaphone } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 import { AvisoCard } from './AvisoCard';
-import type { AvisosSectionProps } from './types';
+import type { Aviso, AvisosSectionProps } from './types';
+
+export const initialNotices: Aviso[] = [
+  {
+    id: 1,
+    tag: 'Urgente',
+    title: 'Manutenção Preventiva do Forno 01',
+    desc: 'Agendada para esta segunda-feira às 06:00 antes da abertura da loja.',
+    time: 'Hoje',
+  },
+  {
+    id: 2,
+    tag: 'Geral',
+    title: 'Novo Padrão de Montagem de Pizzas',
+    desc: 'Consultar o manual atualizado na aba de Treinamentos.',
+    time: 'Ontem',
+  },
+  {
+    id: 3,
+    tag: 'Atenção',
+    title: 'Reunião de Alinhamento de Turno',
+    desc: 'Sexta-feira às 15:00 na sala de reuniões principal.',
+    time: 'Há 2 dias',
+  },
+];
 
 export default function AvisosSection({
-  notices,
+  notices = initialNotices,
 }: AvisosSectionProps) {
   return (
     <motion.section

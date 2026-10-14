@@ -9,5 +9,5 @@ export interface Aviso {
 }
 
 export interface AvisosSectionProps {
-  notices: Aviso[];
+  notices?: Aviso[];
 }
