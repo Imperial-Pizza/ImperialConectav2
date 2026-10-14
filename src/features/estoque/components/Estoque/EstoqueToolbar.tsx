@@ -11,7 +11,6 @@ import {
   Search,
   Upload,
   ChevronDown,
-  PackageCheck
 } from 'lucide-react';
 
 import { CATEGORIAS_INSUMO, FILTRO_TODAS } from '../../utils/constants';
@@ -58,42 +57,51 @@ export function EstoqueToolbar({
   }, []);
 
   return (
-    <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+    <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-6">
+      {/* Input Oculto de Arquivo */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".csv,.txt,.xls,.xlsx"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) onImport(file);
+          e.target.value = '';
+        }}
+      />
 
-        {/* Título e Subtítulo */}
-        <div className="flex items-start sm:items-center gap-3.5">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center shadow-md shadow-emerald-600/20 shrink-0">
-            <PackageCheck className="w-5 h-5" />
-          </div>
-          <div>
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
-              Estoque de Insumos
-            </h1>
-            <p className="text-xs text-slate-500 font-medium mt-0.5">
-              Gerencie massas, queijos, molhos e custos unitários em tempo real
-            </p>
-          </div>
+      {/* Seção 1: Cabeçalho com Título e Ação Principal */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
+            Estoque de Insumos
+          </h1>
+          <p className="text-xs text-slate-500 font-medium mt-1">
+            Gerencie massas, queijos, molhos e custos unitários em tempo real
+          </p>
         </div>
 
-        {/* Input Oculto de Arquivo */}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".csv,.txt,.xls,.xlsx"
-          className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) onImport(file);
-            e.target.value = '';
-          }}
-        />
+        {/* Botão Novo Insumo - Destaque no topo à direita */}
+        <button
+          type="button"
+          onClick={onAddInsumo}
+          className="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 active:scale-[0.98] text-white text-xs font-black transition-all shadow-md shadow-red-600/25 flex items-center justify-center gap-2 shrink-0 cursor-pointer"
+        >
+          <Plus className="w-4 h-4" />
+          <span>Novo Insumo</span>
+        </button>
+      </div>
 
-        {/* Barra de Ações e Filtros */}
-        <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
+      {/* Linha Divisória Sutil */}
+      <div className="border-t border-slate-100" />
 
+      {/* Seção 2: Filtros, Busca, Importar/Exportar e Visualização */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5">
+        {/* Lado Esquerdo: Busca e Categoria */}
+        <div className="flex flex-wrap items-center gap-2.5 flex-1">
           {/* Campo de Busca */}
-          <div className="relative flex-1 min-w-[200px] sm:min-w-[220px]">
+          <div className="relative flex-1 min-w-[200px] sm:max-w-xs">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
               <Search className="w-4 h-4" />
             </span>
@@ -124,41 +132,10 @@ export function EstoqueToolbar({
             </select>
             <ChevronDown className="w-3.5 h-3.5 text-slate-400 pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2" />
           </div>
+        </div>
 
-          {/* Alternador Lista / Cards (Ícones Padrão) */}
-          <div
-            className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80 shrink-0 shadow-2xs"
-            role="group"
-            aria-label="Modo de visualização"
-          >
-            <button
-              type="button"
-              onClick={() => onViewModeChange('table')}
-              title="Visualização em Lista"
-              aria-label="Visualização em Lista"
-              aria-pressed={viewMode === 'table'}
-              className={`p-2 rounded-lg transition-all cursor-pointer ${viewMode === 'table'
-                  ? 'bg-white text-slate-900 shadow-xs'
-                  : 'text-slate-400 hover:text-slate-700'
-                }`}
-            >
-              <LayoutList className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => onViewModeChange('cards')}
-              title="Visualização em Cards"
-              aria-label="Visualização em Cards"
-              aria-pressed={viewMode === 'cards'}
-              className={`p-2 rounded-lg transition-all cursor-pointer ${viewMode === 'cards'
-                  ? 'bg-white text-slate-900 shadow-xs'
-                  : 'text-slate-400 hover:text-slate-700'
-                }`}
-            >
-              <LayoutGrid className="w-4 h-4" />
-            </button>
-          </div>
-
+        {/* Lado Direito: Importar, Exportar e Modo de Visualização */}
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0 justify-start sm:justify-end">
           {/* Botão Importar */}
           <button
             type="button"
@@ -211,18 +188,41 @@ export function EstoqueToolbar({
             )}
           </div>
 
-          {/* Botão Novo Insumo - Isolado no canto final (justify-end / ml-auto) */}
-          <div className="w-full sm:w-auto flex justify-end sm:ml-auto">
+          {/* Alternador Lista / Cards (Ícones Padrão) */}
+          <div
+            className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80 shrink-0 shadow-2xs"
+            role="group"
+            aria-label="Modo de visualização"
+          >
             <button
               type="button"
-              onClick={onAddInsumo}
-              className="px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 active:scale-[0.98] text-white text-xs font-black transition-all shadow-md shadow-red-600/25 flex items-center gap-2 shrink-0 cursor-pointer"
+              onClick={() => onViewModeChange('table')}
+              title="Visualização em Lista"
+              aria-label="Visualização em Lista"
+              aria-pressed={viewMode === 'table'}
+              className={`p-2 rounded-lg transition-all cursor-pointer ${
+                viewMode === 'table'
+                  ? 'bg-white text-slate-900 shadow-xs'
+                  : 'text-slate-400 hover:text-slate-700'
+              }`}
             >
-              <Plus className="w-4 h-4" />
-              <span>Novo Insumo</span>
+              <LayoutList className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => onViewModeChange('cards')}
+              title="Visualização em Cards"
+              aria-label="Visualização em Cards"
+              aria-pressed={viewMode === 'cards'}
+              className={`p-2 rounded-lg transition-all cursor-pointer ${
+                viewMode === 'cards'
+                  ? 'bg-white text-slate-900 shadow-xs'
+                  : 'text-slate-400 hover:text-slate-700'
+              }`}
+            >
+              <LayoutGrid className="w-4 h-4" />
             </button>
           </div>
-
         </div>
       </div>
     </div>
