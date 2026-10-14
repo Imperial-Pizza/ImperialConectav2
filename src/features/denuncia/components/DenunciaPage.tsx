@@ -31,7 +31,13 @@ export default function App() {
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [isTrackModalOpen, setIsTrackModalOpen] = useState(false);
   const [trackInput, setTrackInput] = useState('');
-  const [trackedResult, setTrackedResult] = useState(null);
+  const [trackedResult, setTrackedResult] = useState<{
+    protocol: string;
+    category: string;
+    status: string;
+    date: string;
+    updates: { date: string; note: string }[];
+  } | null>(null);
   const [trackLoading, setTrackLoading] = useState(false);
 
   // React Bits style ambient light animation hook
@@ -43,7 +49,7 @@ export default function App() {
     return () => clearInterval(timer);
   }, []);
 
-  const handleSubmitReport = (e) => {
+  const handleSubmitReport = (e: React.FormEvent) => {
     e.preventDefault();
     if (!description.trim() || !evidenceUrl.trim()) return;
     
@@ -67,7 +73,7 @@ export default function App() {
     }, 1200);
   };
 
-  const handleTrackSubmit = (e) => {
+  const handleTrackSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!trackInput.trim()) return;
     setTrackLoading(true);
