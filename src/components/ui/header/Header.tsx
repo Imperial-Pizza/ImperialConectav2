@@ -287,60 +287,52 @@ export function Header({
                     </span>
                   </button>
 
-                  {(onAddBenefit || onAddEvent || onAddNotice) && (
-                    <div className="border-t border-slate-100 my-1" />
-                  )}
+                  <div className="border-t border-slate-100 my-1" />
 
                   {/* Add Benefit */}
-                  {onAddBenefit && (
-                    <button
-                      onClick={() => {
-                        // onAddBenefit();
-                      }}
-                      className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors cursor-not-allowed"
-                      style={{ cursor: 'not-allowed' }}
-                    >
-                      <Plus className="w-4 h-4 text-red-600" />
+                  <button
+                    onClick={() => {
+                      // onAddBenefit?.();
+                    }}
+                    className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors cursor-not-allowed"
+                    style={{ cursor: 'not-allowed' }}
+                  >
+                    <Plus className="w-4 h-4 text-red-600" />
 
-                      <span>
-                        Adicionar Carrossel Benefício
-                      </span>
-                    </button>
-                  )}
+                    <span>
+                      Adicionar Carrossel Benefício
+                    </span>
+                  </button>
 
                   {/* Add Event */}
-                  {onAddEvent && (
-                    <button
-                      onClick={() => {
-                        // onAddEvent();
-                      }}
-                      className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors cursor-not-allowed"
-                      style={{ cursor: 'not-allowed' }}
-                    >
-                      <Sparkles className="w-4 h-4 text-amber-500" />
+                  <button
+                    onClick={() => {
+                      // onAddEvent?.();
+                    }}
+                    className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors cursor-not-allowed"
+                    style={{ cursor: 'not-allowed' }}
+                  >
+                    <Sparkles className="w-4 h-4 text-amber-500" />
 
-                      <span>
-                        Adicionar Carrossel Evento
-                      </span>
-                    </button>
-                  )}
+                    <span>
+                      Adicionar Carrossel Evento
+                    </span>
+                  </button>
 
                   {/* Add Notice */}
-                  {onAddNotice && (
-                    <button
-                      onClick={() => {
-                        // onAddNotice();
-                      }}
-                      className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors cursor-not-allowed"
-                      style={{ cursor: 'not-allowed' }}
-                    >
-                      <Megaphone className="w-4 h-4 text-blue-600" />
+                  <button
+                    onClick={() => {
+                      // onAddNotice?.();
+                    }}
+                    className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors cursor-not-allowed"
+                    style={{ cursor: 'not-allowed' }}
+                  >
+                    <Megaphone className="w-4 h-4 text-blue-600" />
 
-                      <span>
-                        Novo Aviso
-                      </span>
-                    </button>
-                  )}
+                    <span>
+                      Novo Aviso
+                    </span>
+                  </button>
 
                   {/* Divider */}
                   <div className="border-t border-slate-100 my-1" />
