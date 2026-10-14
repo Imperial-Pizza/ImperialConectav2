@@ -1,13 +1,16 @@
 import type { Insumo } from '../types';
 
 const HEADERS = [
-  'ID',
-  'Nome',
+  'Código',
   'Categoria',
-  'Quantidade',
+  'Produto',
   'Unidade',
-  'Custo Unitario (R$)',
-  'Minimo',
+  'Quantidade Atual',
+  'Estoque Mínimo',
+  'Preço Médio (R$)',
+  'Valor Total (R$)',
+  'Fornecedor Principal',
+  'Observações',
 ];
 
 // BOM garante que o Excel reconheça acentuação (UTF-8)
@@ -29,20 +32,24 @@ function baixarArquivo(conteudo: string, nome: string, mimeType: string) {
   URL.revokeObjectURL(url);
 }
 
-function escaparCsv(valor: string | number): string {
+function escaparCsv(valor: string | number | undefined): string {
+  if (valor === undefined || valor === null) return '';
   const texto = String(valor);
   return /[",\n]/.test(texto) ? `"${texto.replace(/"/g, '""')}"` : texto;
 }
 
 function toRow(item: Insumo): (string | number)[] {
   return [
-    item.id,
-    item.nome,
+    item.codigo || `INS-${item.id}`,
     item.categoria,
-    item.qtd,
+    item.nome,
     item.unidade,
-    item.custoUnitario,
+    item.qtd,
     item.min,
+    item.custoUnitario,
+    item.qtd * item.custoUnitario,
+    item.fornecedor || 'Não informado',
+    item.observacoes || '',
   ];
 }
 
@@ -114,17 +121,21 @@ export function parsePlanilha(texto: string): Insumo[] {
   // Linha 0 é o cabeçalho
   return linhas.slice(1).flatMap((linha, index) => {
     const cols = dividirLinha(linha, delimitador).map((c) => c.trim());
-    if (cols.length < 6) return [];
+    if (cols.length < 3) return [];
 
+    const id = base + index;
     return [
       {
-        id: base + index,
-        nome: cols[1] || `Insumo Importado ${index + 1}`,
-        categoria: cols[2] || 'Massas',
-        qtd: parseFloat(cols[3]) || 0,
-        unidade: cols[4] || 'kg',
-        custoUnitario: parseFloat(cols[5]) || 0,
-        min: parseFloat(cols[6]) || 5,
+        id,
+        codigo: cols[0] || `INS-${String(index + 1).padStart(3, '0')}`,
+        categoria: cols[1] || 'Massas',
+        nome: cols[2] || `Insumo Importado ${index + 1}`,
+        unidade: cols[3] || 'kg',
+        qtd: parseFloat(cols[4]) || 0,
+        min: parseFloat(cols[5]) || 5,
+        custoUnitario: parseFloat(cols[6]) || 0,
+        fornecedor: cols[8] || 'Fornecedor Padrão',
+        observacoes: cols[9] || '',
       },
     ];
   });

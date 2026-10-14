@@ -10,13 +10,16 @@ import { EstoqueSidebar } from './Sidebar/EstoqueSidebar';
 import { EstoquePanel } from './Estoque/EstoquePanel';
 import { CmvPanel } from './Cmv/CmvPanel';
 import { AddInsumoModal } from './Modals/AddInsumoModal';
+import { DeleteInsumoModal } from './Modals/DeleteInsumoModal';
 import { useEstoque } from '../hooks/useEstoque';
 import { useCmv } from '../hooks/useCmv';
-import type { EstoqueSubModule, NovoInsumo } from '../types';
+import type { EstoqueSubModule, Insumo, NovoInsumo } from '../types';
 
 export default function EstoqueView() {
   const [activeSubModule, setActiveSubModule] = useState<EstoqueSubModule>('estoque');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingInsumo, setEditingInsumo] = useState<Insumo | null>(null);
+  const [deletingInsumo, setDeletingInsumo] = useState<Insumo | null>(null);
 
   const estoque = useEstoque();
   const cmv = useCmv();
@@ -28,6 +31,29 @@ export default function EstoqueView() {
     } catch {
       toast.error('Não foi possível cadastrar o insumo.');
       throw new Error('add-insumo-failed');
+    }
+  };
+
+  const handleEditInsumo = async (dados: NovoInsumo) => {
+    if (!editingInsumo) return;
+    try {
+      await estoque.editInsumo(editingInsumo.id, dados);
+      toast.success('Insumo atualizado com sucesso!');
+      setEditingInsumo(null);
+    } catch {
+      toast.error('Não foi possível atualizar o insumo.');
+      throw new Error('edit-insumo-failed');
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deletingInsumo) return;
+    try {
+      await estoque.deleteInsumo(deletingInsumo.id);
+      toast.success(`Insumo ${deletingInsumo.nome} excluído com sucesso!`);
+      setDeletingInsumo(null);
+    } catch {
+      toast.error('Não foi possível excluir o insumo.');
     }
   };
 
@@ -44,7 +70,16 @@ export default function EstoqueView() {
               <EstoquePanel
                 key="estoque"
                 estoque={estoque}
-                onAddInsumo={() => setShowAddModal(true)}
+                onAddInsumo={() => {
+                  setEditingInsumo(null);
+                  setShowAddModal(true);
+                }}
+                onEditInsumo={(insumo) => {
+                  setEditingInsumo(insumo);
+                }}
+                onDeleteInsumo={(insumo) => {
+                  setDeletingInsumo(insumo);
+                }}
               />
             ) : (
               <CmvPanel key="cmv" cmv={cmv} />
@@ -53,10 +88,27 @@ export default function EstoqueView() {
         </div>
       </div>
 
+      {/* Modal de Cadastro */}
       <AddInsumoModal
         open={showAddModal}
         onClose={() => setShowAddModal(false)}
         onSubmit={handleAddInsumo}
+      />
+
+      {/* Modal de Edição */}
+      <AddInsumoModal
+        open={Boolean(editingInsumo)}
+        initialData={editingInsumo}
+        onClose={() => setEditingInsumo(null)}
+        onSubmit={handleEditInsumo}
+      />
+
+      {/* Modal de Confirmação de Exclusão */}
+      <DeleteInsumoModal
+        open={Boolean(deletingInsumo)}
+        insumo={deletingInsumo}
+        onClose={() => setDeletingInsumo(null)}
+        onConfirm={handleConfirmDelete}
       />
     </AppShell>
   );

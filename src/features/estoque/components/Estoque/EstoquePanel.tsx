@@ -9,13 +9,21 @@ import { EstoqueTable } from './EstoqueTable';
 import { EstoqueCards } from './EstoqueCards';
 import { exportarCsv, exportarExcel, lerArquivoTexto, parsePlanilha } from '../../utils/planilha';
 import type { UseEstoqueReturn } from '../../hooks/useEstoque';
+import type { Insumo } from '../../types';
 
 interface EstoquePanelProps {
   estoque: UseEstoqueReturn;
   onAddInsumo: () => void;
+  onEditInsumo: (insumo: Insumo) => void;
+  onDeleteInsumo: (insumo: Insumo) => void;
 }
 
-export function EstoquePanel({ estoque, onAddInsumo }: EstoquePanelProps) {
+export function EstoquePanel({
+  estoque,
+  onAddInsumo,
+  onEditInsumo,
+  onDeleteInsumo,
+}: EstoquePanelProps) {
   const {
     items,
     filteredItems,
@@ -83,9 +91,17 @@ export function EstoquePanel({ estoque, onAddInsumo }: EstoquePanelProps) {
           <p className="text-xs text-slate-500">Ajuste a busca ou o filtro de categoria.</p>
         </div>
       ) : viewMode === 'table' ? (
-        <EstoqueTable items={filteredItems} />
+        <EstoqueTable
+          items={filteredItems}
+          onEdit={onEditInsumo}
+          onDelete={onDeleteInsumo}
+        />
       ) : (
-        <EstoqueCards items={filteredItems} />
+        <EstoqueCards
+          items={filteredItems}
+          onEdit={onEditInsumo}
+          onDelete={onDeleteInsumo}
+        />
       )}
     </motion.div>
   );

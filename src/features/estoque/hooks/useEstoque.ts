@@ -2,7 +2,13 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
-import { createInsumo, fetchInsumos, isEstoqueBaixo } from '../services/estoqueService';
+import { 
+  createInsumo, 
+  deleteInsumo as deleteInsumoService, 
+  fetchInsumos, 
+  isEstoqueBaixo, 
+  updateInsumo as updateInsumoService 
+} from '../services/estoqueService';
 import { FILTRO_TODAS } from '../utils/constants';
 import type { EstoqueViewMode, Insumo, NovoInsumo } from '../types';
 
@@ -35,7 +41,9 @@ export function useEstoque() {
       const matchesSearch =
         !termo ||
         item.nome.toLocaleLowerCase('pt-BR').includes(termo) ||
-        item.categoria.toLocaleLowerCase('pt-BR').includes(termo);
+        item.codigo.toLocaleLowerCase('pt-BR').includes(termo) ||
+        item.categoria.toLocaleLowerCase('pt-BR').includes(termo) ||
+        item.fornecedor.toLocaleLowerCase('pt-BR').includes(termo);
 
       const matchesCategoria =
         categoria === FILTRO_TODAS || item.categoria === categoria;
@@ -51,12 +59,24 @@ export function useEstoque() {
 
   const addInsumo = async (novo: NovoInsumo) => {
     const created = await createInsumo(novo);
-    setItems((prev) => [...prev, created]);
+    setItems((prev) => [created, ...prev]);
     return created;
   };
 
+  const editInsumo = async (id: number, dados: Partial<NovoInsumo>) => {
+    await updateInsumoService(id, dados);
+    setItems((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, ...dados } : item)),
+    );
+  };
+
+  const deleteInsumo = async (id: number) => {
+    await deleteInsumoService(id);
+    setItems((prev) => prev.filter((item) => item.id !== id));
+  };
+
   const importInsumos = (novos: Insumo[]) => {
-    setItems((prev) => [...prev, ...novos]);
+    setItems((prev) => [...novos, ...prev]);
   };
 
   return {
@@ -72,6 +92,8 @@ export function useEstoque() {
     viewMode,
     setViewMode,
     addInsumo,
+    editInsumo,
+    deleteInsumo,
     importInsumos,
   };
 }

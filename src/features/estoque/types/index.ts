@@ -4,13 +4,24 @@ export type EstoqueViewMode = 'table' | 'cards';
 
 export interface Insumo {
   id: number;
-  nome: string;
+  /** Código único do insumo (ex: INS-001, FAR-01) */
+  codigo: string;
+  /** Categoria do produto (Massas, Frios, Molhos, etc.) */
   categoria: string;
-  qtd: number;
+  /** Nome comercial do produto/insumo */
+  nome: string;
+  /** Unidade de medida (kg, un, L, cx, etc.) */
   unidade: string;
-  custoUnitario: number;
   /** Quantidade mínima antes de disparar o alerta de estoque baixo */
   min: number;
+  /** Custo unitário / Preço médio pago (R$) */
+  custoUnitario: number;
+  /** Quantidade atual disponível em estoque */
+  qtd: number;
+  /** Nome ou razão social do fornecedor principal */
+  fornecedor: string;
+  /** Notas adicionais ou observações de armazenagem/lote */
+  observacoes?: string;
 }
 
 export type NovoInsumo = Omit<Insumo, 'id'>;

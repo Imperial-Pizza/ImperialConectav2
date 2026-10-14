@@ -1,16 +1,82 @@
 import type { CmvResultado, CmvValores, Insumo, NovoInsumo } from '../types';
 
 /**
- * Dados mockados enquanto o backend de estoque não está disponível.
- * Para integrar, troque as implementações por chamadas a `estoqueApi`.
+ * Dados de exemplo com a estrutura real de colunas da Imperial Pizza:
+ * Código, Categoria, Produto, Unidade, Estoque Mínimo, Preço Médio, Fornecedor Principal, Observações.
  */
 const INSUMOS_MOCK: Insumo[] = [
-  { id: 1, nome: 'Farinha de Trigo Especial (Italiana)', categoria: 'Massas', qtd: 140, unidade: 'kg', custoUnitario: 6.5, min: 50 },
-  { id: 2, nome: 'Muçarela em Peça', categoria: 'Frios & Laticínios', qtd: 35, unidade: 'kg', custoUnitario: 32.0, min: 40 },
-  { id: 3, nome: 'Molho de Tomate Pelati (Lata 2.5kg)', categoria: 'Molhos', qtd: 18, unidade: 'un', custoUnitario: 24.9, min: 15 },
-  { id: 4, nome: 'Pepperoni Importado', categoria: 'Embutidos', qtd: 12, unidade: 'kg', custoUnitario: 58.0, min: 10 },
-  { id: 5, nome: 'Fermento Biológico Fresco', categoria: 'Massas', qtd: 4, unidade: 'kg', custoUnitario: 18.5, min: 5 },
-  { id: 6, nome: 'Manjericão Fresco', categoria: 'Hortifrúti', qtd: 2, unidade: 'kg', custoUnitario: 25.0, min: 3 },
+  {
+    id: 1,
+    codigo: 'INS-001',
+    nome: 'Farinha de Trigo Especial (Italiana)',
+    categoria: 'Massas',
+    qtd: 140,
+    unidade: 'kg',
+    custoUnitario: 6.5,
+    min: 50,
+    fornecedor: 'Moinho Caputo / Importadora',
+    observacoes: 'Tipo 00 para fermentação longa (48h)',
+  },
+  {
+    id: 2,
+    codigo: 'INS-002',
+    nome: 'Muçarela em Peça',
+    categoria: 'Frios & Laticínios',
+    qtd: 35,
+    unidade: 'kg',
+    custoUnitario: 32.0,
+    min: 40,
+    fornecedor: 'Laticínios Scala',
+    observacoes: 'Manter entre 1°C e 4°C na câmara fria',
+  },
+  {
+    id: 3,
+    codigo: 'INS-003',
+    nome: 'Molho de Tomate Pelati (Lata 2.5kg)',
+    categoria: 'Molhos',
+    qtd: 18,
+    unidade: 'un',
+    custoUnitario: 24.9,
+    min: 15,
+    fornecedor: 'Distribuidora Bella Itália',
+    observacoes: 'San Marzano DOP legítimo',
+  },
+  {
+    id: 4,
+    codigo: 'INS-004',
+    nome: 'Pepperoni Importado',
+    categoria: 'Embutidos',
+    qtd: 12,
+    unidade: 'kg',
+    custoUnitario: 58.0,
+    min: 10,
+    fornecedor: 'Frigorífico Ceratti',
+    observacoes: 'Fatiamento fino para borda crocante',
+  },
+  {
+    id: 5,
+    codigo: 'INS-005',
+    nome: 'Fermento Biológico Fresco',
+    categoria: 'Massas',
+    qtd: 4,
+    unidade: 'kg',
+    custoUnitario: 18.5,
+    min: 5,
+    fornecedor: 'Fleischmann Brasil',
+    observacoes: 'Recebimento diário / conferir lote',
+  },
+  {
+    id: 6,
+    codigo: 'INS-006',
+    nome: 'Manjericão Fresco',
+    categoria: 'Hortifrúti',
+    qtd: 2,
+    unidade: 'kg',
+    custoUnitario: 25.0,
+    min: 3,
+    fornecedor: 'Horta Orgânica São José',
+    observacoes: 'Folhas inteiras lavadas e higienizadas',
+  },
 ];
 
 export const CMV_INICIAL: CmvValores = {
@@ -21,12 +87,22 @@ export const CMV_INICIAL: CmvValores = {
 };
 
 export async function fetchInsumos(): Promise<Insumo[]> {
-  await new Promise((resolve) => setTimeout(resolve, 400));
+  await new Promise((resolve) => setTimeout(resolve, 300));
   return [...INSUMOS_MOCK];
 }
 
 export async function createInsumo(insumo: NovoInsumo): Promise<Insumo> {
+  await new Promise((resolve) => setTimeout(resolve, 200));
   return { ...insumo, id: Date.now() };
+}
+
+export async function updateInsumo(id: number, dados: Partial<NovoInsumo>): Promise<Insumo> {
+  await new Promise((resolve) => setTimeout(resolve, 200));
+  return { id, ...dados } as Insumo;
+}
+
+export async function deleteInsumo(id: number): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, 200));
 }
 
 export function isEstoqueBaixo(item: Insumo): boolean {
