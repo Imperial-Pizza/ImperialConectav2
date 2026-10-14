@@ -4,13 +4,14 @@ import { useMemo, useState } from 'react';
 import { Search } from 'lucide-react';
 
 import { ModuleCard } from './ModuleCard';
+import { modules as defaultModules } from './mock';
 import type {
   DashboardModule,
   ModulesSectionProps,
 } from './types';
 
 export default function ModulesSection({
-  modules,
+  modules = defaultModules,
   onSelectModule,
 }: ModulesSectionProps) {
   const [searchQuery, setSearchQuery] = useState('');

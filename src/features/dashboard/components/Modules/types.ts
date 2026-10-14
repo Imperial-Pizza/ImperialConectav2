@@ -9,6 +9,6 @@ export interface DashboardModule {
 }
 
 export interface ModulesSectionProps {
-  modules: DashboardModule[];
+  modules?: DashboardModule[];
   onSelectModule: (moduleId: string) => void;
 }
