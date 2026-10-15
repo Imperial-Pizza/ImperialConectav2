@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 
 import { Header } from '@/components/ui/header/Header';
 import { logout } from '@/components/ui/header/api/auth';
+import { Portal } from '@/components/ui/Portal';
 
 interface AppShellProps {
   /** Identificador do módulo atual (exibe "Voltar ao Hub" quando diferente de 'hub') */
@@ -98,7 +99,7 @@ export function AppShell({ activeModule, children }: AppShellProps) {
         }}
       />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-8 relative z-10">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-8 relative">
         {children}
       </main>
 
@@ -109,107 +110,113 @@ export function AppShell({ activeModule, children }: AppShellProps) {
 
       {/* Modal: Adicionar Benefício */}
       {showAddBenefitModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-slate-200">
-            <h3 className="text-lg font-black text-slate-900">Adicionar Benefício ao Carrossel</h3>
-            <form onSubmit={handleAddBenefit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Título do Benefício</label>
-                <input 
-                  type="text" 
-                  value={newBenefitTitle} 
-                  onChange={(e) => setNewBenefitTitle(e.target.value)}
-                  placeholder="Ex: Entrega Expressa" 
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-red-600"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Descrição</label>
-                <textarea 
-                  value={newBenefitDesc} 
-                  onChange={(e) => setNewBenefitDesc(e.target.value)}
-                  placeholder="Explique o benefício..." 
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-red-600 h-20 resize-none"
-                />
-              </div>
-              <div className="flex justify-end gap-2 pt-2">
-                <button type="button" onClick={() => setShowAddBenefitModal(false)} className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold">Cancelar</button>
-                <button type="submit" className="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-bold shadow-md">Adicionar</button>
-              </div>
-            </form>
-          </motion.div>
-        </div>
+        <Portal>
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-slate-200">
+              <h3 className="text-lg font-black text-slate-900">Adicionar Benefício ao Carrossel</h3>
+              <form onSubmit={handleAddBenefit} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Título do Benefício</label>
+                  <input 
+                    type="text" 
+                    value={newBenefitTitle} 
+                    onChange={(e) => setNewBenefitTitle(e.target.value)}
+                    placeholder="Ex: Entrega Expressa" 
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-red-600"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Descrição</label>
+                  <textarea 
+                    value={newBenefitDesc} 
+                    onChange={(e) => setNewBenefitDesc(e.target.value)}
+                    placeholder="Explique o benefício..." 
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-red-600 h-20 resize-none"
+                  />
+                </div>
+                <div className="flex justify-end gap-2 pt-2">
+                  <button type="button" onClick={() => setShowAddBenefitModal(false)} className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold">Cancelar</button>
+                  <button type="submit" className="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-bold shadow-md">Adicionar</button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        </Portal>
       )}
 
       {/* Modal: Adicionar Evento */}
       {showAddEventModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-slate-200">
-            <h3 className="text-lg font-black text-slate-900">Adicionar Evento à Programação</h3>
-            <form onSubmit={handleAddEvent} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Título do Evento</label>
-                <input 
-                  type="text" 
-                  value={newEventTitle} 
-                  onChange={(e) => setNewEventTitle(e.target.value)}
-                  placeholder="Ex: Workshop de Massas" 
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-red-600"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Descrição</label>
-                <textarea 
-                  value={newEventDesc} 
-                  onChange={(e) => setNewEventDesc(e.target.value)}
-                  placeholder="Detalhes do evento..." 
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-red-600 h-20 resize-none"
-                />
-              </div>
-              <div className="flex justify-end gap-2 pt-2">
-                <button type="button" onClick={() => setShowAddEventModal(false)} className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold">Cancelar</button>
-                <button type="submit" className="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-bold shadow-md">Adicionar Evento</button>
-              </div>
-            </form>
-          </motion.div>
-        </div>
+        <Portal>
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-slate-200">
+              <h3 className="text-lg font-black text-slate-900">Adicionar Evento à Programação</h3>
+              <form onSubmit={handleAddEvent} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Título do Evento</label>
+                  <input 
+                    type="text" 
+                    value={newEventTitle} 
+                    onChange={(e) => setNewEventTitle(e.target.value)}
+                    placeholder="Ex: Workshop de Massas" 
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-red-600"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Descrição</label>
+                  <textarea 
+                    value={newEventDesc} 
+                    onChange={(e) => setNewEventDesc(e.target.value)}
+                    placeholder="Detalhes do evento..." 
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-red-600 h-20 resize-none"
+                  />
+                </div>
+                <div className="flex justify-end gap-2 pt-2">
+                  <button type="button" onClick={() => setShowAddEventModal(false)} className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold">Cancelar</button>
+                  <button type="submit" className="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-bold shadow-md">Adicionar Evento</button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        </Portal>
       )}
 
       {/* Modal: Adicionar Aviso no Quadro */}
       {showAddNoticeModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-slate-200">
-            <h3 className="text-lg font-black text-slate-900">Adicionar Novo Aviso</h3>
-            <form onSubmit={handleAddNotice} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Título do Aviso</label>
-                <input 
-                  type="text" 
-                  value={newNoticeTitle} 
-                  onChange={(e) => setNewNoticeTitle(e.target.value)}
-                  placeholder="Ex: Reunião de Equipe" 
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-red-600"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Mensagem</label>
-                <textarea 
-                  value={newNoticeDesc} 
-                  onChange={(e) => setNewNoticeDesc(e.target.value)}
-                  placeholder="Conteúdo do aviso..." 
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-red-600 h-20 resize-none"
-                />
-              </div>
-              <div className="flex justify-end gap-2 pt-2">
-                <button type="button" onClick={() => setShowAddNoticeModal(false)} className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold">Cancelar</button>
-                <button type="submit" className="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-bold shadow-md">Publicar Aviso</button>
-              </div>
-            </form>
-          </motion.div>
-        </div>
+        <Portal>
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-slate-200">
+              <h3 className="text-lg font-black text-slate-900">Adicionar Novo Aviso</h3>
+              <form onSubmit={handleAddNotice} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Título do Aviso</label>
+                  <input 
+                    type="text" 
+                    value={newNoticeTitle} 
+                    onChange={(e) => setNewNoticeTitle(e.target.value)}
+                    placeholder="Ex: Reunião de Equipe" 
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-red-600"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Mensagem</label>
+                  <textarea 
+                    value={newNoticeDesc} 
+                    onChange={(e) => setNewNoticeDesc(e.target.value)}
+                    placeholder="Conteúdo do aviso..." 
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-red-600 h-20 resize-none"
+                  />
+                </div>
+                <div className="flex justify-end gap-2 pt-2">
+                  <button type="button" onClick={() => setShowAddNoticeModal(false)} className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold">Cancelar</button>
+                  <button type="submit" className="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-bold shadow-md">Publicar Aviso</button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        </Portal>
       )}
     </div>
   );

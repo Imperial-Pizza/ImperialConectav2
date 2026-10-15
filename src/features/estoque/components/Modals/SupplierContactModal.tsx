@@ -12,6 +12,7 @@ import {
   User,
   X,
 } from 'lucide-react';
+import { Portal } from '@/components/ui/Portal';
 import type { Fornecedor, Insumo } from '../../types';
 
 interface SupplierContactModalProps {
@@ -47,15 +48,16 @@ export function SupplierContactModal({
   const whatsappUrl = rawPhone ? `https://wa.me/55${rawPhone}?text=${mensagemWhatsApp}` : null;
 
   return (
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4"
-          onClick={onClose}
-        >
+    <Portal>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-[60] flex items-center justify-center p-4"
+            onClick={onClose}
+          >
           <motion.div
             role="dialog"
             aria-modal="true"
@@ -233,5 +235,6 @@ export function SupplierContactModal({
         </motion.div>
       )}
     </AnimatePresence>
+  </Portal>
   );
 }

@@ -11,6 +11,7 @@ import {
   Minus,
   X,
 } from 'lucide-react';
+import { Portal } from '@/components/ui/Portal';
 import type { Insumo } from '../../types';
 
 interface QuickStockModalProps {
@@ -66,15 +67,16 @@ export function QuickStockModal({
   const fastValues = tipo === 'entrada' ? [5, 10, 20, 50] : [1, 2, 5, 10];
 
   return (
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4"
-          onClick={onClose}
-        >
+    <Portal>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-[60] flex items-center justify-center p-4"
+            onClick={onClose}
+          >
           <motion.div
             role="dialog"
             aria-modal="true"
@@ -254,5 +256,6 @@ export function QuickStockModal({
         </motion.div>
       )}
     </AnimatePresence>
+  </Portal>
   );
 }

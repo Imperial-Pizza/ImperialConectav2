@@ -15,6 +15,7 @@ import {
   User,
   X,
 } from 'lucide-react';
+import { Portal } from '@/components/ui/Portal';
 
 import { CATEGORIAS_FORNECEDOR } from '../../utils/constants';
 import type { Fornecedor, NovoFornecedor } from '../../types';
@@ -131,15 +132,16 @@ export function AddFornecedorModal({
   };
 
   return (
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto"
-          onClick={onClose}
-        >
+    <Portal>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-[60] flex items-center justify-center p-4 overflow-y-auto"
+            onClick={onClose}
+          >
           <motion.div
             role="dialog"
             aria-modal="true"
@@ -481,5 +483,6 @@ export function AddFornecedorModal({
         </motion.div>
       )}
     </AnimatePresence>
+  </Portal>
   );
 }

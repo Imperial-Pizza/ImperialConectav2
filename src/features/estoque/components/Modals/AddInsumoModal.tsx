@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X, Package, Hash, Building2, Tag, Layers, DollarSign, AlertCircle, FileText } from 'lucide-react';
+import { Portal } from '@/components/ui/Portal';
 
 import { CATEGORIAS_INSUMO, UNIDADES_INSUMO } from '../../utils/constants';
 import type { Insumo, NovoInsumo } from '../../types';
@@ -95,15 +96,16 @@ export function AddInsumoModal({
   };
 
   return (
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto"
-          onClick={onClose}
-        >
+    <Portal>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-[60] flex items-center justify-center p-4 overflow-y-auto"
+            onClick={onClose}
+          >
           <motion.div
             role="dialog"
             aria-modal="true"
@@ -330,5 +332,6 @@ export function AddInsumoModal({
         </motion.div>
       )}
     </AnimatePresence>
+  </Portal>
   );
 }
