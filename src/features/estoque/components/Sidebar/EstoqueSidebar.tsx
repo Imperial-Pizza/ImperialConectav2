@@ -1,6 +1,6 @@
 'use client';
 
-import { BarChart3, Package, Sparkles } from 'lucide-react';
+import { BarChart3, Package, Sparkles, Truck } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 import type { EstoqueSubModule } from '../../types';
@@ -17,6 +17,7 @@ const ITEMS: {
   activeIconColor: string;
 }[] = [
   { id: 'estoque', label: 'Controle de Estoque', icon: Package, activeIconColor: 'text-amber-400' },
+  { id: 'fornecedores', label: 'Fornecedores', icon: Truck, activeIconColor: 'text-blue-400' },
   { id: 'cmv', label: 'Cálculo de CMV Global', icon: BarChart3, activeIconColor: 'text-red-400' },
 ];
 

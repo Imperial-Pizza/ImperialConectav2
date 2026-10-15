@@ -7,6 +7,18 @@ export const CATEGORIAS_INSUMO = [
   'Bebidas',
 ] as const;
 
+export const CATEGORIAS_FORNECEDOR = [
+  'Massas & Farinhas',
+  'Frios & Laticínios',
+  'Molhos & Conservas',
+  'Embutidos & Carnes',
+  'Hortifrúti & Frescos',
+  'Bebidas & Adega',
+  'Embalagens & Descartáveis',
+  'Gás & Manutenção',
+  'Outros',
+] as const;
+
 export const UNIDADES_INSUMO = ['kg', 'un', 'L', 'g'] as const;
 
 export const FILTRO_TODAS = 'Todas';

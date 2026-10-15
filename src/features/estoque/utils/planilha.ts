@@ -65,6 +65,53 @@ export function exportarCsv(items: Insumo[]) {
   );
 }
 
+const HEADERS_FORNECEDORES = [
+  'Código',
+  'Nome Fantasia',
+  'Razão Social',
+  'CNPJ',
+  'Categoria',
+  'Representante',
+  'Telefone',
+  'E-mail',
+  'Cidade',
+  'UF',
+  'Prazo de Entrega',
+  'Condição de Pagamento',
+  'Status',
+  'Insumos Fornecidos',
+  'Observações',
+];
+
+export function exportarFornecedoresCsv(fornecedores: import('../types').Fornecedor[]) {
+  const linhas = [
+    HEADERS_FORNECEDORES,
+    ...fornecedores.map((f) => [
+      `FOR-${String(f.id).padStart(3, '0')}`,
+      f.nome,
+      f.razaoSocial || '',
+      f.cnpj,
+      f.categoria,
+      f.contatoNome,
+      f.telefone,
+      f.email,
+      f.cidade,
+      f.estado,
+      f.prazoEntrega,
+      f.condicaoPagamento,
+      f.status,
+      (f.insumosVinculados || []).join('; '),
+      f.observacoes || '',
+    ]),
+  ].map((cols) => cols.map(escaparCsv).join(','));
+
+  baixarArquivo(
+    linhas.join('\n'),
+    `imperial_pizza_fornecedores_${hoje()}.csv`,
+    'text/csv;charset=utf-8;',
+  );
+}
+
 /** Gera planilha separada por tabulação, aberta nativamente pelo Excel. */
 export function exportarExcel(items: Insumo[]) {
   const linhas = [HEADERS, ...items.map(toRow)].map((cols) => cols.join('\t'));

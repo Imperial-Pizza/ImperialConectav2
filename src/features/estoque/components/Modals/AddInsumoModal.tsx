@@ -10,6 +10,7 @@ import type { Insumo, NovoInsumo } from '../../types';
 interface InsumoModalProps {
   open: boolean;
   initialData?: Insumo | null;
+  fornecedoresDisponiveis?: string[];
   onClose: () => void;
   onSubmit: (insumo: NovoInsumo) => Promise<unknown> | void;
 }
@@ -17,7 +18,13 @@ interface InsumoModalProps {
 const inputClass =
   'w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-red-600 focus:ring-2 focus:ring-red-600/10 bg-slate-50/70 hover:bg-slate-50 focus:bg-white text-slate-800 font-medium transition-all';
 
-export function AddInsumoModal({ open, initialData, onClose, onSubmit }: InsumoModalProps) {
+export function AddInsumoModal({
+  open,
+  initialData,
+  fornecedoresDisponiveis = [],
+  onClose,
+  onSubmit,
+}: InsumoModalProps) {
   const isEditing = Boolean(initialData);
 
   const [form, setForm] = useState({
@@ -270,11 +277,19 @@ export function AddInsumoModal({ open, initialData, onClose, onSubmit }: InsumoM
                 <input
                   id="insumo-fornecedor"
                   type="text"
+                  list="fornecedores-sugestoes"
                   value={form.fornecedor}
                   onChange={(e) => update('fornecedor', e.target.value)}
-                  placeholder="Ex: Laticínios Scala / Distribuidora Alimentos"
+                  placeholder="Ex: Laticínios Scala / Moinho Caputo"
                   className={inputClass}
                 />
+                {fornecedoresDisponiveis.length > 0 && (
+                  <datalist id="fornecedores-sugestoes">
+                    {fornecedoresDisponiveis.map((f) => (
+                      <option key={f} value={f} />
+                    ))}
+                  </datalist>
+                )}
               </div>
 
               {/* Observações */}
