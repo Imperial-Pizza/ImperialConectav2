@@ -11,6 +11,8 @@ import {
   Search,
   Upload,
   ChevronDown,
+  AlertTriangle,
+  X,
 } from 'lucide-react';
 
 import { CATEGORIAS_INSUMO, FILTRO_TODAS } from '../../utils/constants';
@@ -20,9 +22,11 @@ interface EstoqueToolbarProps {
   search: string;
   categoria: string;
   viewMode: EstoqueViewMode;
+  apenasBaixo?: boolean;
   onSearchChange: (value: string) => void;
   onCategoriaChange: (value: string) => void;
   onViewModeChange: (mode: EstoqueViewMode) => void;
+  onToggleApenasBaixo?: () => void;
   onImport: (file: File) => void;
   onExportCsv: () => void;
   onExportExcel: () => void;
@@ -33,9 +37,11 @@ export function EstoqueToolbar({
   search,
   categoria,
   viewMode,
+  apenasBaixo = false,
   onSearchChange,
   onCategoriaChange,
   onViewModeChange,
+  onToggleApenasBaixo,
   onImport,
   onExportCsv,
   onExportExcel,
@@ -132,6 +138,24 @@ export function EstoqueToolbar({
             </select>
             <ChevronDown className="w-3.5 h-3.5 text-slate-400 pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2" />
           </div>
+
+          {/* Tag de Filtro Ativo: Estoque Baixo */}
+          {apenasBaixo && (
+            <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-red-50 text-red-700 border border-red-200 text-xs font-bold animate-in fade-in">
+              <AlertTriangle className="w-3.5 h-3.5 text-red-600 shrink-0" />
+              <span>Apenas Estoque Crítico</span>
+              {onToggleApenasBaixo && (
+                <button
+                  type="button"
+                  onClick={onToggleApenasBaixo}
+                  title="Remover filtro de estoque baixo"
+                  className="ml-1 p-0.5 rounded-md hover:bg-red-200 text-red-800 transition-colors cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Lado Direito: Importar, Exportar e Modo de Visualização */}

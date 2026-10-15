@@ -102,6 +102,17 @@ export function useEstoque() {
     setItems((prev) => [...novos, ...prev]);
   };
 
+  const ajustarEstoque = async (id: number, delta: number) => {
+    const item = items.find((i) => i.id === id);
+    if (!item) return;
+    const novaQtd = Math.max(0, Number((item.qtd + delta).toFixed(2)));
+    await updateInsumoService(id, { qtd: novaQtd });
+    setItems((prev) =>
+      prev.map((i) => (i.id === id ? { ...i, qtd: novaQtd } : i))
+    );
+    return novaQtd;
+  };
+
   return {
     items,
     filteredItems,
@@ -121,6 +132,7 @@ export function useEstoque() {
     editInsumo,
     deleteInsumo,
     importInsumos,
+    ajustarEstoque,
   };
 }
 

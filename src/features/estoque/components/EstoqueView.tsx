@@ -111,7 +111,11 @@ export default function EstoqueView() {
       <Toaster position="top-right" />
 
       <div className="flex flex-col md:flex-row gap-8">
-        <EstoqueSidebar active={activeSubModule} onChange={setActiveSubModule} />
+        <EstoqueSidebar
+          active={activeSubModule}
+          lowStockCount={estoque.lowStockCount}
+          onChange={setActiveSubModule}
+        />
 
         <div className="flex-1 min-w-0">
           <AnimatePresence mode="wait">
@@ -119,6 +123,7 @@ export default function EstoqueView() {
               <EstoquePanel
                 key="estoque"
                 estoque={estoque}
+                fornecedores={fornecedoresHook.fornecedores}
                 onAddInsumo={() => {
                   setEditingInsumo(null);
                   setShowAddModal(true);
@@ -129,6 +134,7 @@ export default function EstoqueView() {
                 onDeleteInsumo={(insumo) => {
                   setDeletingInsumo(insumo);
                 }}
+                onNavigateToFornecedores={() => setActiveSubModule('fornecedores')}
               />
             ) : activeSubModule === 'fornecedores' ? (
               <FornecedoresPanel

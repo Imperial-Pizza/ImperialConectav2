@@ -7,6 +7,7 @@ import type { EstoqueSubModule } from '../../types';
 
 interface EstoqueSidebarProps {
   active: EstoqueSubModule;
+  lowStockCount?: number;
   onChange: (subModule: EstoqueSubModule) => void;
 }
 
@@ -21,7 +22,7 @@ const ITEMS: {
   { id: 'cmv', label: 'Cálculo de CMV Global', icon: BarChart3, activeIconColor: 'text-red-400' },
 ];
 
-export function EstoqueSidebar({ active, onChange }: EstoqueSidebarProps) {
+export function EstoqueSidebar({ active, lowStockCount = 0, onChange }: EstoqueSidebarProps) {
   return (
     <aside className="w-full md:w-72 shrink-0">
       <nav
@@ -34,6 +35,7 @@ export function EstoqueSidebar({ active, onChange }: EstoqueSidebarProps) {
 
         {ITEMS.map(({ id, label, icon: Icon, activeIconColor }) => {
           const isActive = active === id;
+          const showLowStock = id === 'estoque' && lowStockCount > 0;
 
           return (
             <button
@@ -41,14 +43,29 @@ export function EstoqueSidebar({ active, onChange }: EstoqueSidebarProps) {
               type="button"
               onClick={() => onChange(id)}
               aria-current={isActive ? 'page' : undefined}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
                 isActive
                   ? 'bg-gradient-to-r from-slate-900 to-slate-800 text-white shadow-md shadow-slate-900/10'
                   : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
               }`}
             >
-              <Icon className={`w-4 h-4 ${isActive ? activeIconColor : 'text-slate-500'}`} />
-              <span>{label}</span>
+              <div className="flex items-center gap-3">
+                <Icon className={`w-4 h-4 ${isActive ? activeIconColor : 'text-slate-500'}`} />
+                <span>{label}</span>
+              </div>
+
+              {showLowStock && (
+                <span
+                  title={`${lowStockCount} itens com estoque baixo`}
+                  className={`px-2 py-0.5 rounded-full text-[10px] font-black tracking-tight ${
+                    isActive
+                      ? 'bg-red-500 text-white shadow-xs'
+                      : 'bg-red-100 text-red-600'
+                  }`}
+                >
+                  {lowStockCount}
+                </span>
+              )}
             </button>
           );
         })}

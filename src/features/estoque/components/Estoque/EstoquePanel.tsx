@@ -10,24 +10,30 @@ import { EstoqueToolbar } from './EstoqueToolbar';
 import { EstoqueTable } from './EstoqueTable';
 import { EstoqueCards } from './EstoqueCards';
 import { EstoquePagination } from './EstoquePagination';
+import { QuickStockModal } from '../Modals/QuickStockModal';
+import { SupplierContactModal } from '../Modals/SupplierContactModal';
 import { exportarCsv, exportarExcel, lerArquivoTexto, parsePlanilha } from '../../utils/planilha';
 import type { UseEstoqueReturn } from '../../hooks/useEstoque';
-import type { Insumo } from '../../types';
+import type { Fornecedor, Insumo } from '../../types';
 
 interface EstoquePanelProps {
   estoque: UseEstoqueReturn;
+  fornecedores?: Fornecedor[];
   onAddInsumo: () => void;
   onEditInsumo: (insumo: Insumo) => void;
   onDeleteInsumo: (insumo: Insumo) => void;
+  onNavigateToFornecedores?: () => void;
 }
 
 const ITEMS_PER_PAGE = 10;
 
 export function EstoquePanel({
   estoque,
+  fornecedores = [],
   onAddInsumo,
   onEditInsumo,
   onDeleteInsumo,
+  onNavigateToFornecedores,
 }: EstoquePanelProps) {
   const {
     items,
@@ -44,9 +50,12 @@ export function EstoquePanel({
     viewMode,
     setViewMode,
     importInsumos,
+    ajustarEstoque,
   } = estoque;
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [adjustingInsumo, setAdjustingInsumo] = useState<Insumo | null>(null);
+  const [viewingSupplierInsumo, setViewingSupplierInsumo] = useState<Insumo | null>(null);
 
   // Reseta para a primeira página sempre que a busca ou filtro mudar
   useEffect(() => {
@@ -77,6 +86,19 @@ export function EstoquePanel({
     }
   };
 
+  const handleConfirmQuickAdjust = async (delta: number) => {
+    if (!adjustingInsumo) return;
+    try {
+      const novoSaldo = await ajustarEstoque(adjustingInsumo.id, delta);
+      toast.success(
+        `Estoque de ${adjustingInsumo.nome} atualizado para ${novoSaldo} ${adjustingInsumo.unidade}!`
+      );
+      setAdjustingInsumo(null);
+    } catch {
+      toast.error('Não foi possível movimentar o estoque.');
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -96,9 +118,11 @@ export function EstoquePanel({
         search={search}
         categoria={categoria}
         viewMode={viewMode}
+        apenasBaixo={apenasBaixo}
         onSearchChange={setSearch}
         onCategoriaChange={setCategoria}
         onViewModeChange={setViewMode}
+        onToggleApenasBaixo={() => setApenasBaixo(false)}
         onImport={handleImport}
         onExportCsv={() => exportarCsv(items)}
         onExportExcel={() => exportarExcel(items)}
@@ -117,7 +141,20 @@ export function EstoquePanel({
         <div className="rounded-3xl border border-dashed border-slate-200 bg-white p-12 text-center space-y-2">
           <PackageSearch className="mx-auto h-8 w-8 text-slate-300" />
           <p className="text-sm font-bold text-slate-700">Nenhum insumo encontrado</p>
-          <p className="text-xs text-slate-500">Ajuste a busca ou o filtro de categoria.</p>
+          <p className="text-xs text-slate-500">
+            {apenasBaixo
+              ? 'Todos os insumos estão com estoque saudável no momento.'
+              : 'Ajuste a busca ou o filtro de categoria.'}
+          </p>
+          {apenasBaixo && (
+            <button
+              type="button"
+              onClick={() => setApenasBaixo(false)}
+              className="mt-2 text-xs font-bold text-red-600 hover:underline cursor-pointer"
+            >
+              Limpar filtro de estoque baixo
+            </button>
+          )}
         </div>
       ) : (
         <div className="space-y-4">
@@ -126,12 +163,16 @@ export function EstoquePanel({
               items={paginatedItems}
               onEdit={onEditInsumo}
               onDelete={onDeleteInsumo}
+              onQuickAdjust={(insumo) => setAdjustingInsumo(insumo)}
+              onViewSupplier={(insumo) => setViewingSupplierInsumo(insumo)}
             />
           ) : (
             <EstoqueCards
               items={paginatedItems}
               onEdit={onEditInsumo}
               onDelete={onDeleteInsumo}
+              onQuickAdjust={(insumo) => setAdjustingInsumo(insumo)}
+              onViewSupplier={(insumo) => setViewingSupplierInsumo(insumo)}
             />
           )}
 
@@ -145,6 +186,23 @@ export function EstoquePanel({
           />
         </div>
       )}
+
+      {/* Modal de Movimentação Rápida (+ / -) */}
+      <QuickStockModal
+        open={Boolean(adjustingInsumo)}
+        insumo={adjustingInsumo}
+        onClose={() => setAdjustingInsumo(null)}
+        onConfirm={handleConfirmQuickAdjust}
+      />
+
+      {/* Modal de Contato com Fornecedor do Insumo */}
+      <SupplierContactModal
+        open={Boolean(viewingSupplierInsumo)}
+        insumo={viewingSupplierInsumo}
+        fornecedores={fornecedores}
+        onClose={() => setViewingSupplierInsumo(null)}
+        onNavigateToFornecedores={onNavigateToFornecedores}
+      />
     </motion.div>
   );
 }
