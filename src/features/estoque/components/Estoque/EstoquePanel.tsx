@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Loader2, PackageSearch } from 'lucide-react';
 import toast from 'react-hot-toast';
 
+import { EstoqueStats } from './EstoqueStats';
 import { EstoqueToolbar } from './EstoqueToolbar';
 import { EstoqueTable } from './EstoqueTable';
 import { EstoqueCards } from './EstoqueCards';
@@ -31,6 +32,9 @@ export function EstoquePanel({
   const {
     items,
     filteredItems,
+    metrics,
+    apenasBaixo,
+    setApenasBaixo,
     isLoading,
     error,
     search,
@@ -47,7 +51,7 @@ export function EstoquePanel({
   // Reseta para a primeira página sempre que a busca ou filtro mudar
   useEffect(() => {
     setCurrentPage(1);
-  }, [search, categoria]);
+  }, [search, categoria, apenasBaixo]);
 
   const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE) || 1;
 
@@ -81,6 +85,13 @@ export function EstoquePanel({
       transition={{ duration: 0.3 }}
       className="space-y-6"
     >
+      {/* Cards de KPIs e Estatísticas do Estoque */}
+      <EstoqueStats
+        metrics={metrics}
+        apenasBaixo={apenasBaixo}
+        onToggleApenasBaixo={() => setApenasBaixo((prev) => !prev)}
+      />
+
       <EstoqueToolbar
         search={search}
         categoria={categoria}

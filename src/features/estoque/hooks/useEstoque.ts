@@ -21,6 +21,8 @@ export function useEstoque() {
   const [categoria, setCategoria] = useState<string>(FILTRO_TODAS);
   const [viewMode, setViewMode] = useState<EstoqueViewMode>('table');
 
+  const [apenasBaixo, setApenasBaixo] = useState(false);
+
   useEffect(() => {
     let active = true;
 
@@ -48,14 +50,35 @@ export function useEstoque() {
       const matchesCategoria =
         categoria === FILTRO_TODAS || item.categoria === categoria;
 
-      return matchesSearch && matchesCategoria;
-    });
-  }, [items, search, categoria]);
+      const matchesBaixo = !apenasBaixo || isEstoqueBaixo(item);
 
-  const lowStockCount = useMemo(
-    () => items.filter(isEstoqueBaixo).length,
-    [items],
-  );
+      return matchesSearch && matchesCategoria && matchesBaixo;
+    });
+  }, [items, search, categoria, apenasBaixo]);
+
+  const metrics = useMemo(() => {
+    const totalInsumos = items.length;
+    const estoqueBaixo = items.filter(isEstoqueBaixo).length;
+    const estoqueNormal = totalInsumos - estoqueBaixo;
+    const valorTotal = items.reduce(
+      (acc, item) => acc + item.qtd * item.custoUnitario,
+      0
+    );
+    const categorias = new Set(items.map((item) => item.categoria)).size;
+    const percentualAbastecimento =
+      totalInsumos > 0 ? Math.round((estoqueNormal / totalInsumos) * 100) : 100;
+
+    return {
+      totalInsumos,
+      estoqueBaixo,
+      estoqueNormal,
+      valorTotal,
+      categorias,
+      percentualAbastecimento,
+    };
+  }, [items]);
+
+  const lowStockCount = metrics.estoqueBaixo;
 
   const addInsumo = async (novo: NovoInsumo) => {
     const created = await createInsumo(novo);
@@ -83,6 +106,9 @@ export function useEstoque() {
     items,
     filteredItems,
     lowStockCount,
+    metrics,
+    apenasBaixo,
+    setApenasBaixo,
     isLoading,
     error,
     search,
