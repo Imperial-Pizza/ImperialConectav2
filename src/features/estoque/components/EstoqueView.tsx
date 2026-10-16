@@ -8,6 +8,7 @@ import { AppShell } from '@/layouts/AppShell';
 
 import { EstoqueSidebar } from './Sidebar/EstoqueSidebar';
 import { EstoquePanel } from './Estoque/EstoquePanel';
+import { ProdutosPesadosPanel } from './ProdutosPesados/ProdutosPesadosPanel';
 import { FornecedoresPanel } from './Fornecedores/FornecedoresPanel';
 import { CmvPanel } from './Cmv/CmvPanel';
 import { AddInsumoModal } from './Modals/AddInsumoModal';
@@ -15,6 +16,7 @@ import { DeleteInsumoModal } from './Modals/DeleteInsumoModal';
 import { AddFornecedorModal } from './Modals/AddFornecedorModal';
 import { DeleteFornecedorModal } from './Modals/DeleteFornecedorModal';
 import { useEstoque } from '../hooks/useEstoque';
+import { useProdutosPesados } from '../hooks/useProdutosPesados';
 import { useFornecedores } from '../hooks/useFornecedores';
 import { useCmv } from '../hooks/useCmv';
 import type { EstoqueSubModule, Fornecedor, Insumo, NovoFornecedor, NovoInsumo } from '../types';
@@ -33,6 +35,7 @@ export default function EstoqueView() {
   const [deletingFornecedor, setDeletingFornecedor] = useState<Fornecedor | null>(null);
 
   const estoque = useEstoque();
+  const produtosPesadosHook = useProdutosPesados();
   const fornecedoresHook = useFornecedores();
   const cmv = useCmv();
 
@@ -114,6 +117,7 @@ export default function EstoqueView() {
         <EstoqueSidebar
           active={activeSubModule}
           lowStockCount={estoque.lowStockCount}
+          lowWeighedCount={produtosPesadosHook.lowWeighedCount}
           onChange={setActiveSubModule}
         />
 
@@ -135,6 +139,12 @@ export default function EstoqueView() {
                   setDeletingInsumo(insumo);
                 }}
                 onNavigateToFornecedores={() => setActiveSubModule('fornecedores')}
+              />
+            ) : activeSubModule === 'produtos-pesados' ? (
+              <ProdutosPesadosPanel
+                key="produtos-pesados"
+                produtosPesados={produtosPesadosHook}
+                insumosDisponiveis={estoque.items.map((i) => `${i.nome} (${i.codigo})`)}
               />
             ) : activeSubModule === 'fornecedores' ? (
               <FornecedoresPanel

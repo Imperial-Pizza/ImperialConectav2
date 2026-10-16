@@ -1,4 +1,4 @@
-export type EstoqueSubModule = 'estoque' | 'cmv' | 'fornecedores';
+export type EstoqueSubModule = 'estoque' | 'produtos-pesados' | 'fornecedores' | 'cmv';
 
 export type EstoqueViewMode = 'table' | 'cards';
 
@@ -72,3 +72,42 @@ export interface CmvResultado {
   cmvPercentual: number;
   margemContribuicao: number;
 }
+
+export interface ProdutoPesado {
+  id: number;
+  /** Código único da pesagem/lote (ex: PES-001) */
+  codigo: string;
+  /** Nome comercial do produto pesado/porcionado (ex: Muçarela Triturada 5kg) */
+  nome: string;
+  /** Categoria do produto pesado */
+  categoria: string;
+  /** Insumo de origem que foi fracionado/pesado (ex: Muçarela em Peça) */
+  insumoOrigem: string;
+  /** Peso unitário de cada pacote/porção em kg (ex: 5 para 5kg) */
+  pesoUnitarioKg: number;
+  /** Quantidade de pacotes/porções seladas disponíveis */
+  quantidadePacotes: number;
+  /** Peso total disponível em estoque (quantidadePacotes * pesoUnitarioKg) */
+  pesoTotalKg: number;
+  /** Peso mínimo de segurança antes de disparar alerta */
+  pesoMinimoKg: number;
+  /** Custo apurado por kg (R$) */
+  custoPorKg: number;
+  /** Data da pesagem / fracionamento */
+  dataPesagem: string;
+  /** Data de validade da etiqueta */
+  dataValidade: string;
+  /** Identificador do lote de preparo (ex: LT-2610-01) */
+  lote: string;
+  /** Temperatura de conservação (ex: 1°C a 4°C na câmara fria) */
+  temperatura?: string;
+  /** Rendimento percentual obtido no fracionamento */
+  rendimentoPercentual?: number;
+  /** Responsável ou equipe que realizou a pesagem */
+  responsavel: string;
+  /** Observações adicionais */
+  observacoes?: string;
+}
+
+export type NovoProdutoPesado = Omit<ProdutoPesado, 'id' | 'pesoTotalKg'>;
+

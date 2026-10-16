@@ -1,6 +1,6 @@
 'use client';
 
-import { BarChart3, Package, Sparkles, Truck } from 'lucide-react';
+import { BarChart3, Package, Scale, Sparkles, Truck } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 import type { EstoqueSubModule } from '../../types';
@@ -8,6 +8,7 @@ import type { EstoqueSubModule } from '../../types';
 interface EstoqueSidebarProps {
   active: EstoqueSubModule;
   lowStockCount?: number;
+  lowWeighedCount?: number;
   onChange: (subModule: EstoqueSubModule) => void;
 }
 
@@ -18,11 +19,12 @@ const ITEMS: {
   activeIconColor: string;
 }[] = [
   { id: 'estoque', label: 'Controle de Estoque', icon: Package, activeIconColor: 'text-amber-400' },
+  { id: 'produtos-pesados', label: 'Produtos Pesados', icon: Scale, activeIconColor: 'text-emerald-400' },
   { id: 'fornecedores', label: 'Fornecedores', icon: Truck, activeIconColor: 'text-blue-400' },
   { id: 'cmv', label: 'Cálculo de CMV Global', icon: BarChart3, activeIconColor: 'text-red-400' },
 ];
 
-export function EstoqueSidebar({ active, lowStockCount = 0, onChange }: EstoqueSidebarProps) {
+export function EstoqueSidebar({ active, lowStockCount = 0, lowWeighedCount = 0, onChange }: EstoqueSidebarProps) {
   return (
     <aside className="w-full md:w-72 shrink-0">
       <nav
@@ -35,7 +37,13 @@ export function EstoqueSidebar({ active, lowStockCount = 0, onChange }: EstoqueS
 
         {ITEMS.map(({ id, label, icon: Icon, activeIconColor }) => {
           const isActive = active === id;
-          const showLowStock = id === 'estoque' && lowStockCount > 0;
+          const badgeCount =
+            id === 'estoque'
+              ? lowStockCount
+              : id === 'produtos-pesados'
+              ? lowWeighedCount
+              : 0;
+          const showBadge = badgeCount > 0;
 
           return (
             <button
@@ -54,16 +62,16 @@ export function EstoqueSidebar({ active, lowStockCount = 0, onChange }: EstoqueS
                 <span>{label}</span>
               </div>
 
-              {showLowStock && (
+              {showBadge && (
                 <span
-                  title={`${lowStockCount} itens com estoque baixo`}
+                  title={`${badgeCount} itens com estoque/lote baixo`}
                   className={`px-2 py-0.5 rounded-full text-[10px] font-black tracking-tight ${
                     isActive
                       ? 'bg-red-500 text-white shadow-xs'
                       : 'bg-red-100 text-red-600'
                   }`}
                 >
-                  {lowStockCount}
+                  {badgeCount}
                 </span>
               )}
             </button>
