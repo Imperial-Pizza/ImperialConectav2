@@ -114,7 +114,7 @@ export default function EstoqueView() {
     <AppShell activeModule="estoque">
       <Toaster position="top-right" />
 
-      <div className="flex flex-col md:flex-row gap-8">
+      <div className="flex flex-col md:flex-row gap-8 items-start">
         <EstoqueSidebar
           active={activeSubModule}
           lowStockCount={estoque.lowStockCount}

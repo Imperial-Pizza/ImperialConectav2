@@ -27,10 +27,10 @@ const ITEMS: {
 
 export function EstoqueSidebar({ active, lowStockCount = 0, lowWeighedCount = 0, onChange }: EstoqueSidebarProps) {
   return (
-    <aside className="w-full md:w-72 shrink-0">
+    <aside className="w-full md:w-72 shrink-0 md:sticky md:top-24 self-start z-10">
       <nav
         aria-label="Módulos de gestão de estoque"
-        className="bg-white border border-slate-200/80 rounded-3xl p-4 shadow-sm space-y-2 md:sticky md:top-28"
+        className="bg-white border border-slate-200/80 rounded-3xl p-4 shadow-sm space-y-2 max-h-[calc(100vh-7rem)] overflow-y-auto"
       >
         <div className="px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-400">
           Módulos de Gestão

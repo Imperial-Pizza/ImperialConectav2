@@ -71,7 +71,7 @@ export function AppShell({ activeModule, children }: AppShellProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-800 font-sans antialiased selection:bg-red-600 selection:text-white flex flex-col justify-between relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-800 font-sans antialiased selection:bg-red-600 selection:text-white flex flex-col justify-between relative overflow-x-clip">
       <Header
         activeModule={activeModule}
         notificationsOpen={notificationsOpen}
