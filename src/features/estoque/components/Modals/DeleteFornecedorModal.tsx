@@ -71,9 +71,10 @@ export function DeleteFornecedorModal({
                 <button
                   type="button"
                   onClick={onConfirm}
-                  className="px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-md shadow-red-600/20 transition-all cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 active:scale-[0.98] text-white text-xs font-bold shadow-md shadow-red-600/20 transition-all cursor-pointer flex items-center gap-1.5"
                 >
-                  Sim, Excluir
+                  <Trash2 className="w-4 h-4" />
+                  <span>Sim, Excluir</span>
                 </button>
               </div>
             </motion.div>
