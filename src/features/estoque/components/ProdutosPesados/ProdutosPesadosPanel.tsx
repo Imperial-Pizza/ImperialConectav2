@@ -159,12 +159,8 @@ export function ProdutosPesadosPanel({
       transition={{ duration: 0.3 }}
       className="space-y-6"
     >
-      {/* 1. Métricas da Balança e Fracionamento */}
-      <ProdutosPesadosStats
-        metrics={metrics}
-        apenasBaixo={apenasBaixo}
-        onToggleApenasBaixo={() => setApenasBaixo(!apenasBaixo)}
-      />
+      {/* 1. Métricas da Balança e Fracionamento (Informativo) */}
+      <ProdutosPesadosStats metrics={metrics} />
 
       {/* 2. Barra de Ferramentas / Filtros */}
       <ProdutosPesadosToolbar

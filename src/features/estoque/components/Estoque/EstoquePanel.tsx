@@ -39,8 +39,8 @@ export function EstoquePanel({
     items,
     filteredItems,
     metrics,
-    apenasBaixo,
-    setApenasBaixo,
+    statusFilter,
+    setStatusFilter,
     isLoading,
     error,
     search,
@@ -60,7 +60,7 @@ export function EstoquePanel({
   // Reseta para a primeira página sempre que a busca ou filtro mudar
   useEffect(() => {
     setCurrentPage(1);
-  }, [search, categoria, apenasBaixo]);
+  }, [search, categoria, statusFilter]);
 
   const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE) || 1;
 
@@ -107,22 +107,18 @@ export function EstoquePanel({
       transition={{ duration: 0.3 }}
       className="space-y-6"
     >
-      {/* Cards de KPIs e Estatísticas do Estoque */}
-      <EstoqueStats
-        metrics={metrics}
-        apenasBaixo={apenasBaixo}
-        onToggleApenasBaixo={() => setApenasBaixo((prev) => !prev)}
-      />
+      {/* Cards de KPIs e Estatísticas do Estoque (Puramente Informativos) */}
+      <EstoqueStats metrics={metrics} />
 
       <EstoqueToolbar
         search={search}
         categoria={categoria}
+        statusFilter={statusFilter}
         viewMode={viewMode}
-        apenasBaixo={apenasBaixo}
         onSearchChange={setSearch}
         onCategoriaChange={setCategoria}
+        onStatusFilterChange={setStatusFilter}
         onViewModeChange={setViewMode}
-        onToggleApenasBaixo={() => setApenasBaixo(false)}
         onImport={handleImport}
         onExportCsv={() => exportarCsv(items)}
         onExportExcel={() => exportarExcel(items)}
@@ -142,17 +138,17 @@ export function EstoquePanel({
           <PackageSearch className="mx-auto h-8 w-8 text-slate-300" />
           <p className="text-sm font-bold text-slate-700">Nenhum insumo encontrado</p>
           <p className="text-xs text-slate-500">
-            {apenasBaixo
-              ? 'Todos os insumos estão com estoque saudável no momento.'
+            {statusFilter !== 'todos'
+              ? 'Nenhum insumo corresponde ao nível de estoque selecionado.'
               : 'Ajuste a busca ou o filtro de categoria.'}
           </p>
-          {apenasBaixo && (
+          {statusFilter !== 'todos' && (
             <button
               type="button"
-              onClick={() => setApenasBaixo(false)}
+              onClick={() => setStatusFilter('todos')}
               className="mt-2 text-xs font-bold text-red-600 hover:underline cursor-pointer"
             >
-              Limpar filtro de estoque baixo
+              Mostrar todos os insumos
             </button>
           )}
         </div>

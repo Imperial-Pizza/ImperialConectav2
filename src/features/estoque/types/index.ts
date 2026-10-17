@@ -2,6 +2,8 @@ export type EstoqueSubModule = 'estoque' | 'produtos-pesados' | 'fornecedores' |
 
 export type EstoqueViewMode = 'table' | 'cards';
 
+export type InsumoStatusFilter = 'todos' | 'critico' | 'mediano' | 'ok';
+
 export interface Fornecedor {
   id: number;
   /** Nome fantasia ou nome principal do fornecedor */

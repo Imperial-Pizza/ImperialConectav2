@@ -13,15 +13,9 @@ import type { UseProdutosPesadosReturn } from '../../hooks/useProdutosPesados';
 
 interface ProdutosPesadosStatsProps {
   metrics: UseProdutosPesadosReturn['metrics'];
-  apenasBaixo: boolean;
-  onToggleApenasBaixo: () => void;
 }
 
-export function ProdutosPesadosStats({
-  metrics,
-  apenasBaixo,
-  onToggleApenasBaixo,
-}: ProdutosPesadosStatsProps) {
+export function ProdutosPesadosStats({ metrics }: ProdutosPesadosStatsProps) {
   const {
     totalItens,
     totalPacotes,
@@ -32,14 +26,14 @@ export function ProdutosPesadosStats({
   } = metrics;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-stretch">
       {/* Card 1: Peso Total Armazenado */}
-      <div className="bg-white border border-slate-200/90 rounded-3xl p-5 shadow-xs flex flex-col justify-between space-y-2 hover:shadow-md transition-shadow">
+      <div className="bg-white border border-slate-200/90 rounded-3xl p-5 shadow-xs flex flex-col justify-between space-y-2 hover:shadow-md transition-shadow min-h-[128px] h-full">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 whitespace-nowrap">
             Total Pesado & Pronto
           </span>
-          <div className="w-9 h-9 rounded-2xl border flex items-center justify-center bg-emerald-50 text-emerald-600 border-emerald-200">
+          <div className="w-9 h-9 rounded-2xl border flex items-center justify-center bg-emerald-50 text-emerald-600 border-emerald-200 shrink-0">
             <Scale className="w-4 h-4" />
           </div>
         </div>
@@ -50,19 +44,19 @@ export function ProdutosPesadosStats({
               <span className="text-sm font-bold text-emerald-600 uppercase">kg</span>
             </p>
           </div>
-          <p className="text-[11px] font-medium text-slate-500 mt-0.5">
+          <p className="text-[11px] font-medium text-slate-500 mt-0.5 truncate">
             Avaliado em <span className="font-bold text-slate-700">{formatCurrency(valorTotal)}</span> de custo
           </p>
         </div>
       </div>
 
       {/* Card 2: Lotes / Pacotes Fracionados */}
-      <div className="bg-white border border-slate-200/90 rounded-3xl p-5 shadow-xs flex flex-col justify-between space-y-2 hover:shadow-md transition-shadow">
+      <div className="bg-white border border-slate-200/90 rounded-3xl p-5 shadow-xs flex flex-col justify-between space-y-2 hover:shadow-md transition-shadow min-h-[128px] h-full">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 whitespace-nowrap">
             Pacotes Lacrados
           </span>
-          <div className="w-9 h-9 rounded-2xl border flex items-center justify-center bg-blue-50 text-blue-600 border-blue-200">
+          <div className="w-9 h-9 rounded-2xl border flex items-center justify-center bg-blue-50 text-blue-600 border-blue-200 shrink-0">
             <Boxes className="w-4 h-4" />
           </div>
         </div>
@@ -73,36 +67,20 @@ export function ProdutosPesadosStats({
               {totalPacotes === 1 ? 'pacote' : 'pacotes'}
             </span>
           </p>
-          <p className="text-[11px] font-medium text-slate-500 mt-0.5">
+          <p className="text-[11px] font-medium text-slate-500 mt-0.5 truncate">
             Distribuídos em {totalItens} produtos pesados
           </p>
         </div>
       </div>
 
-      {/* Card 3: Lotes Abaixo do Mínimo (Interativo) */}
-      <button
-        type="button"
-        onClick={onToggleApenasBaixo}
-        title="Clique para filtrar apenas os produtos pesados abaixo do estoque mínimo"
-        className={`bg-white border rounded-3xl p-5 shadow-xs flex flex-col justify-between space-y-2 text-left transition-all cursor-pointer ${
-          apenasBaixo
-            ? 'border-red-500 ring-2 ring-red-500/20 bg-red-50/20 shadow-md'
-            : 'border-slate-200/90 hover:border-red-300 hover:shadow-md'
-        }`}
-      >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-              Reposição de Lote
-            </span>
-            {apenasBaixo && (
-              <span className="px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider rounded-md bg-red-600 text-white">
-                Filtro Ativo
-              </span>
-            )}
-          </div>
+      {/* Card 3: Lotes Abaixo do Mínimo (Informativo) */}
+      <div className="bg-white border border-slate-200/90 rounded-3xl p-5 shadow-xs flex flex-col justify-between space-y-2 hover:shadow-md transition-shadow min-h-[128px] h-full">
+        <div className="flex items-center justify-between gap-1.5">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 whitespace-nowrap">
+            Reposição de Lote
+          </span>
           <div
-            className={`w-9 h-9 rounded-2xl border flex items-center justify-center ${
+            className={`w-9 h-9 rounded-2xl border flex items-center justify-center shrink-0 ${
               lotesBaixos > 0
                 ? 'bg-red-50 text-red-600 border-red-200'
                 : 'bg-slate-50 text-slate-400 border-slate-200'
@@ -118,23 +96,21 @@ export function ProdutosPesadosStats({
               {lotesBaixos === 1 ? 'item crítico' : 'itens críticos'}
             </span>
           </p>
-          <p className="text-[11px] font-medium text-slate-500 mt-0.5">
+          <p className="text-[11px] font-medium text-slate-500 mt-0.5 truncate">
             {lotesBaixos > 0
-              ? apenasBaixo
-                ? 'Mostrando críticos • Clique p/ limpar'
-                : 'Abaixo da meta • Pesar novos lotes'
+              ? 'Abaixo da meta • Pesar novos lotes'
               : 'Todos os lotes pesados em nível seguro'}
           </p>
         </div>
-      </button>
+      </div>
 
       {/* Card 4: Aproveitamento / Rendimento Médio */}
-      <div className="bg-white border border-slate-200/90 rounded-3xl p-5 shadow-xs flex flex-col justify-between space-y-2 hover:shadow-md transition-shadow">
+      <div className="bg-white border border-slate-200/90 rounded-3xl p-5 shadow-xs flex flex-col justify-between space-y-2 hover:shadow-md transition-shadow min-h-[128px] h-full">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 whitespace-nowrap">
             Rendimento Médio
           </span>
-          <div className="w-9 h-9 rounded-2xl border flex items-center justify-center bg-amber-50 text-amber-600 border-amber-200">
+          <div className="w-9 h-9 rounded-2xl border flex items-center justify-center bg-amber-50 text-amber-600 border-amber-200 shrink-0">
             <Sparkles className="w-4 h-4 text-amber-500" />
           </div>
         </div>

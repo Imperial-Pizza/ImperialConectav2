@@ -10,7 +10,7 @@ import {
   updateInsumo as updateInsumoService 
 } from '../services/estoqueService';
 import { FILTRO_TODAS } from '../utils/constants';
-import type { EstoqueViewMode, Insumo, NovoInsumo } from '../types';
+import type { EstoqueViewMode, Insumo, InsumoStatusFilter, NovoInsumo } from '../types';
 
 export function useEstoque() {
   const [items, setItems] = useState<Insumo[]>([]);
@@ -19,9 +19,8 @@ export function useEstoque() {
 
   const [search, setSearch] = useState('');
   const [categoria, setCategoria] = useState<string>(FILTRO_TODAS);
+  const [statusFilter, setStatusFilter] = useState<InsumoStatusFilter>('todos');
   const [viewMode, setViewMode] = useState<EstoqueViewMode>('table');
-
-  const [apenasBaixo, setApenasBaixo] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -50,11 +49,19 @@ export function useEstoque() {
       const matchesCategoria =
         categoria === FILTRO_TODAS || item.categoria === categoria;
 
-      const matchesBaixo = !apenasBaixo || isEstoqueBaixo(item);
+      const isBaixo = isEstoqueBaixo(item);
+      const isMediano = !isBaixo && item.min > 0 && item.qtd <= item.min * 1.3;
+      const isOk = !isBaixo && !isMediano;
 
-      return matchesSearch && matchesCategoria && matchesBaixo;
+      const matchesStatus =
+        statusFilter === 'todos' ||
+        (statusFilter === 'critico' && isBaixo) ||
+        (statusFilter === 'mediano' && isMediano) ||
+        (statusFilter === 'ok' && isOk);
+
+      return matchesSearch && matchesCategoria && matchesStatus;
     });
-  }, [items, search, categoria, apenasBaixo]);
+  }, [items, search, categoria, statusFilter]);
 
   const metrics = useMemo(() => {
     const totalInsumos = items.length;
@@ -118,8 +125,10 @@ export function useEstoque() {
     filteredItems,
     lowStockCount,
     metrics,
-    apenasBaixo,
-    setApenasBaixo,
+    statusFilter,
+    setStatusFilter,
+    apenasBaixo: statusFilter === 'critico',
+    setApenasBaixo: (b: boolean) => setStatusFilter(b ? 'critico' : 'todos'),
     isLoading,
     error,
     search,
