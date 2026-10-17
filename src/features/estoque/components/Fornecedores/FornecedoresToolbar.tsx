@@ -61,7 +61,7 @@ export function FornecedoresToolbar({
         <button
           type="button"
           onClick={onAddFornecedor}
-          className="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 active:scale-[0.98] text-white text-xs font-black transition-all shadow-md shadow-red-600/25 flex items-center justify-center gap-2 shrink-0 cursor-pointer"
+          className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-xs font-black transition-all shadow-md shadow-blue-600/25 flex items-center justify-center gap-2 shrink-0 cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>Novo Fornecedor</span>

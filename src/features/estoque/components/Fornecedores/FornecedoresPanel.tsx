@@ -133,7 +133,7 @@ export function FornecedoresPanel({
           <button
             type="button"
             onClick={onAddFornecedor}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-all shadow-md shadow-red-600/20 cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-md shadow-blue-600/20 cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Cadastrar Fornecedor</span>

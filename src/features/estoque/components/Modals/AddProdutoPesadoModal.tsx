@@ -11,6 +11,8 @@ import {
   Thermometer,
   User,
   X,
+  Save,
+  Loader2,
 } from 'lucide-react';
 import { Portal } from '@/components/ui/Portal';
 import { CATEGORIAS_PRODUTO_PESADO } from '../../utils/constants';
@@ -460,13 +462,19 @@ export function AddProdutoPesadoModal({
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/20 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/20 active:scale-95 transition-all cursor-pointer disabled:opacity-50 flex items-center gap-2"
                 >
-                  {isSubmitting
-                    ? 'Salvando...'
-                    : initialData
-                    ? 'Salvar Alterações'
-                    : 'Confirmar Pesagem'}
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Salvando...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4" />
+                      <span>{initialData ? 'Salvar Alterações' : 'Confirmar Pesagem'}</span>
+                    </>
+                  )}
                 </button>
               </div>
             </form>

@@ -10,6 +10,8 @@ import {
   Plus,
   Minus,
   X,
+  Save,
+  Loader2,
 } from 'lucide-react';
 import { Portal } from '@/components/ui/Portal';
 import type { Insumo } from '../../types';
@@ -248,7 +250,17 @@ export function QuickStockModal({
                       : 'bg-amber-600 hover:bg-amber-700 shadow-amber-600/20'
                   }`}
                 >
-                  {isSaving ? 'Gravando...' : 'Confirmar Movimentação'}
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Gravando...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4" />
+                      <span>Confirmar Movimentação</span>
+                    </>
+                  )}
                 </button>
               </div>
             </form>

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertTriangle, Check, CheckCircle2, Loader2, X } from 'lucide-react';
+import { AlertTriangle, Check, CheckCircle2, Loader2, Save, X } from 'lucide-react';
 import { formatCurrency } from '../../utils/format';
 import type { ItemBalanco } from '../../types';
 
@@ -217,7 +217,7 @@ export function FinalizarBalancoModal({
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 active:scale-[0.98] text-white text-xs font-black shadow-md shadow-red-600/25 flex items-center gap-2 transition-all cursor-pointer disabled:opacity-50"
+                className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white text-xs font-black shadow-md shadow-emerald-600/25 flex items-center gap-2 transition-all cursor-pointer disabled:opacity-50"
               >
                 {isSubmitting ? (
                   <>
@@ -226,7 +226,7 @@ export function FinalizarBalancoModal({
                   </>
                 ) : (
                   <>
-                    <Check className="w-4 h-4" />
+                    <Save className="w-4 h-4" />
                     <span>Confirmar & Sincronizar</span>
                   </>
                 )}
