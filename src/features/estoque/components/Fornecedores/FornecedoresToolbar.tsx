@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 
 import { CATEGORIAS_FORNECEDOR, FILTRO_TODAS } from '../../utils/constants';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 import type { EstoqueViewMode } from '../../types';
 import type { FornecedorStatusFilter } from '../../hooks/useFornecedores';
 
@@ -39,6 +40,17 @@ export function FornecedoresToolbar({
   onExportCsv,
   onAddFornecedor,
 }: FornecedoresToolbarProps) {
+  const categoriaOptions = [
+    { value: FILTRO_TODAS, label: 'Todas as Categorias' },
+    ...CATEGORIAS_FORNECEDOR.map((cat) => ({ value: cat, label: cat })),
+  ];
+
+  const statusOptions = [
+    { value: 'todos', label: 'Todos os Status' },
+    { value: 'ativo', label: 'Apenas Ativos' },
+    { value: 'inativo', label: 'Apenas Inativos' },
+  ];
+
   return (
     <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-6">
       {/* Seção 1: Cabeçalho com Título e Ação Principal */}
@@ -91,37 +103,22 @@ export function FornecedoresToolbar({
           </div>
 
           {/* Filtro por Categoria */}
-          <div className="relative">
-            <select
-              value={categoria}
-              onChange={(e) => onCategoriaChange(e.target.value)}
-              aria-label="Filtrar fornecedores por categoria"
-              className="appearance-none pl-3.5 pr-8 py-2.5 bg-slate-50/80 hover:bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:bg-white focus:border-red-600 focus:ring-2 focus:ring-red-600/10 transition-all cursor-pointer shadow-2xs"
-            >
-              <option value={FILTRO_TODAS}>Todas as Categorias</option>
-              {CATEGORIAS_FORNECEDOR.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2" />
-          </div>
+          <CustomSelect
+            value={categoria}
+            onChange={onCategoriaChange}
+            options={categoriaOptions}
+            ariaLabel="Filtrar fornecedores por categoria"
+            activeColorClass="bg-blue-50/90 border-blue-300 text-blue-900"
+          />
 
           {/* Filtro por Status */}
-          <div className="relative">
-            <select
-              value={statusFilter}
-              onChange={(e) => onStatusFilterChange(e.target.value as FornecedorStatusFilter)}
-              aria-label="Filtrar fornecedores por status"
-              className="appearance-none pl-3.5 pr-8 py-2.5 bg-slate-50/80 hover:bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:bg-white focus:border-red-600 focus:ring-2 focus:ring-red-600/10 transition-all cursor-pointer shadow-2xs"
-            >
-              <option value="todos">Todos os Status</option>
-              <option value="ativo">Apenas Ativos</option>
-              <option value="inativo">Apenas Inativos</option>
-            </select>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2" />
-          </div>
+          <CustomSelect
+            value={statusFilter}
+            onChange={(val) => onStatusFilterChange(val as FornecedorStatusFilter)}
+            options={statusOptions}
+            ariaLabel="Filtrar fornecedores por status"
+            activeColorClass="bg-emerald-50/90 border-emerald-300 text-emerald-900"
+          />
         </div>
 
         {/* Lado Direito: Exportar e Modo de Visualização */}

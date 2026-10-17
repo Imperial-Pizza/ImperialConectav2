@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 
 import { CATEGORIAS_INSUMO, FILTRO_TODAS } from '../../utils/constants';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 import type { EstoqueViewMode, InsumoStatusFilter } from '../../types';
 
 interface EstoqueToolbarProps {
@@ -64,6 +65,18 @@ export function EstoqueToolbar({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const categoriaOptions = [
+    { value: FILTRO_TODAS, label: 'Todas as Categorias' },
+    ...CATEGORIAS_INSUMO.map((cat) => ({ value: cat, label: cat })),
+  ];
+
+  const statusOptions = [
+    { value: 'todos', label: 'Todos os Níveis' },
+    { value: 'critico', label: '🚨 Críticos / Estoque Baixo' },
+    { value: 'mediano', label: '⚠️ Medianos / Em Alerta' },
+    { value: 'ok', label: '✅ Em Dia / Nível OK' },
+  ];
 
   return (
     <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-6">
@@ -251,46 +264,22 @@ export function EstoqueToolbar({
           </div>
 
           {/* Filtro por Categoria */}
-          <div className="relative shrink-0">
-            <select
-              value={categoria}
-              onChange={(e) => onCategoriaChange(e.target.value)}
-              aria-label="Filtrar por categoria"
-              className={`appearance-none pl-3.5 pr-8 py-2 border rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs focus:outline-none focus:bg-white focus:ring-2 focus:ring-red-600/10 ${
-                categoria !== FILTRO_TODAS
-                  ? 'bg-red-50/80 border-red-300 text-red-900'
-                  : 'bg-slate-50/90 hover:bg-slate-100/70 border-slate-200/90 text-slate-700'
-              }`}
-            >
-              <option value={FILTRO_TODAS}>Todas as Categorias</option>
-              {CATEGORIAS_INSUMO.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2" />
-          </div>
+          <CustomSelect
+            value={categoria}
+            onChange={onCategoriaChange}
+            options={categoriaOptions}
+            ariaLabel="Filtrar por categoria"
+            activeColorClass="bg-red-50/90 border-red-300 text-red-900"
+          />
 
           {/* Filtro por Nível de Estoque (Status) */}
-          <div className="relative shrink-0">
-            <select
-              value={statusFilter}
-              onChange={(e) => onStatusFilterChange(e.target.value as InsumoStatusFilter)}
-              aria-label="Filtrar por nível de estoque"
-              className={`appearance-none pl-3.5 pr-8 py-2 border rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs focus:outline-none focus:bg-white focus:ring-2 focus:ring-red-600/10 ${
-                statusFilter !== 'todos'
-                  ? 'bg-amber-50/80 border-amber-300 text-amber-900'
-                  : 'bg-slate-50/90 hover:bg-slate-100/70 border-slate-200/90 text-slate-700'
-              }`}
-            >
-              <option value="todos">Todos os Níveis de Estoque</option>
-              <option value="critico">🚨 Críticos / Estoque Baixo</option>
-              <option value="mediano">⚠️ Medianos / Em Alerta</option>
-              <option value="ok">✅ Em Dia / Nível OK</option>
-            </select>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2" />
-          </div>
+          <CustomSelect
+            value={statusFilter}
+            onChange={(val) => onStatusFilterChange(val as InsumoStatusFilter)}
+            options={statusOptions}
+            ariaLabel="Filtrar por nível de estoque"
+            activeColorClass="bg-amber-50/90 border-amber-300 text-amber-900"
+          />
 
           {/* Botão Limpar Filtros Ativos */}
           {(categoria !== FILTRO_TODAS || statusFilter !== 'todos' || search.trim().length > 0) && (

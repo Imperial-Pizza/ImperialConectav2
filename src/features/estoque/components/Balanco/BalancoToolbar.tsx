@@ -16,6 +16,7 @@ import {
   X,
 } from 'lucide-react';
 import { CATEGORIAS_INSUMO, FILTRO_TODAS } from '../../utils/constants';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 import type { EstoqueViewMode, FiltroBalancoStatus } from '../../types';
 
 interface BalancoToolbarProps {
@@ -57,6 +58,11 @@ export function BalancoToolbar({
   onOpenFinalizarModal,
   onOpenHistoricoModal,
 }: BalancoToolbarProps) {
+  const categoriaOptions = [
+    { value: FILTRO_TODAS, label: 'Todas as Categorias' },
+    ...CATEGORIAS_INSUMO.map((cat) => ({ value: cat, label: cat })),
+  ];
+
   return (
     <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-6">
       {/* Seção 1: Cabeçalho com Título e Ações Principais */}
@@ -149,21 +155,13 @@ export function BalancoToolbar({
 
         <div className="flex items-center gap-2.5 shrink-0">
           {/* Dropdown de Categorias */}
-          <div className="relative">
-            <select
-              value={categoria}
-              onChange={(e) => onCategoriaChange(e.target.value)}
-              className="appearance-none pl-3.5 pr-9 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:bg-white transition-all cursor-pointer"
-            >
-              <option value={FILTRO_TODAS}>Todas as Categorias</option>
-              {CATEGORIAS_INSUMO.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-          </div>
+          <CustomSelect
+            value={categoria}
+            onChange={onCategoriaChange}
+            options={categoriaOptions}
+            ariaLabel="Filtrar por categoria"
+            activeColorClass="bg-purple-50/90 border-purple-300 text-purple-900"
+          />
 
           {/* Seletor de Modo de Visualização (Cards vs Tabela Compacta) */}
           <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80">

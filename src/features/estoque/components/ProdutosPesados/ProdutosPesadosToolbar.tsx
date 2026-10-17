@@ -10,6 +10,7 @@ import {
   X,
 } from 'lucide-react';
 import { CATEGORIAS_PRODUTO_PESADO, FILTRO_TODAS } from '../../utils/constants';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 import type { EstoqueViewMode } from '../../types';
 
 interface ProdutosPesadosToolbarProps {
@@ -37,6 +38,11 @@ export function ProdutosPesadosToolbar({
   onExportCsv,
   onAddProdutoPesado,
 }: ProdutosPesadosToolbarProps) {
+  const categoriaOptions = [
+    { value: FILTRO_TODAS, label: 'Todas as Categorias' },
+    ...CATEGORIAS_PRODUTO_PESADO.map((cat) => ({ value: cat, label: cat })),
+  ];
+
   return (
     <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-6">
       {/* Cabeçalho */}
@@ -90,18 +96,13 @@ export function ProdutosPesadosToolbar({
           </div>
 
           {/* Filtro por Categoria */}
-          <select
+          <CustomSelect
             value={categoria}
-            onChange={(e) => onCategoriaChange(e.target.value)}
-            className="px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all cursor-pointer"
-          >
-            <option value={FILTRO_TODAS}>Todas as Categorias</option>
-            {CATEGORIAS_PRODUTO_PESADO.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
-          </select>
+            onChange={onCategoriaChange}
+            options={categoriaOptions}
+            ariaLabel="Filtrar por categoria"
+            activeColorClass="bg-emerald-50/90 border-emerald-300 text-emerald-900"
+          />
         </div>
 
         {/* Ações da Direita */}
