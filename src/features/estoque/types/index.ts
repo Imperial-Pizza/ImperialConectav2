@@ -1,4 +1,4 @@
-export type EstoqueSubModule = 'estoque' | 'produtos-pesados' | 'fornecedores' | 'cmv';
+export type EstoqueSubModule = 'estoque' | 'produtos-pesados' | 'fornecedores' | 'balanco' | 'cmv';
 
 export type EstoqueViewMode = 'table' | 'cards';
 
@@ -112,4 +112,46 @@ export interface ProdutoPesado {
 }
 
 export type NovoProdutoPesado = Omit<ProdutoPesado, 'id' | 'pesoTotalKg'>;
+
+export type StatusDivergencia = 'bateu' | 'falta' | 'sobra' | 'pendente';
+
+export type FiltroBalancoStatus = 'todos' | 'divergentes' | 'bateu' | 'pendentes';
+
+export interface ItemBalanco {
+  insumoId: number;
+  codigo: string;
+  nome: string;
+  categoria: string;
+  unidade: string;
+  custoUnitario: number;
+  qtdSistema: number;
+  qtdFisica: number | null;
+  divergenciaQtd: number;
+  divergenciaValor: number;
+  motivo?: string;
+  status: StatusDivergencia;
+}
+
+export interface HistoricoBalancoItem {
+  codigo: string;
+  nome: string;
+  unidade: string;
+  qtdSistema: number;
+  qtdFisica: number;
+  divergenciaQtd: number;
+  divergenciaValor: number;
+  motivo?: string;
+}
+
+export interface HistoricoBalanco {
+  id: string;
+  dataHora: string;
+  responsavel: string;
+  totalItensContados: number;
+  totalItensDivergentes: number;
+  impactoFinanceiroTotal: number;
+  totalPerdas: number;
+  totalSobras: number;
+  itens: HistoricoBalancoItem[];
+}
 

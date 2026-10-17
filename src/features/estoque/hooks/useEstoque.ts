@@ -120,6 +120,24 @@ export function useEstoque() {
     return novaQtd;
   };
 
+  const aplicarBalanco = async (ajustes: { id: number; novaQtd: number }[]) => {
+    const mapa = new Map(ajustes.map((a) => [a.id, a.novaQtd]));
+    for (const ajuste of ajustes) {
+      await updateInsumoService(ajuste.id, { qtd: Math.max(0, Number(ajuste.novaQtd.toFixed(2))) });
+    }
+    setItems((prev) =>
+      prev.map((item) => {
+        if (mapa.has(item.id)) {
+          return {
+            ...item,
+            qtd: Math.max(0, Number(mapa.get(item.id)!.toFixed(2))),
+          };
+        }
+        return item;
+      })
+    );
+  };
+
   return {
     items,
     filteredItems,
@@ -142,7 +160,9 @@ export function useEstoque() {
     deleteInsumo,
     importInsumos,
     ajustarEstoque,
+    aplicarBalanco,
   };
+
 }
 
 export type UseEstoqueReturn = ReturnType<typeof useEstoque>;

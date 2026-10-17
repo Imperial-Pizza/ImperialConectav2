@@ -1,6 +1,6 @@
 'use client';
 
-import { BarChart3, Package, Scale, Sparkles, Truck } from 'lucide-react';
+import { BarChart3, ClipboardCheck, Package, Scale, Sparkles, Truck } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 import type { EstoqueSubModule } from '../../types';
@@ -21,6 +21,7 @@ const ITEMS: {
   { id: 'estoque', label: 'Controle de Estoque', icon: Package, activeIconColor: 'text-amber-400' },
   { id: 'produtos-pesados', label: 'Produtos Pesados', icon: Scale, activeIconColor: 'text-emerald-400' },
   { id: 'fornecedores', label: 'Fornecedores', icon: Truck, activeIconColor: 'text-blue-400' },
+  { id: 'balanco', label: 'Balanço de Estoque', icon: ClipboardCheck, activeIconColor: 'text-purple-400' },
   { id: 'cmv', label: 'Cálculo de CMV Global', icon: BarChart3, activeIconColor: 'text-red-400' },
 ];
 

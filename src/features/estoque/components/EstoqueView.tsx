@@ -11,6 +11,7 @@ import { EstoquePanel } from './Estoque/EstoquePanel';
 import { ProdutosPesadosPanel } from './ProdutosPesados/ProdutosPesadosPanel';
 import { FornecedoresPanel } from './Fornecedores/FornecedoresPanel';
 import { CmvPanel } from './Cmv/CmvPanel';
+import { BalancoPanel } from './Balanco/BalancoPanel';
 import { AddInsumoModal } from './Modals/AddInsumoModal';
 import { DeleteInsumoModal } from './Modals/DeleteInsumoModal';
 import { AddFornecedorModal } from './Modals/AddFornecedorModal';
@@ -139,6 +140,7 @@ export default function EstoqueView() {
                   setDeletingInsumo(insumo);
                 }}
                 onNavigateToFornecedores={() => setActiveSubModule('fornecedores')}
+                onNavigateToBalanco={() => setActiveSubModule('balanco')}
               />
             ) : activeSubModule === 'produtos-pesados' ? (
               <ProdutosPesadosPanel
@@ -161,6 +163,8 @@ export default function EstoqueView() {
                   setDeletingFornecedor(fornecedor);
                 }}
               />
+            ) : activeSubModule === 'balanco' ? (
+              <BalancoPanel key="balanco" estoque={estoque} />
             ) : (
               <CmvPanel key="cmv" cmv={cmv} />
             )}

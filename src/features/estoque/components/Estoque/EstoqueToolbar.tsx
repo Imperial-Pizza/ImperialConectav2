@@ -13,6 +13,7 @@ import {
   ChevronDown,
   SlidersHorizontal,
   X,
+  ClipboardCheck,
 } from 'lucide-react';
 
 import { CATEGORIAS_INSUMO, FILTRO_TODAS } from '../../utils/constants';
@@ -31,6 +32,7 @@ interface EstoqueToolbarProps {
   onExportCsv: () => void;
   onExportExcel: () => void;
   onAddInsumo: () => void;
+  onNavigateToBalanco?: () => void;
 }
 
 export function EstoqueToolbar({
@@ -46,6 +48,7 @@ export function EstoqueToolbar({
   onExportCsv,
   onExportExcel,
   onAddInsumo,
+  onNavigateToBalanco,
 }: EstoqueToolbarProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [exportOpen, setExportOpen] = useState(false);
@@ -88,15 +91,30 @@ export function EstoqueToolbar({
           </p>
         </div>
 
-        {/* Botão Novo Insumo - Destaque no topo à direita */}
-        <button
-          type="button"
-          onClick={onAddInsumo}
-          className="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 active:scale-[0.98] text-white text-xs font-black transition-all shadow-md shadow-red-600/25 flex items-center justify-center gap-2 shrink-0 cursor-pointer"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Novo Insumo</span>
-        </button>
+        {/* Botões de Ação no topo */}
+        <div className="flex items-center gap-2.5 shrink-0">
+          {onNavigateToBalanco && (
+            <button
+              type="button"
+              onClick={onNavigateToBalanco}
+              className="px-4 py-2.5 rounded-xl border border-purple-200 bg-purple-50 hover:bg-purple-100 active:scale-[0.98] text-purple-750 text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs text-purple-800"
+              title="Auditar contagem física e realizar balanço de estoque"
+            >
+              <ClipboardCheck className="w-4 h-4 text-purple-600" />
+              <span>Balanço de Estoque</span>
+            </button>
+          )}
+
+          {/* Botão Novo Insumo - Destaque no topo à direita */}
+          <button
+            type="button"
+            onClick={onAddInsumo}
+            className="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 active:scale-[0.98] text-white text-xs font-black transition-all shadow-md shadow-red-600/25 flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Novo Insumo</span>
+          </button>
+        </div>
       </div>
 
       {/* Linha Divisória Sutil */}

@@ -23,6 +23,7 @@ interface EstoquePanelProps {
   onEditInsumo: (insumo: Insumo) => void;
   onDeleteInsumo: (insumo: Insumo) => void;
   onNavigateToFornecedores?: () => void;
+  onNavigateToBalanco?: () => void;
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -34,6 +35,7 @@ export function EstoquePanel({
   onEditInsumo,
   onDeleteInsumo,
   onNavigateToFornecedores,
+  onNavigateToBalanco,
 }: EstoquePanelProps) {
   const {
     items,
@@ -123,6 +125,7 @@ export function EstoquePanel({
         onExportCsv={() => exportarCsv(items)}
         onExportExcel={() => exportarExcel(items)}
         onAddInsumo={onAddInsumo}
+        onNavigateToBalanco={onNavigateToBalanco}
       />
 
       {isLoading ? (
