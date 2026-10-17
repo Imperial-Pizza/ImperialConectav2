@@ -454,9 +454,10 @@ export function AddProdutoPesadoModal({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs transition-all cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-bold text-xs shadow-md shadow-amber-500/20 transition-all cursor-pointer flex items-center gap-1.5"
                 >
-                  Cancelar
+                  <X className="w-4 h-4" />
+                  <span>Cancelar</span>
                 </button>
 
                 <button

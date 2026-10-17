@@ -196,9 +196,10 @@ export function QuickAdjustPesadoModal({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold cursor-pointer transition-all"
+                  className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-95 text-white text-xs font-bold shadow-md shadow-amber-500/20 cursor-pointer transition-all flex items-center justify-center gap-1.5"
                 >
-                  Cancelar
+                  <X className="w-4 h-4" />
+                  <span>Cancelar</span>
                 </button>
                 <button
                   type="submit"

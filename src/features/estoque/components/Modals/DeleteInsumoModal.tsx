@@ -53,9 +53,10 @@ export function DeleteInsumoModal({ open, insumo, onClose, onConfirm }: DeleteIn
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-white text-xs font-bold shadow-md shadow-amber-500/20 transition-all cursor-pointer flex items-center gap-1.5"
                 >
-                  Cancelar
+                  <X className="w-4 h-4" />
+                  <span>Cancelar</span>
                 </button>
                 <button
                   type="button"

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 
+import { X } from 'lucide-react';
 import { Header } from '@/components/ui/header/Header';
 import { logout } from '@/components/ui/header/api/auth';
 import { Portal } from '@/components/ui/Portal';
@@ -136,7 +137,14 @@ export function AppShell({ activeModule, children }: AppShellProps) {
                   />
                 </div>
                 <div className="flex justify-end gap-2 pt-2">
-                  <button type="button" onClick={() => setShowAddBenefitModal(false)} className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold">Cancelar</button>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddBenefitModal(false)}
+                    className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-white text-xs font-bold shadow-md shadow-amber-500/20 flex items-center gap-1.5 transition-all cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                    <span>Cancelar</span>
+                  </button>
                   <button type="submit" className="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-bold shadow-md">Adicionar</button>
                 </div>
               </form>
@@ -173,7 +181,14 @@ export function AppShell({ activeModule, children }: AppShellProps) {
                   />
                 </div>
                 <div className="flex justify-end gap-2 pt-2">
-                  <button type="button" onClick={() => setShowAddEventModal(false)} className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold">Cancelar</button>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddEventModal(false)}
+                    className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-white text-xs font-bold shadow-md shadow-amber-500/20 flex items-center gap-1.5 transition-all cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                    <span>Cancelar</span>
+                  </button>
                   <button type="submit" className="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-bold shadow-md">Adicionar Evento</button>
                 </div>
               </form>
@@ -210,7 +225,14 @@ export function AppShell({ activeModule, children }: AppShellProps) {
                   />
                 </div>
                 <div className="flex justify-end gap-2 pt-2">
-                  <button type="button" onClick={() => setShowAddNoticeModal(false)} className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold">Cancelar</button>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddNoticeModal(false)}
+                    className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-white text-xs font-bold shadow-md shadow-amber-500/20 flex items-center gap-1.5 transition-all cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                    <span>Cancelar</span>
+                  </button>
                   <button type="submit" className="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-bold shadow-md">Publicar Aviso</button>
                 </div>
               </form>

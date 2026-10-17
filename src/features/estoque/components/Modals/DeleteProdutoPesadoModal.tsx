@@ -1,7 +1,7 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { Trash2 } from 'lucide-react';
+import { Trash2, X } from 'lucide-react';
 import { Portal } from '@/components/ui/Portal';
 import type { ProdutoPesado } from '../../types';
 
@@ -56,9 +56,10 @@ export function DeleteProdutoPesadoModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold transition-all cursor-pointer"
+                className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-white text-xs font-bold shadow-md shadow-amber-500/20 transition-all cursor-pointer flex items-center justify-center gap-1.5"
               >
-                Cancelar
+                <X className="w-4 h-4" />
+                <span>Cancelar</span>
               </button>
 
               <button

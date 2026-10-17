@@ -210,9 +210,10 @@ export function FinalizarBalancoModal({
                 type="button"
                 onClick={onClose}
                 disabled={isSubmitting}
-                className="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+                className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-white text-xs font-bold shadow-md shadow-amber-500/20 flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
               >
-                Voltar e Conferir
+                <X className="w-4 h-4" />
+                <span>Voltar e Conferir</span>
               </button>
               <button
                 type="submit"
