@@ -46,13 +46,13 @@ export function FornecedoresStats({ metrics }: FornecedoresStatsProps) {
       {stats.map(({ label, value, subtext, icon: Icon, color }) => (
         <div
           key={label}
-          className="bg-white border border-slate-200/90 rounded-3xl p-5 shadow-xs flex flex-col justify-between space-y-2 hover:shadow-md transition-shadow"
+          className="bg-white border border-slate-200/90 rounded-3xl p-4 sm:p-5 shadow-xs flex flex-col justify-between space-y-2 hover:shadow-md transition-shadow"
         >
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+          <div className="flex items-center justify-between gap-3 min-w-0">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 truncate" title={label}>
               {label}
             </span>
-            <div className={`w-9 h-9 rounded-2xl border flex items-center justify-center ${color}`}>
+            <div className={`w-9 h-9 rounded-2xl border flex items-center justify-center shrink-0 ${color}`}>
               <Icon className="w-4 h-4" />
             </div>
           </div>

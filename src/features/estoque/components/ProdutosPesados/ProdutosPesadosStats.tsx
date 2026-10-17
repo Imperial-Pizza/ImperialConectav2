@@ -28,10 +28,10 @@ export function ProdutosPesadosStats({ metrics }: ProdutosPesadosStatsProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-stretch">
       {/* Card 1: Peso Total Armazenado */}
-      <div className="bg-white border border-slate-200/90 rounded-3xl p-5 shadow-xs flex flex-col justify-between space-y-2 hover:shadow-md transition-shadow min-h-[128px] h-full">
-        <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 whitespace-nowrap">
-            Total Pesado & Pronto
+      <div className="bg-white border border-slate-200/90 rounded-3xl p-4 sm:p-5 shadow-xs flex flex-col justify-between space-y-2 hover:shadow-md transition-shadow min-h-[128px] h-full">
+        <div className="flex items-center justify-between gap-3 min-w-0">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 truncate" title="Total Pesado & Pronto">
+            Total Pesado
           </span>
           <div className="w-9 h-9 rounded-2xl border flex items-center justify-center bg-emerald-50 text-emerald-600 border-emerald-200 shrink-0">
             <Scale className="w-4 h-4" />
@@ -51,9 +51,9 @@ export function ProdutosPesadosStats({ metrics }: ProdutosPesadosStatsProps) {
       </div>
 
       {/* Card 2: Lotes / Pacotes Fracionados */}
-      <div className="bg-white border border-slate-200/90 rounded-3xl p-5 shadow-xs flex flex-col justify-between space-y-2 hover:shadow-md transition-shadow min-h-[128px] h-full">
-        <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 whitespace-nowrap">
+      <div className="bg-white border border-slate-200/90 rounded-3xl p-4 sm:p-5 shadow-xs flex flex-col justify-between space-y-2 hover:shadow-md transition-shadow min-h-[128px] h-full">
+        <div className="flex items-center justify-between gap-3 min-w-0">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 truncate">
             Pacotes Lacrados
           </span>
           <div className="w-9 h-9 rounded-2xl border flex items-center justify-center bg-blue-50 text-blue-600 border-blue-200 shrink-0">
@@ -74,9 +74,9 @@ export function ProdutosPesadosStats({ metrics }: ProdutosPesadosStatsProps) {
       </div>
 
       {/* Card 3: Lotes Abaixo do Mínimo (Informativo) */}
-      <div className="bg-white border border-slate-200/90 rounded-3xl p-5 shadow-xs flex flex-col justify-between space-y-2 hover:shadow-md transition-shadow min-h-[128px] h-full">
-        <div className="flex items-center justify-between gap-1.5">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 whitespace-nowrap">
+      <div className="bg-white border border-slate-200/90 rounded-3xl p-4 sm:p-5 shadow-xs flex flex-col justify-between space-y-2 hover:shadow-md transition-shadow min-h-[128px] h-full">
+        <div className="flex items-center justify-between gap-3 min-w-0">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 truncate">
             Reposição de Lote
           </span>
           <div
@@ -105,9 +105,9 @@ export function ProdutosPesadosStats({ metrics }: ProdutosPesadosStatsProps) {
       </div>
 
       {/* Card 4: Aproveitamento / Rendimento Médio */}
-      <div className="bg-white border border-slate-200/90 rounded-3xl p-5 shadow-xs flex flex-col justify-between space-y-2 hover:shadow-md transition-shadow min-h-[128px] h-full">
-        <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 whitespace-nowrap">
+      <div className="bg-white border border-slate-200/90 rounded-3xl p-4 sm:p-5 shadow-xs flex flex-col justify-between space-y-2 hover:shadow-md transition-shadow min-h-[128px] h-full">
+        <div className="flex items-center justify-between gap-3 min-w-0">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 truncate">
             Rendimento Médio
           </span>
           <div className="w-9 h-9 rounded-2xl border flex items-center justify-center bg-amber-50 text-amber-600 border-amber-200 shrink-0">

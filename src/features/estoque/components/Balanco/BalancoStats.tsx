@@ -42,10 +42,10 @@ export function BalancoStats({ metrics }: BalancoStatsProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-stretch">
       {/* Card 1: Progresso da Contagem */}
-      <div className="bg-white border border-slate-200/90 rounded-3xl p-5 shadow-xs flex flex-col justify-between space-y-2 hover:shadow-md transition-shadow min-h-[128px] h-full">
-        <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 whitespace-nowrap">
-            Progresso da Contagem
+      <div className="bg-white border border-slate-200/90 rounded-3xl p-4 sm:p-5 shadow-xs flex flex-col justify-between space-y-2 hover:shadow-md transition-shadow min-h-[128px] h-full">
+        <div className="flex items-center justify-between gap-3 min-w-0">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 truncate" title="Progresso da Contagem">
+            Progresso
           </span>
           <div className="w-9 h-9 rounded-2xl border flex items-center justify-center bg-blue-50 text-blue-600 border-blue-200 shrink-0">
             <Layers className="w-4 h-4" />
@@ -75,10 +75,10 @@ export function BalancoStats({ metrics }: BalancoStatsProps) {
       </div>
 
       {/* Card 2: Acuracidade do Estoque */}
-      <div className="bg-white border border-slate-200/90 rounded-3xl p-5 shadow-xs flex flex-col justify-between space-y-2 hover:shadow-md transition-shadow min-h-[128px] h-full">
-        <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 whitespace-nowrap">
-            Acuracidade do Estoque
+      <div className="bg-white border border-slate-200/90 rounded-3xl p-4 sm:p-5 shadow-xs flex flex-col justify-between space-y-2 hover:shadow-md transition-shadow min-h-[128px] h-full">
+        <div className="flex items-center justify-between gap-3 min-w-0">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 truncate" title="Acuracidade do Estoque">
+            Acurácia Estoque
           </span>
           <div className="w-9 h-9 rounded-2xl border flex items-center justify-center bg-emerald-50 text-emerald-600 border-emerald-200 shrink-0">
             <CheckCircle2 className="w-4 h-4" />
@@ -104,10 +104,10 @@ export function BalancoStats({ metrics }: BalancoStatsProps) {
       </div>
 
       {/* Card 3: Quebras & Desperdício */}
-      <div className="bg-white border border-slate-200/90 rounded-3xl p-5 shadow-xs flex flex-col justify-between space-y-2 hover:shadow-md transition-shadow min-h-[128px] h-full">
-        <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 whitespace-nowrap">
-            Quebras & Desperdício
+      <div className="bg-white border border-slate-200/90 rounded-3xl p-4 sm:p-5 shadow-xs flex flex-col justify-between space-y-2 hover:shadow-md transition-shadow min-h-[128px] h-full">
+        <div className="flex items-center justify-between gap-3 min-w-0">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 truncate" title="Quebras & Desperdício">
+            Quebras & Perdas
           </span>
           <div
             className={`w-9 h-9 rounded-2xl border flex items-center justify-center shrink-0 ${
@@ -133,9 +133,9 @@ export function BalancoStats({ metrics }: BalancoStatsProps) {
       </div>
 
       {/* Card 4: Ajuste Líquido no CMV */}
-      <div className="bg-white border border-slate-200/90 rounded-3xl p-5 shadow-xs flex flex-col justify-between space-y-2 hover:shadow-md transition-shadow min-h-[128px] h-full">
-        <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 whitespace-nowrap">
+      <div className="bg-white border border-slate-200/90 rounded-3xl p-4 sm:p-5 shadow-xs flex flex-col justify-between space-y-2 hover:shadow-md transition-shadow min-h-[128px] h-full">
+        <div className="flex items-center justify-between gap-3 min-w-0">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 truncate">
             Ajuste Líquido CMV
           </span>
           <div
