@@ -245,11 +245,7 @@ export function QuickStockModal({
                 <button
                   type="submit"
                   disabled={isSaving || valorQtd <= 0}
-                  className={`px-5 py-2.5 rounded-xl text-white text-xs font-bold shadow-md transition-all cursor-pointer disabled:opacity-50 flex items-center gap-2 ${
-                    tipo === 'entrada'
-                      ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/20'
-                      : 'bg-amber-600 hover:bg-amber-700 shadow-amber-600/20'
-                  }`}
+                  className="px-5 py-2.5 rounded-xl text-white text-xs font-bold shadow-md transition-all cursor-pointer disabled:opacity-50 flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/20 active:scale-[0.98]"
                 >
                   {isSaving ? (
                     <>

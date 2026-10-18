@@ -18,6 +18,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { Portal } from '@/components/ui/Portal';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 
 import { CATEGORIAS_FORNECEDOR } from '../../utils/constants';
 import type { Fornecedor, NovoFornecedor } from '../../types';
@@ -253,18 +254,14 @@ export function AddFornecedorModal({
                     <Tag className="w-3.5 h-3.5 text-slate-400" />
                     <span>Categoria</span>
                   </label>
-                  <select
-                    id="fornecedor-categoria"
+                  <CustomSelect
                     value={form.categoria}
-                    onChange={(e) => update('categoria', e.target.value)}
-                    className={inputClass}
-                  >
-                    {CATEGORIAS_FORNECEDOR.map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => update('categoria', val)}
+                    options={CATEGORIAS_FORNECEDOR.map((cat) => ({ value: cat, label: cat }))}
+                    fullWidth
+                    className="w-full bg-slate-50/70 hover:bg-slate-50 border-slate-200 text-slate-800 text-xs py-2.5"
+                    activeColorClass="bg-slate-50/70 border-slate-200 text-slate-800"
+                  />
                 </div>
 
                 <div>
@@ -274,15 +271,17 @@ export function AddFornecedorModal({
                   >
                     Status
                   </label>
-                  <select
-                    id="fornecedor-status"
+                  <CustomSelect
                     value={form.status}
-                    onChange={(e) => update('status', e.target.value as 'ativo' | 'inativo')}
-                    className={inputClass}
-                  >
-                    <option value="ativo">Ativo</option>
-                    <option value="inativo">Inativo</option>
-                  </select>
+                    onChange={(val) => update('status', val as 'ativo' | 'inativo')}
+                    options={[
+                      { value: 'ativo', label: 'Ativo' },
+                      { value: 'inativo', label: 'Inativo' },
+                    ]}
+                    fullWidth
+                    className="w-full bg-slate-50/70 hover:bg-slate-50 border-slate-200 text-slate-800 text-xs py-2.5"
+                    activeColorClass="bg-slate-50/70 border-slate-200 text-slate-800"
+                  />
                 </div>
               </div>
 

@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { X, Package, Hash, Building2, Tag, Layers, DollarSign, AlertCircle, FileText, Save, Loader2 } from 'lucide-react';
+import { X, Package, Hash, Building2, Tag, Layers, DollarSign, AlertCircle, FileText, Save, Loader2, ChevronDown, Check } from 'lucide-react';
 import { Portal } from '@/components/ui/Portal';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 
 import { CATEGORIAS_INSUMO, UNIDADES_INSUMO } from '../../utils/constants';
 import type { Insumo, NovoInsumo } from '../../types';
@@ -40,6 +41,29 @@ export function AddInsumoModal({
     observacoes: '',
   });
   const [isSaving, setIsSaving] = useState(false);
+  const [showFornecedoresList, setShowFornecedoresList] = useState(false);
+  const fornecedoresRef = useRef<HTMLDivElement>(null);
+
+  const fornecedoresFiltrados = fornecedoresDisponiveis.filter((f) =>
+    f.toLowerCase().includes(form.fornecedor.toLowerCase())
+  );
+
+  // Fecha a lista de fornecedores ao clicar fora
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent | TouchEvent) {
+      if (fornecedoresRef.current && !fornecedoresRef.current.contains(event.target as Node)) {
+        setShowFornecedoresList(false);
+      }
+    }
+    if (showFornecedoresList) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [showFornecedoresList]);
 
   useEffect(() => {
     if (initialData) {
@@ -186,32 +210,28 @@ export function AddInsumoModal({
                     <Layers className="w-3.5 h-3.5 text-slate-400" />
                     <span>Categoria</span>
                   </label>
-                  <select
-                    id="insumo-categoria"
+                  <CustomSelect
                     value={form.categoria}
-                    onChange={(e) => update('categoria', e.target.value)}
-                    className={inputClass}
-                  >
-                    {CATEGORIAS_INSUMO.map((cat) => (
-                      <option key={cat} value={cat}>{cat}</option>
-                    ))}
-                  </select>
+                    onChange={(val) => update('categoria', val)}
+                    options={CATEGORIAS_INSUMO.map((cat) => ({ value: cat, label: cat }))}
+                    fullWidth
+                    className="w-full bg-slate-50/70 hover:bg-slate-50 border-slate-200 text-slate-800 text-xs py-2.5"
+                    activeColorClass="bg-slate-50/70 border-slate-200 text-slate-800"
+                  />
                 </div>
 
                 <div>
                   <label htmlFor="insumo-unidade" className="block text-xs font-bold text-slate-700 mb-1">
                     Unidade de Medida
                   </label>
-                  <select
-                    id="insumo-unidade"
+                  <CustomSelect
                     value={form.unidade}
-                    onChange={(e) => update('unidade', e.target.value)}
-                    className={inputClass}
-                  >
-                    {UNIDADES_INSUMO.map((un) => (
-                      <option key={un} value={un}>{un}</option>
-                    ))}
-                  </select>
+                    onChange={(val) => update('unidade', val)}
+                    options={UNIDADES_INSUMO.map((un) => ({ value: un, label: un }))}
+                    fullWidth
+                    className="w-full bg-slate-50/70 hover:bg-slate-50 border-slate-200 text-slate-800 text-xs py-2.5"
+                    activeColorClass="bg-slate-50/70 border-slate-200 text-slate-800"
+                  />
                 </div>
               </div>
 
@@ -270,28 +290,93 @@ export function AddInsumoModal({
                 </div>
               </div>
 
-              {/* Fornecedor Principal */}
-              <div>
-                <label htmlFor="insumo-fornecedor" className="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
-                  <Building2 className="w-3.5 h-3.5 text-slate-400" />
-                  <span>Fornecedor Principal</span>
+              {/* Fornecedor Principal (Autocomplete / Selecionável Elegante) */}
+              <div ref={fornecedoresRef} className="relative">
+                <label htmlFor="insumo-fornecedor" className="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                  <span className="flex items-center gap-1">
+                    <Building2 className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Fornecedor Principal</span>
+                  </span>
+                  {form.fornecedor && (
+                    <button
+                      type="button"
+                      onClick={() => update('fornecedor', '')}
+                      className="text-[10px] text-slate-400 hover:text-red-500 font-semibold cursor-pointer"
+                    >
+                      Limpar
+                    </button>
+                  )}
                 </label>
-                <input
-                  id="insumo-fornecedor"
-                  type="text"
-                  list="fornecedores-sugestoes"
-                  value={form.fornecedor}
-                  onChange={(e) => update('fornecedor', e.target.value)}
-                  placeholder="Ex: Laticínios Scala / Moinho Caputo"
-                  className={inputClass}
-                />
-                {fornecedoresDisponiveis.length > 0 && (
-                  <datalist id="fornecedores-sugestoes">
-                    {fornecedoresDisponiveis.map((f) => (
-                      <option key={f} value={f} />
-                    ))}
-                  </datalist>
-                )}
+                <div className="relative">
+                  <input
+                    id="insumo-fornecedor"
+                    type="text"
+                    value={form.fornecedor}
+                    onChange={(e) => {
+                      update('fornecedor', e.target.value);
+                      setShowFornecedoresList(true);
+                    }}
+                    onFocus={() => setShowFornecedoresList(true)}
+                    placeholder="Ex: Laticínios Scala / Moinho Caputo"
+                    className={`${inputClass} pr-9`}
+                    autoComplete="off"
+                  />
+                  <button
+                    type="button"
+                    tabIndex={-1}
+                    onClick={() => setShowFornecedoresList((prev) => !prev)}
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 cursor-pointer"
+                  >
+                    <ChevronDown
+                      className={`w-4 h-4 transition-transform duration-200 ${
+                        showFornecedoresList ? 'rotate-180 text-slate-700' : ''
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {/* Dropdown customizado de sugestões */}
+                <AnimatePresence>
+                  {showFornecedoresList && fornecedoresFiltrados.length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -4, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -4, scale: 0.98 }}
+                      transition={{ duration: 0.15, ease: 'easeOut' }}
+                      className="absolute left-0 right-0 mt-1.5 bg-white border border-slate-200/90 rounded-2xl p-1.5 shadow-xl shadow-slate-900/10 z-50 max-h-52 overflow-y-auto space-y-0.5"
+                    >
+                      <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 mb-1">
+                        Fornecedores Cadastrados
+                      </div>
+                      {fornecedoresFiltrados.map((f) => {
+                        const isSelected = form.fornecedor === f;
+                        return (
+                          <button
+                            key={f}
+                            type="button"
+                            onClick={() => {
+                              update('fornecedor', f);
+                              setShowFornecedoresList(false);
+                            }}
+                            className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-xs transition-colors cursor-pointer text-left ${
+                              isSelected
+                                ? 'bg-blue-50/80 text-blue-900 font-bold'
+                                : 'text-slate-700 font-semibold hover:bg-slate-50 hover:text-slate-900'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2 truncate">
+                              <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                              <span className="truncate">{f}</span>
+                            </div>
+                            {isSelected && (
+                              <Check className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                            )}
+                          </button>
+                        );
+                      })}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               {/* Observações */}

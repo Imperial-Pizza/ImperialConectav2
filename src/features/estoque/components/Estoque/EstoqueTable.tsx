@@ -1,6 +1,6 @@
 'use client';
 
-import { Building2, Pencil, Trash2, Tag, ArrowUpDown } from 'lucide-react';
+import { Building2, Pencil, Trash2, Tag, ArrowUpDown, Printer } from 'lucide-react';
 import { isEstoqueBaixo, valorTotalInsumo } from '../../services/estoqueService';
 import { formatCurrency } from '../../utils/format';
 import type { Insumo } from '../../types';
@@ -11,6 +11,7 @@ interface EstoqueTableProps {
   onDelete: (insumo: Insumo) => void;
   onQuickAdjust?: (insumo: Insumo) => void;
   onViewSupplier?: (insumo: Insumo) => void;
+  onPrintEtiqueta?: (insumo: Insumo) => void;
 }
 
 export function EstoqueTable({
@@ -19,6 +20,7 @@ export function EstoqueTable({
   onDelete,
   onQuickAdjust,
   onViewSupplier,
+  onPrintEtiqueta,
 }: EstoqueTableProps) {
   return (
     <div className="space-y-3">
@@ -171,6 +173,19 @@ export function EstoqueTable({
               >
                 <Building2 className="w-4 h-4" />
               </button>
+
+              {/* Botão Imprimir Etiqueta Térmica */}
+              {onPrintEtiqueta && (
+                <button
+                  type="button"
+                  onClick={() => onPrintEtiqueta(item)}
+                  title={`Imprimir etiqueta térmica de ${item.nome}`}
+                  aria-label={`Imprimir etiqueta de ${item.nome}`}
+                  className="w-10 h-10 rounded-2xl bg-sky-50 hover:bg-sky-100 text-sky-600 border border-sky-200/80 flex items-center justify-center transition-all cursor-pointer shadow-2xs hover:scale-105 active:scale-95"
+                >
+                  <Printer className="w-4 h-4" />
+                </button>
+              )}
 
               {/* Botão Editar (Âmbar/Laranja com ícone de lápis) */}
               <button

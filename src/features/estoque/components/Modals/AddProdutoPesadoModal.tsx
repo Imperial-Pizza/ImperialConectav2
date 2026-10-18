@@ -15,6 +15,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { Portal } from '@/components/ui/Portal';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 import { CATEGORIAS_PRODUTO_PESADO } from '../../utils/constants';
 import { formatCurrency } from '../../utils/format';
 import type { NovoProdutoPesado, ProdutoPesado } from '../../types';
@@ -227,17 +228,14 @@ export function AddProdutoPesadoModal({
                   <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
                     Categoria
                   </label>
-                  <select
+                  <CustomSelect
                     value={categoria}
-                    onChange={(e) => setCategoria(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-                  >
-                    {CATEGORIAS_PRODUTO_PESADO.map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => setCategoria(val)}
+                    options={CATEGORIAS_PRODUTO_PESADO.map((cat) => ({ value: cat, label: cat }))}
+                    fullWidth
+                    className="w-full bg-slate-50 border-slate-200 text-slate-900 text-xs py-2"
+                    activeColorClass="bg-slate-50 border-slate-200 text-slate-900"
+                  />
                 </div>
 
                 {/* Insumo de Origem */}

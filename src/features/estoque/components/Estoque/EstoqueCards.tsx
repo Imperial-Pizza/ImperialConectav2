@@ -1,6 +1,6 @@
 'use client';
 
-import { Pencil, Trash2, Building2, ArrowUpDown } from 'lucide-react';
+import { Pencil, Trash2, Building2, ArrowUpDown, Printer } from 'lucide-react';
 import { StatusBadge } from './StatusBadge';
 import { isEstoqueBaixo, valorTotalInsumo } from '../../services/estoqueService';
 import { formatCurrency } from '../../utils/format';
@@ -12,6 +12,7 @@ interface EstoqueCardsProps {
   onDelete: (insumo: Insumo) => void;
   onQuickAdjust?: (insumo: Insumo) => void;
   onViewSupplier?: (insumo: Insumo) => void;
+  onPrintEtiqueta?: (insumo: Insumo) => void;
 }
 
 export function EstoqueCards({
@@ -20,6 +21,7 @@ export function EstoqueCards({
   onDelete,
   onQuickAdjust,
   onViewSupplier,
+  onPrintEtiqueta,
 }: EstoqueCardsProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -114,37 +116,67 @@ export function EstoqueCards({
             </dl>
 
             {/* Ações */}
-            <div className="flex items-center justify-between gap-2 pt-3 border-t border-slate-100">
+            <div className="flex items-center justify-between gap-1.5 pt-3 border-t border-slate-100">
+              {/* Botão de Movimentação Rápida */}
               {onQuickAdjust && (
                 <button
                   type="button"
                   onClick={() => onQuickAdjust(item)}
-                  title="Movimentar estoque rápido"
-                  className="px-3 py-1.5 rounded-xl text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                  title={`Movimentar estoque de ${item.nome}`}
+                  className="flex-1 py-2 px-2.5 rounded-xl text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs hover:scale-[1.02] active:scale-[0.98]"
                 >
                   <ArrowUpDown className="w-3.5 h-3.5" />
                   <span>Ajustar</span>
                 </button>
               )}
 
-              <div className="flex items-center gap-2 ml-auto">
+              {/* Botão Imprimir Etiqueta Térmica */}
+              {onPrintEtiqueta && (
                 <button
                   type="button"
-                  onClick={() => onEdit(item)}
-                  className="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:text-amber-700 hover:bg-amber-50 border border-slate-200 hover:border-amber-200 transition-colors flex items-center gap-1.5 cursor-pointer"
+                  onClick={() => onPrintEtiqueta(item)}
+                  title={`Imprimir etiqueta térmica de ${item.nome}`}
+                  aria-label={`Imprimir etiqueta de ${item.nome}`}
+                  className="w-9 h-9 rounded-xl border border-sky-200/80 bg-sky-50 text-sky-600 hover:bg-sky-100 flex items-center justify-center transition-all cursor-pointer shadow-2xs hover:scale-105 active:scale-95 shrink-0"
                 >
-                  <Pencil className="w-3.5 h-3.5" />
-                  <span>Editar</span>
+                  <Printer className="w-4 h-4" />
                 </button>
+              )}
+
+              {/* Botão Fornecedor / Detalhes */}
+              {item.fornecedor && (
                 <button
                   type="button"
-                  onClick={() => onDelete(item)}
-                  className="p-1.5 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 border border-slate-200 hover:border-red-200 transition-colors flex items-center cursor-pointer"
-                  title="Excluir insumo"
+                  onClick={() => (onViewSupplier ? onViewSupplier(item) : onEdit(item))}
+                  title={`Fornecedor: ${item.fornecedor}`}
+                  aria-label={`Ver fornecedor de ${item.nome}`}
+                  className="w-9 h-9 rounded-xl border border-indigo-200/80 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 flex items-center justify-center transition-all cursor-pointer shadow-2xs hover:scale-105 active:scale-95 shrink-0"
                 >
-                  <Trash2 className="w-3.5 h-3.5" />
+                  <Building2 className="w-4 h-4" />
                 </button>
-              </div>
+              )}
+
+              {/* Botão Editar */}
+              <button
+                type="button"
+                onClick={() => onEdit(item)}
+                title={`Editar ${item.nome}`}
+                aria-label={`Editar ${item.nome}`}
+                className="w-9 h-9 rounded-xl border border-amber-200/80 bg-amber-50 text-amber-600 hover:bg-amber-100 flex items-center justify-center transition-all cursor-pointer shadow-2xs hover:scale-105 active:scale-95 shrink-0"
+              >
+                <Pencil className="w-4 h-4" />
+              </button>
+
+              {/* Botão Excluir */}
+              <button
+                type="button"
+                onClick={() => onDelete(item)}
+                title={`Excluir ${item.nome}`}
+                aria-label={`Excluir ${item.nome}`}
+                className="w-9 h-9 rounded-xl border border-red-200/80 bg-red-50 text-red-600 hover:bg-red-100 flex items-center justify-center transition-all cursor-pointer shadow-2xs hover:scale-105 active:scale-95 shrink-0"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
             </div>
           </article>
         );

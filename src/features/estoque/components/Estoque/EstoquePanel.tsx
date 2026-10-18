@@ -12,6 +12,7 @@ import { EstoqueCards } from './EstoqueCards';
 import { EstoquePagination } from './EstoquePagination';
 import { QuickStockModal } from '../Modals/QuickStockModal';
 import { SupplierContactModal } from '../Modals/SupplierContactModal';
+import { EtiquetaInsumoModal } from '../Modals/EtiquetaInsumoModal';
 import { exportarCsv, exportarExcel, lerArquivoTexto, parsePlanilha } from '../../utils/planilha';
 import type { UseEstoqueReturn } from '../../hooks/useEstoque';
 import type { Fornecedor, Insumo } from '../../types';
@@ -58,6 +59,7 @@ export function EstoquePanel({
   const [currentPage, setCurrentPage] = useState(1);
   const [adjustingInsumo, setAdjustingInsumo] = useState<Insumo | null>(null);
   const [viewingSupplierInsumo, setViewingSupplierInsumo] = useState<Insumo | null>(null);
+  const [printingInsumo, setPrintingInsumo] = useState<Insumo | null>(null);
 
   // Reseta para a primeira página sempre que a busca ou filtro mudar
   useEffect(() => {
@@ -164,6 +166,7 @@ export function EstoquePanel({
               onDelete={onDeleteInsumo}
               onQuickAdjust={(insumo) => setAdjustingInsumo(insumo)}
               onViewSupplier={(insumo) => setViewingSupplierInsumo(insumo)}
+              onPrintEtiqueta={(insumo) => setPrintingInsumo(insumo)}
             />
           ) : (
             <EstoqueCards
@@ -172,6 +175,7 @@ export function EstoquePanel({
               onDelete={onDeleteInsumo}
               onQuickAdjust={(insumo) => setAdjustingInsumo(insumo)}
               onViewSupplier={(insumo) => setViewingSupplierInsumo(insumo)}
+              onPrintEtiqueta={(insumo) => setPrintingInsumo(insumo)}
             />
           )}
 
@@ -201,6 +205,13 @@ export function EstoquePanel({
         fornecedores={fornecedores}
         onClose={() => setViewingSupplierInsumo(null)}
         onNavigateToFornecedores={onNavigateToFornecedores}
+      />
+
+      {/* Modal de Impressão de Etiqueta Térmica do Insumo */}
+      <EtiquetaInsumoModal
+        open={Boolean(printingInsumo)}
+        insumo={printingInsumo}
+        onClose={() => setPrintingInsumo(null)}
       />
     </motion.div>
   );
