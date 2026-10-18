@@ -159,10 +159,10 @@ export function AddProdutoPesadoModal({
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-7 shadow-2xl space-y-6 border border-slate-200 my-8"
+            className="bg-white rounded-3xl max-w-2xl w-full shadow-2xl border border-slate-200 my-auto flex flex-col max-h-[90vh] overflow-hidden"
           >
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div className="flex items-center justify-between border-b border-slate-100 p-6 sm:p-7 pb-4 shrink-0">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center shadow-xs">
                   <Scale className="w-5 h-5" />
@@ -188,9 +188,10 @@ export function AddProdutoPesadoModal({
               </button>
             </div>
 
-            {/* Formulário */}
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* Formulário com Scroll Interno para telas de qualquer tamanho */}
+            <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+              <div className="flex-1 overflow-y-auto p-6 sm:p-7 pt-4 space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {/* Código */}
                 <div>
                   <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
@@ -446,9 +447,10 @@ export function AddProdutoPesadoModal({
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none resize-none"
                 />
               </div>
+            </div>
 
-              {/* Botões de Ação */}
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+              {/* Botões de Ação Fixos no Rodapé */}
+              <div className="flex items-center justify-end gap-3 p-4 sm:p-6 bg-slate-50/80 border-t border-slate-100 shrink-0">
                 <button
                   type="button"
                   onClick={onClose}
