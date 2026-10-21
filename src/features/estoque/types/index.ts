@@ -62,17 +62,24 @@ export interface Insumo {
 
 export type NovoInsumo = Omit<Insumo, 'id'>;
 
+export type CmvPeriodoTipo = 'diario' | 'semanal' | 'quinzenal' | 'mensal' | 'trimestral' | 'anual';
+
+export type CmvOrigemDados = 'estoque_real' | 'manual';
+
 export interface CmvValores {
   estoqueInicial: number;
   comprasPeriodo: number;
   estoqueFinal: number;
   faturamentoTotal: number;
+  origemDados?: CmvOrigemDados;
 }
 
 export interface CmvResultado {
   cmvGlobal: number;
   cmvPercentual: number;
   margemContribuicao: number;
+  lucroEstimado?: number;
+  statusCmv?: 'otimo' | 'alerta' | 'critico';
 }
 
 export interface ProdutoPesado {

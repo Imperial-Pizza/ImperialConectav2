@@ -38,7 +38,7 @@ export default function EstoqueView() {
   const estoque = useEstoque();
   const produtosPesadosHook = useProdutosPesados();
   const fornecedoresHook = useFornecedores();
-  const cmv = useCmv();
+  const cmv = useCmv(estoque.items);
 
   // Handlers de Insumos
   const handleAddInsumo = async (novo: NovoInsumo) => {
@@ -166,7 +166,12 @@ export default function EstoqueView() {
             ) : activeSubModule === 'balanco' ? (
               <BalancoPanel key="balanco" estoque={estoque} />
             ) : (
-              <CmvPanel key="cmv" cmv={cmv} />
+              <CmvPanel
+                key="cmv"
+                cmv={cmv}
+                estoque={estoque}
+                onNavigateToEstoque={() => setActiveSubModule('estoque')}
+              />
             )}
           </AnimatePresence>
         </div>

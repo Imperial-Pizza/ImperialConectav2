@@ -35,6 +35,17 @@ export function useEstoque() {
     };
   }, []);
 
+  // Salva no localStorage para manter consistência com movimentações e balanço
+  useEffect(() => {
+    if (!isLoading && items.length > 0 && typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('imperial_estoque_insumos_v1', JSON.stringify(items));
+      } catch {
+        // Ignora erro de escrita
+      }
+    }
+  }, [items, isLoading]);
+
   const filteredItems = useMemo(() => {
     const termo = search.trim().toLocaleLowerCase('pt-BR');
 
