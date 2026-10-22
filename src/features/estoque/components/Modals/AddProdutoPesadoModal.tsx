@@ -31,15 +31,7 @@ interface AddProdutoPesadoModalProps {
 export function AddProdutoPesadoModal({
   open,
   initialData,
-  insumosDisponiveis = [
-    'Muçarela em Peça (INS-002)',
-    'Farinha de Trigo Especial (INS-001)',
-    'Molho de Tomate Pelati (INS-003)',
-    'Pepperoni Importado (INS-004)',
-    'Peito de Frango Resfriado',
-    'Calabresa Defumada Peça',
-    'Manta de Bacon Defumada',
-  ],
+  insumosDisponiveis = [],
   onClose,
   onSubmit,
 }: AddProdutoPesadoModalProps) {
@@ -88,7 +80,7 @@ export function AddProdutoPesadoModal({
       setNome('');
       setCodigo(`PES-${randomSuffix}`);
       setCategoria(CATEGORIAS_PRODUTO_PESADO[0]);
-      setInsumoOrigem(insumosDisponiveis[0] || 'Muçarela em Peça');
+      setInsumoOrigem(insumosDisponiveis[0] || '');
       setPesoUnitarioKg('5.0');
       setQuantidadePacotes('6');
       setPesoMinimoKg('15');

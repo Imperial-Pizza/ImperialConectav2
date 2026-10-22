@@ -1,4 +1,4 @@
-﻿import { estoqueApi } from '../apis/estoqueApi';
+import { estoqueApi } from '../apis/estoqueApi';
 import type {
   CmvPeriodoTipo,
   CmvResultado,
@@ -6,6 +6,14 @@ import type {
   Insumo,
   NovoInsumo,
 } from '../types';
+
+/** Valores zerados — todos os números de CMV vêm exclusivamente da API */
+export const CMV_VALORES_ZERADOS: CmvValores = {
+  estoqueInicial: 0,
+  comprasPeriodo: 0,
+  estoqueFinal: 0,
+  faturamentoTotal: 0,
+};
 
 export const CMV_PERIODOS_CONFIG: Record<
   CmvPeriodoTipo,
@@ -20,71 +28,41 @@ export const CMV_PERIODOS_CONFIG: Record<
     nome: 'Diário (Hoje)',
     dias: 1,
     subtitulo: 'Fechamento e apuração da escala do dia',
-    valoresPadrao: {
-      estoqueInicial: 12200,
-      comprasPeriodo: 950,
-      estoqueFinal: 11800,
-      faturamentoTotal: 4600,
-    },
+    valoresPadrao: { ...CMV_VALORES_ZERADOS },
   },
   semanal: {
     nome: 'Semanal (7 dias)',
     dias: 7,
     subtitulo: 'Balanço semanal com ciclos de reposição',
-    valoresPadrao: {
-      estoqueInicial: 11800,
-      comprasPeriodo: 4800,
-      estoqueFinal: 11200,
-      faturamentoTotal: 19500,
-    },
+    valoresPadrao: { ...CMV_VALORES_ZERADOS },
   },
   quinzenal: {
     nome: 'A 15 Dias (Quinzenal)',
     dias: 15,
     subtitulo: 'Auditoria de quinzena e conciliação de fornecedores',
-    valoresPadrao: {
-      estoqueInicial: 12000,
-      comprasPeriodo: 9300,
-      estoqueFinal: 11400,
-      faturamentoTotal: 34500,
-    },
+    valoresPadrao: { ...CMV_VALORES_ZERADOS },
   },
   mensal: {
     nome: 'Mensal (30 dias)',
     dias: 30,
     subtitulo: 'DRE operacional e apuração consolidada do mês',
-    valoresPadrao: {
-      estoqueInicial: 12500,
-      comprasPeriodo: 18400,
-      estoqueFinal: 11200,
-      faturamentoTotal: 65000,
-    },
+    valoresPadrao: { ...CMV_VALORES_ZERADOS },
   },
   trimestral: {
     nome: 'Trimestral (90 dias)',
     dias: 90,
     subtitulo: 'Análise estratégica de trimestre e sazonalidade',
-    valoresPadrao: {
-      estoqueInicial: 11000,
-      comprasPeriodo: 54000,
-      estoqueFinal: 11500,
-      faturamentoTotal: 192000,
-    },
+    valoresPadrao: { ...CMV_VALORES_ZERADOS },
   },
   anual: {
     nome: 'Anual (12 meses)',
     dias: 365,
     subtitulo: 'Resultado fiscal e evolução patrimonial do ano',
-    valoresPadrao: {
-      estoqueInicial: 9800,
-      comprasPeriodo: 218000,
-      estoqueFinal: 12200,
-      faturamentoTotal: 780000,
-    },
+    valoresPadrao: { ...CMV_VALORES_ZERADOS },
   },
 };
 
-export const CMV_INICIAL: CmvValores = CMV_PERIODOS_CONFIG.mensal.valoresPadrao;
+export const CMV_INICIAL: CmvValores = { ...CMV_VALORES_ZERADOS };
 
 /**
  * Busca a lista de insumos 100% diretamente do Banco de Dados via API REST
@@ -124,44 +102,6 @@ export async function movimentarInsumo(
   motivo?: string
 ) {
   return estoqueApi.registrarMovimentacao(id, tipo, quantidade, motivo);
-}
-
-/**
- * Gera CMV sincronizado com estoque físico real
- */
-export function gerarCmvDeEstoqueReal(
-  insumos: Insumo[],
-  periodo: CmvPeriodoTipo,
-  faturamentoManual?: number
-): CmvValores {
-  const saldoAtualEstoque = insumos.reduce(
-    (acc, item) => acc + item.qtd * item.custoUnitario,
-    0
-  );
-
-  const config = CMV_PERIODOS_CONFIG[periodo];
-  const dias = config.dias;
-
-  const consumoDiarioEstimado = saldoAtualEstoque > 0 ? saldoAtualEstoque / 8.5 : 1300;
-  const faturamentoDiarioEstimado = consumoDiarioEstimado / 0.28;
-
-  const estoqueFinal = Number(saldoAtualEstoque.toFixed(2));
-  const comprasPeriodo = Number((consumoDiarioEstimado * dias * 0.95).toFixed(2));
-  const variacaoEstoque = consumoDiarioEstimado * (dias * 0.05);
-  const estoqueInicial = Number((saldoAtualEstoque + variacaoEstoque).toFixed(2));
-
-  const faturamentoTotal =
-    faturamentoManual !== undefined && faturamentoManual > 0
-      ? faturamentoManual
-      : Number((faturamentoDiarioEstimado * dias).toFixed(2));
-
-  return {
-    estoqueInicial,
-    comprasPeriodo,
-    estoqueFinal,
-    faturamentoTotal,
-    origemDados: 'estoque_real',
-  };
 }
 
 export function isEstoqueBaixo(item: Insumo): boolean {

@@ -1,10 +1,10 @@
-﻿import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { estoqueApi } from '../apis/estoqueApi';
 import {
   calcularCmv,
   CMV_INICIAL,
   CMV_PERIODOS_CONFIG,
-  gerarCmvDeEstoqueReal,
+  CMV_VALORES_ZERADOS,
 } from '../services/estoqueService';
 import type { CmvOrigemDados, CmvPeriodoTipo, CmvValores, Insumo } from '../types';
 
@@ -43,11 +43,10 @@ export function useCmv(insumos: Insumo[] = [], initial: CmvValores = CMV_INICIAL
           }
         })
         .catch(() => {
-          if (active && insumos.length > 0) {
-            const novosValores = gerarCmvDeEstoqueReal(insumos, periodo);
+          if (active) {
             setPeriodosValores((prev) => ({
               ...prev,
-              [periodo]: novosValores,
+              [periodo]: { ...CMV_VALORES_ZERADOS, origemDados: 'estoque_real' },
             }));
           }
         });
@@ -93,13 +92,10 @@ export function useCmv(insumos: Insumo[] = [], initial: CmvValores = CMV_INICIAL
         }
       })
       .catch(() => {
-        if (insumos.length > 0) {
-          const reais = gerarCmvDeEstoqueReal(insumos, periodo);
-          setPeriodosValores((prev) => ({
-            ...prev,
-            [periodo]: { ...reais },
-          }));
-        }
+        setPeriodosValores((prev) => ({
+          ...prev,
+          [periodo]: { ...CMV_VALORES_ZERADOS, origemDados: 'estoque_real' },
+        }));
       });
   };
 
