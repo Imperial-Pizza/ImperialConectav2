@@ -79,7 +79,7 @@ export function EstoqueToolbar({
   ];
 
   return (
-    <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-6">
+    <div className="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-7 shadow-xs space-y-4 sm:space-y-6">
       {/* Input Oculto de Arquivo */}
       <input
         ref={fileInputRef}
@@ -94,27 +94,28 @@ export function EstoqueToolbar({
       />
 
       {/* Seção 1: Cabeçalho com Título e Ação Principal */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
+          <h1 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
             Estoque de Insumos
           </h1>
-          <p className="text-xs text-slate-500 font-medium mt-1">
+          <p className="text-[11px] sm:text-xs text-slate-500 font-medium mt-0.5 sm:mt-1">
             Gerencie massas, queijos, molhos e custos unitários em tempo real
           </p>
         </div>
 
         {/* Botões de Ação no topo */}
-        <div className="flex items-center gap-2.5 shrink-0">
+        <div className="flex items-center gap-2 sm:gap-2.5 w-full sm:w-auto">
           {onNavigateToBalanco && (
             <button
               type="button"
               onClick={onNavigateToBalanco}
-              className="px-4 py-2.5 rounded-xl border border-purple-200 bg-purple-50 hover:bg-purple-100 active:scale-[0.98] text-purple-750 text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs text-purple-800"
+              className="flex-1 sm:flex-none px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-purple-200 bg-purple-50 hover:bg-purple-100 active:scale-[0.98] text-purple-800 text-xs font-bold transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer shadow-xs"
               title="Auditar contagem física e realizar balanço de estoque"
             >
-              <ClipboardCheck className="w-4 h-4 text-purple-600" />
-              <span>Balanço de Estoque</span>
+              <ClipboardCheck className="w-4 h-4 text-purple-600 shrink-0" />
+              <span>Balanço</span>
+              <span className="hidden sm:inline">de Estoque</span>
             </button>
           )}
 
@@ -122,9 +123,9 @@ export function EstoqueToolbar({
           <button
             type="button"
             onClick={onAddInsumo}
-            className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-xs font-black transition-all shadow-md shadow-blue-600/25 flex items-center justify-center gap-2 cursor-pointer"
+            className="flex-1 sm:flex-none px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-xs font-black transition-all shadow-md shadow-blue-600/25 flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer whitespace-nowrap"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4 shrink-0" />
             <span>Novo Insumo</span>
           </button>
         </div>
