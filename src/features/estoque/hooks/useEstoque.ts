@@ -35,16 +35,14 @@ export function useEstoque() {
     };
   }, []);
 
-  // Salva no localStorage para manter consistência com movimentações e balanço
+  // Remove cache local legado — os dados vêm exclusivamente da API
   useEffect(() => {
-    if (!isLoading && items.length > 0 && typeof window !== 'undefined') {
-      try {
-        localStorage.setItem('imperial_estoque_insumos_v1', JSON.stringify(items));
-      } catch {
-        // Ignora erro de escrita
-      }
+    try {
+      localStorage.removeItem('imperial_estoque_insumos_v1');
+    } catch {
+      // Ignora
     }
-  }, [items, isLoading]);
+  }, []);
 
   const filteredItems = useMemo(() => {
     const termo = search.trim().toLocaleLowerCase('pt-BR');
@@ -84,7 +82,7 @@ export function useEstoque() {
     );
     const categorias = new Set(items.map((item) => item.categoria)).size;
     const percentualAbastecimento =
-      totalInsumos > 0 ? Math.round((estoqueNormal / totalInsumos) * 100) : 100;
+      totalInsumos > 0 ? Math.round((estoqueNormal / totalInsumos) * 100) : 0;
 
     return {
       totalInsumos,

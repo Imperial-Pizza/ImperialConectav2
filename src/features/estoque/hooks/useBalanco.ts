@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { estoqueApi } from '../apis/estoqueApi';
@@ -12,7 +12,7 @@ import type {
 } from '../types';
 import { FILTRO_TODAS } from '../utils/constants';
 
-const STORAGE_KEY_HISTORICO = 'imperial_estoque_balanco_historico_v1';
+const STORAGE_KEY_HISTORICO_LEGADO = 'imperial_estoque_balanco_historico_v1';
 
 export function useBalanco(
   items: Insumo[],
@@ -32,29 +32,25 @@ export function useBalanco(
   // Histórico salvo
   const [historico, setHistorico] = useState<HistoricoBalanco[]>([]);
 
-  // Carrega histórico da API (MySQL) ou do localStorage na montagem
-  useEffect(() => {
-    estoqueApi
-      .listarHistoricoBalanco()
-      .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
-          setHistorico(data);
-        } else {
-          const saved = localStorage.getItem(STORAGE_KEY_HISTORICO);
-          if (saved) setHistorico(JSON.parse(saved));
-        }
-      })
-      .catch(() => {
-        try {
-          const saved = localStorage.getItem(STORAGE_KEY_HISTORICO);
-          if (saved) {
-            setHistorico(JSON.parse(saved));
-          }
-        } catch {
-          // Ignora erro de parsing no SSR/localStorage
-        }
-      });
+  // Carrega histórico exclusivamente da API (MySQL)
+  const carregarHistorico = useCallback(async () => {
+    try {
+      const data = await estoqueApi.listarHistoricoBalanco();
+      setHistorico(Array.isArray(data) ? data : []);
+    } catch {
+      setHistorico([]);
+    }
   }, []);
+
+  useEffect(() => {
+    // Remove cache local legado para não exibir dados antigos
+    try {
+      localStorage.removeItem(STORAGE_KEY_HISTORICO_LEGADO);
+    } catch {
+      // Ignora
+    }
+    carregarHistorico();
+  }, [carregarHistorico]);
 
   // Mapeia insumos para itens de balanço com cálculos instantâneos
   const itensBalanco = useMemo<ItemBalanco[]>(() => {
@@ -224,20 +220,15 @@ export function useBalanco(
       await aplicarBalancoEstoque(ajustesParaEstoque);
 
       // Salva no banco de dados através da API
-      try {
-        await estoqueApi.finalizarBalanco({
-          responsavel: responsavel.trim() || 'Equipe de Estoque',
-          itens: itensContados.map((i) => ({
-            insumoId: i.insumoId,
-            qtdFisica: i.qtdFisica!,
-            motivo: i.motivo,
-          })),
-        });
-      } catch (err) {
-        console.warn('Erro ao registrar balanço no backend remoto:', err);
-      }
+      await estoqueApi.finalizarBalanco({
+        responsavel: responsavel.trim() || 'Equipe de Estoque',
+        itens: itensContados.map((i) => ({
+          insumoId: i.insumoId,
+          qtdFisica: i.qtdFisica!,
+          motivo: i.motivo,
+        })),
+      });
 
-      // Registra no histórico local
       const historicoItens: HistoricoBalancoItem[] = itensContados.map((i) => ({
         codigo: i.codigo,
         nome: i.nome,
@@ -261,21 +252,15 @@ export function useBalanco(
         itens: historicoItens,
       };
 
-      const atualizado = [novoHistorico, ...historico];
-      setHistorico(atualizado);
-
-      try {
-        localStorage.setItem(STORAGE_KEY_HISTORICO, JSON.stringify(atualizado));
-      } catch {
-        // Ignora
-      }
+      // Recarrega o histórico oficial do banco
+      await carregarHistorico();
 
       // Reseta contagem após o fechamento
       limparContagem();
 
       return novoHistorico;
     },
-    [itensBalanco, aplicarBalancoEstoque, metrics, historico, limparContagem]
+    [itensBalanco, aplicarBalancoEstoque, metrics, carregarHistorico, limparContagem]
   );
 
   return {
