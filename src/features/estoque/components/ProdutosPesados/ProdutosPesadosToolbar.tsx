@@ -44,30 +44,30 @@ export function ProdutosPesadosToolbar({
   ];
 
   return (
-    <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-6">
+    <div className="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-7 shadow-xs space-y-4 sm:space-y-6">
       {/* Cabeçalho */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
-              Produtos Pesados & Fracionamento
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
+              Produtos Pesados
             </h1>
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800">
-              Balança & Pré-Preparo
+              Balança & Fracionamento
             </span>
           </div>
-          <p className="text-xs sm:text-sm font-medium text-slate-500 mt-1">
-            Controle pacotes de muçarela triturada, frios fatiados, molhos e porções prontas para produção
+          <p className="text-[11px] sm:text-xs font-medium text-slate-500 mt-1">
+            Controle pacotes de muçarela triturada, frios fatiados, molhos e porções prontas
           </p>
         </div>
 
         <button
           type="button"
           onClick={onAddProdutoPesado}
-          className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md shadow-blue-600/20 active:scale-95 transition-all cursor-pointer shrink-0"
+          className="inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md shadow-blue-600/20 active:scale-95 transition-all cursor-pointer w-full sm:w-auto"
         >
-          <Plus className="w-4 h-4" />
-          <span>Nova Pesagem / Fracionamento</span>
+          <Plus className="w-4 h-4 shrink-0" />
+          <span>Nova Pesagem</span>
         </button>
       </div>
 

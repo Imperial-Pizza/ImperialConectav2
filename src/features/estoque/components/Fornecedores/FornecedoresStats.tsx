@@ -42,25 +42,25 @@ export function FornecedoresStats({ metrics }: FornecedoresStatsProps) {
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
       {stats.map(({ label, value, subtext, icon: Icon, color }) => (
         <div
           key={label}
-          className="bg-white border border-slate-200/90 rounded-3xl p-4 sm:p-5 shadow-xs flex flex-col justify-between space-y-2 hover:shadow-md transition-shadow"
+          className="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 shadow-xs flex flex-col justify-between space-y-2 hover:shadow-md transition-shadow min-h-[110px] sm:min-h-[128px]"
         >
-          <div className="flex items-center justify-between gap-3 min-w-0">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 truncate" title={label}>
+          <div className="flex items-center justify-between gap-2 min-w-0">
+            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400 truncate" title={label}>
               {label}
             </span>
-            <div className={`w-9 h-9 rounded-2xl border flex items-center justify-center shrink-0 ${color}`}>
-              <Icon className="w-4 h-4" />
+            <div className={`w-7 h-7 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl border flex items-center justify-center shrink-0 ${color}`}>
+              <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
           <div>
-            <p className="text-2xl font-black text-slate-900 font-mono tracking-tight">
+            <p className="text-lg sm:text-2xl font-black text-slate-900 font-mono tracking-tight">
               {value}
             </p>
-            <p className="text-[11px] font-medium text-slate-500 mt-0.5">
+            <p className="text-[10px] sm:text-[11px] font-medium text-slate-500 mt-0.5 truncate">
               {subtext}
             </p>
           </div>

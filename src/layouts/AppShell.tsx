@@ -100,11 +100,11 @@ export function AppShell({ activeModule, children }: AppShellProps) {
         }}
       />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-8 relative">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3.5 sm:px-6 py-4 sm:py-8 relative">
         {children}
       </main>
 
-      <footer className="w-full border-t border-slate-200/80 bg-white py-6 px-6 text-center text-xs text-slate-500 space-y-1 shadow-inner">
+      <footer className="w-full border-t border-slate-200/80 bg-white py-4 sm:py-6 px-4 sm:px-6 text-center text-xs text-slate-500 space-y-1 shadow-inner">
         <p className="font-bold text-slate-700">IMPERIAL PIZZA • SISTEMA DE OPERAÇÕES V4.0</p>
         <p>© 2026 Imperial Pizza. Todos os direitos reservados.</p>
       </footer>

@@ -52,20 +52,20 @@ export function FornecedoresToolbar({
   ];
 
   return (
-    <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-6">
+    <div className="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-7 shadow-xs space-y-4 sm:space-y-6">
       {/* Seção 1: Cabeçalho com Título e Ação Principal */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center border border-red-100">
+            <div className="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center border border-red-100 shrink-0">
               <Building2 className="w-4 h-4" />
             </div>
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
+            <h1 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
               Gestão de Fornecedores
             </h1>
           </div>
-          <p className="text-xs text-slate-500 font-medium mt-1">
-            Cadastre parceiros, acompanhe prazos de entrega, contatos diretos e condições comerciais
+          <p className="text-[11px] sm:text-xs text-slate-500 font-medium mt-1">
+            Cadastre parceiros, acompanhe prazos de entrega e condições comerciais
           </p>
         </div>
 
@@ -73,9 +73,9 @@ export function FornecedoresToolbar({
         <button
           type="button"
           onClick={onAddFornecedor}
-          className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-xs font-black transition-all shadow-md shadow-blue-600/25 flex items-center justify-center gap-2 shrink-0 cursor-pointer"
+          className="px-4 sm:px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-xs font-black transition-all shadow-md shadow-blue-600/25 flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-4 h-4 shrink-0" />
           <span>Novo Fornecedor</span>
         </button>
       </div>
