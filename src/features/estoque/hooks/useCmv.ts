@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-
+﻿import { useEffect, useMemo, useState } from 'react';
+import { estoqueApi } from '../apis/estoqueApi';
 import {
   calcularCmv,
   CMV_INICIAL,
@@ -21,15 +21,41 @@ export function useCmv(insumos: Insumo[] = [], initial: CmvValores = CMV_INICIAL
     anual: { ...CMV_PERIODOS_CONFIG.anual.valoresPadrao },
   });
 
-  // Atualiza os valores a partir do estoque real sempre que houver insumos ou mudar o período, caso origem === 'estoque_real'
+  // Atualiza os valores a partir do estoque real / backend sempre que houver insumos ou mudar o período
   useEffect(() => {
-    if (insumos.length > 0 && origem === 'estoque_real') {
-      const novosValores = gerarCmvDeEstoqueReal(insumos, periodo);
-      setPeriodosValores((prev) => ({
-        ...prev,
-        [periodo]: novosValores,
-      }));
+    let active = true;
+
+    if (origem === 'estoque_real') {
+      estoqueApi
+        .apurarCmv(periodo)
+        .then((dados) => {
+          if (active && dados) {
+            setPeriodosValores((prev) => ({
+              ...prev,
+              [periodo]: {
+                estoqueInicial: Number(dados.estoqueInicial ?? prev[periodo].estoqueInicial),
+                comprasPeriodo: Number(dados.comprasPeriodo ?? prev[periodo].comprasPeriodo),
+                estoqueFinal: Number(dados.estoqueFinal ?? prev[periodo].estoqueFinal),
+                faturamentoTotal: Number(dados.faturamentoTotal ?? prev[periodo].faturamentoTotal),
+                origemDados: 'estoque_real',
+              },
+            }));
+          }
+        })
+        .catch(() => {
+          if (active && insumos.length > 0) {
+            const novosValores = gerarCmvDeEstoqueReal(insumos, periodo);
+            setPeriodosValores((prev) => ({
+              ...prev,
+              [periodo]: novosValores,
+            }));
+          }
+        });
     }
+
+    return () => {
+      active = false;
+    };
   }, [insumos, periodo, origem]);
 
   const valores = periodosValores[periodo];
@@ -50,13 +76,31 @@ export function useCmv(insumos: Insumo[] = [], initial: CmvValores = CMV_INICIAL
 
   const puxarDoEstoqueReal = () => {
     setOrigem('estoque_real');
-    if (insumos.length > 0) {
-      const reais = gerarCmvDeEstoqueReal(insumos, periodo);
-      setPeriodosValores((prev) => ({
-        ...prev,
-        [periodo]: { ...reais },
-      }));
-    }
+    estoqueApi
+      .apurarCmv(periodo)
+      .then((dados) => {
+        if (dados) {
+          setPeriodosValores((prev) => ({
+            ...prev,
+            [periodo]: {
+              estoqueInicial: Number(dados.estoqueInicial ?? 0),
+              comprasPeriodo: Number(dados.comprasPeriodo ?? 0),
+              estoqueFinal: Number(dados.estoqueFinal ?? 0),
+              faturamentoTotal: Number(dados.faturamentoTotal ?? 0),
+              origemDados: 'estoque_real',
+            },
+          }));
+        }
+      })
+      .catch(() => {
+        if (insumos.length > 0) {
+          const reais = gerarCmvDeEstoqueReal(insumos, periodo);
+          setPeriodosValores((prev) => ({
+            ...prev,
+            [periodo]: { ...reais },
+          }));
+        }
+      });
   };
 
   const resetValoresPadrao = () => {

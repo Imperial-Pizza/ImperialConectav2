@@ -1,6 +1,7 @@
-'use client';
+﻿'use client';
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
+import { estoqueApi } from '../apis/estoqueApi';
 import type {
   FiltroBalancoStatus,
   HistoricoBalanco,
@@ -31,16 +32,28 @@ export function useBalanco(
   // Histórico salvo
   const [historico, setHistorico] = useState<HistoricoBalanco[]>([]);
 
-  // Carrega histórico do localStorage na montagem
+  // Carrega histórico da API (MySQL) ou do localStorage na montagem
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY_HISTORICO);
-      if (saved) {
-        setHistorico(JSON.parse(saved));
-      }
-    } catch {
-      // Ignora erro de parsing no SSR/localStorage
-    }
+    estoqueApi
+      .listarHistoricoBalanco()
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setHistorico(data);
+        } else {
+          const saved = localStorage.getItem(STORAGE_KEY_HISTORICO);
+          if (saved) setHistorico(JSON.parse(saved));
+        }
+      })
+      .catch(() => {
+        try {
+          const saved = localStorage.getItem(STORAGE_KEY_HISTORICO);
+          if (saved) {
+            setHistorico(JSON.parse(saved));
+          }
+        } catch {
+          // Ignora erro de parsing no SSR/localStorage
+        }
+      });
   }, []);
 
   // Mapeia insumos para itens de balanço com cálculos instantâneos
@@ -194,7 +207,7 @@ export function useBalanco(
     setMotivos({});
   }, []);
 
-  // Finalizar e sincronizar com o estoque
+  // Finalizar e sincronizar com o estoque e banco de dados
   const finalizarBalanco = useCallback(
     async (responsavel: string) => {
       const itensContados = itensBalanco.filter((i) => i.qtdFisica !== null);
@@ -210,7 +223,21 @@ export function useBalanco(
 
       await aplicarBalancoEstoque(ajustesParaEstoque);
 
-      // Registra no histórico
+      // Salva no banco de dados através da API
+      try {
+        await estoqueApi.finalizarBalanco({
+          responsavel: responsavel.trim() || 'Equipe de Estoque',
+          itens: itensContados.map((i) => ({
+            insumoId: i.insumoId,
+            qtdFisica: i.qtdFisica!,
+            motivo: i.motivo,
+          })),
+        });
+      } catch (err) {
+        console.warn('Erro ao registrar balanço no backend remoto:', err);
+      }
+
+      // Registra no histórico local
       const historicoItens: HistoricoBalancoItem[] = itensContados.map((i) => ({
         codigo: i.codigo,
         nome: i.nome,
