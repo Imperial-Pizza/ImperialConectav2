@@ -73,9 +73,7 @@ export default function PerfilPage() {
       <div className="max-w-6xl mx-auto space-y-6">
         
         {error && (
-          <StatusBanner type="error" title="Erro">
-            {error}
-          </StatusBanner>
+          <StatusBanner variant="error" message={error} />
         )}
 
 
