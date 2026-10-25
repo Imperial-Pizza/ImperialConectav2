@@ -129,7 +129,7 @@ export function ProdutosPesadosTable({
 
                   <span className="text-slate-300">•</span>
                   <span>
-                    Preço Médio:{' '}
+                    Preço por Quilo:{' '}
                     <b className="text-slate-700 font-mono">{formatCurrency(item.custoPorKg)}/kg</b>
                   </span>
 

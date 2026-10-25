@@ -93,7 +93,7 @@ export function BalancoCards({
                   {item.nome}
                 </h3>
                 <p className="text-[11px] text-slate-400 mt-0.5">
-                  Preço Médio: {formatCurrency(item.custoUnitario)}/{item.unidade}
+                  Preço por Quilo: {formatCurrency(item.custoUnitario)}/{item.unidade}
                 </p>
               </div>
 

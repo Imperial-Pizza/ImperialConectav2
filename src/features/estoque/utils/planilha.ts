@@ -7,7 +7,7 @@ const HEADERS = [
   'Unidade',
   'Quantidade Atual',
   'Estoque Mínimo',
-  'Preço Médio (R$)',
+  'Preço por Quilo (kg)',
   'Valor Total (R$)',
   'Fornecedor Principal',
   'Observações',

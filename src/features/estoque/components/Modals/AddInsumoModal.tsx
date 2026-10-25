@@ -257,7 +257,7 @@ export function AddInsumoModal({
                 <div>
                   <label htmlFor="insumo-custo" className="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
                     <DollarSign className="w-3.5 h-3.5 text-slate-400" />
-                    <span>Preço Médio (R$)</span>
+                    <span>Preço por Quilo (kg)</span>
                   </label>
                   <input
                     id="insumo-custo"
