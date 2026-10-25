@@ -6,6 +6,7 @@ import {
   createInsumo, 
   deleteInsumo as deleteInsumoService, 
   fetchInsumos, 
+  importarInsumosService,
   isEstoqueBaixo, 
   updateInsumo as updateInsumoService 
 } from '../services/estoqueService';
@@ -114,8 +115,19 @@ export function useEstoque() {
     setItems((prev) => prev.filter((item) => item.id !== id));
   };
 
-  const importInsumos = (novos: Insumo[]) => {
-    setItems((prev) => [...novos, ...prev]);
+  const importInsumos = async (novos: Insumo[]) => {
+    setIsLoading(true);
+    try {
+      const res = await importarInsumosService(novos);
+      const atualizados = await fetchInsumos();
+      setItems(atualizados);
+      return res;
+    } catch (err) {
+      console.error('Erro ao importar insumos:', err);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const ajustarEstoque = async (id: number, delta: number) => {

@@ -74,19 +74,27 @@ export function EstoquePanel({
   const paginatedItems = filteredItems.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   const handleImport = async (file: File) => {
+    const toastId = toast.loading('Salvando insumos no banco de dados...');
     try {
       const texto = await lerArquivoTexto(file);
       const novos = parsePlanilha(texto);
 
       if (novos.length === 0) {
-        toast.error('Nenhum insumo válido encontrado na planilha.');
+        toast.error('Nenhum insumo válido encontrado na planilha.', { id: toastId });
         return;
       }
 
-      importInsumos(novos);
-      toast.success(`${novos.length} insumos importados com sucesso!`);
-    } catch {
-      toast.error('Não foi possível ler o arquivo selecionado.');
+      const res: any = await importInsumos(novos);
+      const importados = res?.importados ?? 0;
+      const atualizados = res?.atualizados ?? 0;
+      const total = res?.total ?? novos.length;
+
+      toast.success(
+        `${total} insumos processados no banco de dados! (${importados} novos cadastrados, ${atualizados} atualizados)`,
+        { id: toastId, duration: 5000 }
+      );
+    } catch (err: any) {
+      toast.error(err?.message || 'Não foi possível salvar os insumos importados no banco de dados.', { id: toastId });
     }
   };
 

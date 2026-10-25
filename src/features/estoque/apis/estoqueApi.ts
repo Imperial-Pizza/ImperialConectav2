@@ -1,4 +1,4 @@
-﻿// src/features/estoque/apis/estoqueApi.ts
+// src/features/estoque/apis/estoqueApi.ts
 
 import type {
   Fornecedor,
@@ -101,6 +101,36 @@ export const estoqueApi = {
       fornecedor: String(i.fornecedor || i.fornecedor_nome || ''),
       observacoes: i.observacoes || '',
     };
+  },
+
+  importarInsumos: async (
+    insumos: any[]
+  ): Promise<{ total: number; importados: number; atualizados: number }> => {
+    const payload = {
+      insumos: insumos.map((item) => ({
+        codigo: item.codigo,
+        nome: item.nome,
+        categoria: item.categoria,
+        unidade: item.unidade,
+        min: Number(item.min ?? 0),
+        custo_unitario: Number(item.custoUnitario ?? item.custo_unitario ?? 0),
+        qtd: Number(item.qtd ?? 0),
+        fornecedor: item.fornecedor || item.fornecedor_nome || undefined,
+        fornecedor_id: item.fornecedor_id ?? item.fornecedorId ?? undefined,
+        observacoes: item.observacoes,
+      })),
+    };
+
+    const response = await fetch(`${API_URL}/insumos/importar`, {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify(payload),
+    });
+
+    return handle<{ total: number; importados: number; atualizados: number }>(
+      response,
+      'Erro ao importar insumos para o banco de dados'
+    );
   },
 
   atualizarInsumo: async (id: number, dados: Partial<NovoInsumo>): Promise<Insumo> => {
