@@ -1,8 +1,8 @@
 'use client';
 
-import { Building2, Pencil, Trash2, Tag, ArrowUpDown, Printer, User, Calendar, Clock } from 'lucide-react';
+import { Building2, Pencil, Trash2, Tag, ArrowUpDown, Printer } from 'lucide-react';
 import { isEstoqueBaixo, valorTotalInsumo } from '../../services/estoqueService';
-import { formatCurrency, formatDateTime } from '../../utils/format';
+import { formatCurrency } from '../../utils/format';
 import type { Insumo } from '../../types';
 
 interface EstoqueTableProps {
@@ -145,47 +145,6 @@ export function EstoqueTable({
                     Obs: {item.observacoes}
                   </p>
                 )}
-              </div>
-            </div>
-
-            {/* Coluna Central-Direita: Auditoria (Usuário Logado + Data/Horário) */}
-            <div className="flex flex-col justify-center gap-1.5 py-2 px-3.5 rounded-2xl bg-slate-50/90 border border-slate-200/80 text-[11px] shrink-0 w-full sm:w-auto min-w-[210px] shadow-2xs">
-              {/* Criado por */}
-              <div className="flex items-center justify-between gap-2">
-                <span className="flex items-center gap-1 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                  <User className="w-3 h-3 text-slate-400" />
-                  Criado por:
-                </span>
-                <span className="font-bold text-slate-800 text-[11px] truncate max-w-[110px]" title={item.criadoPor || 'Arthur'}>
-                  {item.criadoPor || 'Arthur'}
-                </span>
-              </div>
-              <div className="flex items-center justify-between gap-1 text-[10px] text-slate-400 font-mono">
-                <span className="flex items-center gap-1">
-                  <Calendar className="w-2.5 h-2.5" />
-                  Criação:
-                </span>
-                <span>{formatDateTime(item.createdAt)}</span>
-              </div>
-
-              <div className="border-t border-slate-200/70 my-0.5" />
-
-              {/* Atualizado por */}
-              <div className="flex items-center justify-between gap-2">
-                <span className="flex items-center gap-1 text-[10px] font-bold text-indigo-600 uppercase tracking-wider">
-                  <Clock className="w-3 h-3 text-indigo-400" />
-                  Alterado por:
-                </span>
-                <span className="font-bold text-indigo-700 text-[11px] truncate max-w-[110px]" title={item.atualizadoPor || 'Arthur'}>
-                  {item.atualizadoPor || 'Arthur'}
-                </span>
-              </div>
-              <div className="flex items-center justify-between gap-1 text-[10px] text-slate-400 font-mono">
-                <span className="flex items-center gap-1">
-                  <Calendar className="w-2.5 h-2.5" />
-                  Edição:
-                </span>
-                <span>{formatDateTime(item.updatedAt)}</span>
               </div>
             </div>
 
