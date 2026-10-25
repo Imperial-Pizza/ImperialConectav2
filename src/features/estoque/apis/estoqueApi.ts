@@ -1,4 +1,4 @@
-﻿// src/features/estoque/apis/estoqueApi.ts
+// src/features/estoque/apis/estoqueApi.ts
 
 import type {
   Fornecedor,
@@ -64,6 +64,10 @@ export const estoqueApi = {
       qtd: Number(i.qtd ?? 0),
       fornecedor: String(i.fornecedor || i.fornecedor_nome || ''),
       observacoes: i.observacoes || '',
+      criadoPor: String(i.criado_por || i.criadoPor || 'Arthur'),
+      atualizadoPor: String(i.atualizado_por || i.atualizadoPor || 'Arthur'),
+      createdAt: String(i.created_at || i.createdAt || ''),
+      updatedAt: String(i.updated_at || i.updatedAt || ''),
     }));
   },
 
@@ -82,6 +86,8 @@ export const estoqueApi = {
       custo_unitario: dados.custoUnitario,
       qtd: dados.qtd,
       observacoes: dados.observacoes,
+      criado_por: dados.criadoPor || 'Arthur',
+      atualizado_por: dados.atualizadoPor || dados.criadoPor || 'Arthur',
     };
     const response = await fetch(`${API_URL}/insumos`, {
       method: 'POST',
@@ -100,13 +106,52 @@ export const estoqueApi = {
       qtd: Number(i.qtd ?? 0),
       fornecedor: String(i.fornecedor || i.fornecedor_nome || ''),
       observacoes: i.observacoes || '',
+      criadoPor: String(i.criado_por || i.criadoPor || 'Arthur'),
+      atualizadoPor: String(i.atualizado_por || i.atualizadoPor || 'Arthur'),
+      createdAt: String(i.created_at || i.createdAt || ''),
+      updatedAt: String(i.updated_at || i.updatedAt || ''),
     };
+  },
+
+  importarInsumos: async (
+    insumos: any[]
+  ): Promise<{ total: number; importados: number; atualizados: number }> => {
+    const payload = {
+      insumos: insumos.map((item) => ({
+        codigo: item.codigo,
+        nome: item.nome,
+        categoria: item.categoria,
+        unidade: item.unidade,
+        min: Number(item.min ?? 0),
+        custo_unitario: Number(item.custoUnitario ?? item.custo_unitario ?? 0),
+        qtd: Number(item.qtd ?? 0),
+        fornecedor: item.fornecedor || item.fornecedor_nome || undefined,
+        fornecedor_id: item.fornecedor_id ?? item.fornecedorId ?? undefined,
+        observacoes: item.observacoes,
+        criado_por: item.criadoPor || item.criado_por || 'Arthur',
+        atualizado_por: item.atualizadoPor || item.atualizado_por || 'Arthur',
+      })),
+    };
+
+    const response = await fetch(`${API_URL}/insumos/importar`, {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify(payload),
+    });
+
+    return handle<{ total: number; importados: number; atualizados: number }>(
+      response,
+      'Erro ao importar insumos para o banco de dados'
+    );
   },
 
   atualizarInsumo: async (id: number, dados: Partial<NovoInsumo>): Promise<Insumo> => {
     const payload: any = { ...dados };
     if (dados.custoUnitario !== undefined) {
       payload.custo_unitario = dados.custoUnitario;
+    }
+    if (dados.atualizadoPor !== undefined) {
+      payload.atualizado_por = dados.atualizadoPor;
     }
     const response = await fetch(`${API_URL}/insumos/${id}`, {
       method: 'PUT',
@@ -125,6 +170,10 @@ export const estoqueApi = {
       qtd: Number(i.qtd ?? 0),
       fornecedor: String(i.fornecedor || i.fornecedor_nome || ''),
       observacoes: i.observacoes || '',
+      criadoPor: String(i.criado_por || i.criadoPor || 'Arthur'),
+      atualizadoPor: String(i.atualizado_por || i.atualizadoPor || 'Arthur'),
+      createdAt: String(i.created_at || i.createdAt || ''),
+      updatedAt: String(i.updated_at || i.updatedAt || ''),
     };
   },
 

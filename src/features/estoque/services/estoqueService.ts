@@ -79,6 +79,13 @@ export async function createInsumo(insumo: NovoInsumo): Promise<Insumo> {
 }
 
 /**
+ * Importa múltiplos insumos diretamente para o MySQL em lote
+ */
+export async function importarInsumosService(insumos: any[]): Promise<{ total: number; importados: number; atualizados: number }> {
+  return estoqueApi.importarInsumos(insumos);
+}
+
+/**
  * Atualiza insumo diretamente no MySQL
  */
 export async function updateInsumo(id: number, dados: Partial<NovoInsumo>): Promise<Insumo> {

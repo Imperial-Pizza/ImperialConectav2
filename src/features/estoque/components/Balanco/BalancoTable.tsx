@@ -145,7 +145,7 @@ export function BalancoTable({
                   </span>
                   <span className="text-slate-300">•</span>
                   <span>
-                    Preço Médio:{' '}
+                    Preço por Quilo:{' '}
                     <strong className="text-slate-700 font-mono font-semibold">
                       {formatCurrency(item.custoUnitario)}/{item.unidade}
                     </strong>

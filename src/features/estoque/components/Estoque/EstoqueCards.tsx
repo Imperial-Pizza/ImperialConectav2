@@ -88,8 +88,8 @@ export function EstoqueCards({
               </div>
 
               <div className="flex justify-between items-center">
-                <dt className="text-slate-500 font-medium">Preço Médio:</dt>
-                <dd className="font-mono text-slate-700">{formatCurrency(item.custoUnitario)}</dd>
+                <dt className="text-slate-500 font-medium">Preço por Quilo:</dt>
+                <dd className="font-mono text-slate-700">{formatCurrency(item.custoUnitario)}/{item.unidade}</dd>
               </div>
 
               <div className="flex justify-between items-center pt-1 border-t border-slate-50">

@@ -6,13 +6,18 @@ import {
   createInsumo, 
   deleteInsumo as deleteInsumoService, 
   fetchInsumos, 
+  importarInsumosService,
   isEstoqueBaixo, 
   updateInsumo as updateInsumoService 
 } from '../services/estoqueService';
 import { FILTRO_TODAS } from '../utils/constants';
+import { useUser } from '@/components/ui/header/hooks/user';
 import type { EstoqueViewMode, Insumo, InsumoStatusFilter, NovoInsumo } from '../types';
 
 export function useEstoque() {
+  const { user } = useUser();
+  const currentUserName = user?.name || 'Arthur';
+
   const [items, setItems] = useState<Insumo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -97,15 +102,22 @@ export function useEstoque() {
   const lowStockCount = metrics.estoqueBaixo;
 
   const addInsumo = async (novo: NovoInsumo) => {
-    const created = await createInsumo(novo);
+    const created = await createInsumo({
+      ...novo,
+      criadoPor: currentUserName,
+      atualizadoPor: currentUserName,
+    });
     setItems((prev) => [created, ...prev]);
     return created;
   };
 
   const editInsumo = async (id: number, dados: Partial<NovoInsumo>) => {
-    await updateInsumoService(id, dados);
+    const updated = await updateInsumoService(id, {
+      ...dados,
+      atualizadoPor: currentUserName,
+    });
     setItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, ...dados } : item)),
+      prev.map((item) => (item.id === id ? { ...item, ...updated, atualizadoPor: currentUserName } : item)),
     );
   };
 
@@ -114,17 +126,40 @@ export function useEstoque() {
     setItems((prev) => prev.filter((item) => item.id !== id));
   };
 
-  const importInsumos = (novos: Insumo[]) => {
-    setItems((prev) => [...novos, ...prev]);
+  const importInsumos = async (novos: Insumo[]) => {
+    setIsLoading(true);
+    try {
+      const comAuditoria = novos.map((n) => ({
+        ...n,
+        criadoPor: currentUserName,
+        atualizadoPor: currentUserName,
+      }));
+      const res = await importarInsumosService(comAuditoria);
+      const atualizados = await fetchInsumos();
+      setItems(atualizados);
+      return res;
+    } catch (err) {
+      console.error('Erro ao importar insumos:', err);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const ajustarEstoque = async (id: number, delta: number) => {
     const item = items.find((i) => i.id === id);
     if (!item) return;
     const novaQtd = Math.max(0, Number((item.qtd + delta).toFixed(2)));
-    await updateInsumoService(id, { qtd: novaQtd });
+    const updated = await updateInsumoService(id, {
+      qtd: novaQtd,
+      atualizadoPor: currentUserName,
+    });
     setItems((prev) =>
-      prev.map((i) => (i.id === id ? { ...i, qtd: novaQtd } : i))
+      prev.map((i) =>
+        i.id === id
+          ? { ...i, qtd: novaQtd, atualizadoPor: currentUserName, updatedAt: updated.updatedAt }
+          : i
+      )
     );
     return novaQtd;
   };
@@ -132,7 +167,10 @@ export function useEstoque() {
   const aplicarBalanco = async (ajustes: { id: number; novaQtd: number }[]) => {
     const mapa = new Map(ajustes.map((a) => [a.id, a.novaQtd]));
     for (const ajuste of ajustes) {
-      await updateInsumoService(ajuste.id, { qtd: Math.max(0, Number(ajuste.novaQtd.toFixed(2))) });
+      await updateInsumoService(ajuste.id, {
+        qtd: Math.max(0, Number(ajuste.novaQtd.toFixed(2))),
+        atualizadoPor: currentUserName,
+      });
     }
     setItems((prev) =>
       prev.map((item) => {
@@ -140,6 +178,7 @@ export function useEstoque() {
           return {
             ...item,
             qtd: Math.max(0, Number(mapa.get(item.id)!.toFixed(2))),
+            atualizadoPor: currentUserName,
           };
         }
         return item;

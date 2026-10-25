@@ -7,7 +7,7 @@ const HEADERS = [
   'Unidade',
   'Quantidade Atual',
   'Estoque Mínimo',
-  'Preço Médio (R$)',
+  'Preço por Quilo (kg)',
   'Valor Total (R$)',
   'Fornecedor Principal',
   'Observações',
@@ -153,6 +153,13 @@ function dividirLinha(linha: string, delimitador: string): string[] {
   return colunas;
 }
 
+function parseNumero(val: string | undefined, padrao = 0): number {
+  if (!val) return padrao;
+  const limpo = val.trim().replace(/^"|"$/g, '').replace(/[^\d.,-]/g, '').replace(',', '.');
+  const num = parseFloat(limpo);
+  return isNaN(num) ? padrao : num;
+}
+
 export function parsePlanilha(texto: string): Insumo[] {
   const linhas = texto
     .replace(BOM, '')
@@ -162,27 +169,45 @@ export function parsePlanilha(texto: string): Insumo[] {
 
   if (linhas.length < 2) return [];
 
-  const delimitador = linhas[0].includes('\t') ? '\t' : ',';
+  // Detecta delimitador: tabulação, ponto-e-vírgula (padrão Excel BR) ou vírgula
+  const cabecalho = linhas[0];
+  let delimitador = ',';
+  if (cabecalho.includes('\t')) {
+    delimitador = '\t';
+  } else if (cabecalho.includes(';')) {
+    delimitador = ';';
+  }
+
   const base = Date.now();
 
   // Linha 0 é o cabeçalho
   return linhas.slice(1).flatMap((linha, index) => {
-    const cols = dividirLinha(linha, delimitador).map((c) => c.trim());
-    if (cols.length < 3) return [];
+    const cols = dividirLinha(linha, delimitador).map((c) => c.trim().replace(/^"|"$/g, ''));
+    if (cols.length < 2) return [];
 
     const id = base + index;
+    const codigo = cols[0] || `INS-${String(index + 1).padStart(3, '0')}`;
+    const categoria = cols[1] || 'Massas';
+    const nome = cols[2] || `Insumo Importado ${index + 1}`;
+    const unidade = cols[3] || 'kg';
+    const qtd = parseNumero(cols[4], 0);
+    const min = parseNumero(cols[5], 5);
+    const custoUnitario = parseNumero(cols[6], 0);
+    const fornecedor = cols[8] || 'Fornecedor Padrão';
+    const observacoes = cols[9] || '';
+
     return [
       {
         id,
-        codigo: cols[0] || `INS-${String(index + 1).padStart(3, '0')}`,
-        categoria: cols[1] || 'Massas',
-        nome: cols[2] || `Insumo Importado ${index + 1}`,
-        unidade: cols[3] || 'kg',
-        qtd: parseFloat(cols[4]) || 0,
-        min: parseFloat(cols[5]) || 5,
-        custoUnitario: parseFloat(cols[6]) || 0,
-        fornecedor: cols[8] || 'Fornecedor Padrão',
-        observacoes: cols[9] || '',
+        codigo,
+        categoria,
+        nome,
+        unidade,
+        qtd,
+        min,
+        custoUnitario,
+        fornecedor,
+        observacoes,
       },
     ];
   });
