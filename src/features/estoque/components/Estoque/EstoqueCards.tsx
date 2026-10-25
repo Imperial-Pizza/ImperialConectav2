@@ -1,9 +1,9 @@
 'use client';
 
-import { Pencil, Trash2, Building2, ArrowUpDown, Printer } from 'lucide-react';
+import { Pencil, Trash2, Building2, ArrowUpDown, Printer, User, Clock } from 'lucide-react';
 import { StatusBadge } from './StatusBadge';
 import { isEstoqueBaixo, valorTotalInsumo } from '../../services/estoqueService';
-import { formatCurrency } from '../../utils/format';
+import { formatCurrency, formatDateTime } from '../../utils/format';
 import type { Insumo } from '../../types';
 
 interface EstoqueCardsProps {
@@ -114,6 +114,18 @@ export function EstoqueCards({
                 </div>
               )}
             </dl>
+
+            {/* Bloco de Auditoria */}
+            <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-500">
+              <span className="flex items-center gap-1">
+                <User className="w-3 h-3 text-slate-400" />
+                <span className="font-medium text-slate-700">{item.atualizadoPor || item.criadoPor || 'Arthur'}</span>
+              </span>
+              <span className="flex items-center gap-1 font-mono text-slate-400">
+                <Clock className="w-2.5 h-2.5 text-slate-400" />
+                <span>{formatDateTime(item.updatedAt || item.createdAt)}</span>
+              </span>
+            </div>
 
             {/* Ações */}
             <div className="flex items-center justify-between gap-1.5 pt-3 border-t border-slate-100">

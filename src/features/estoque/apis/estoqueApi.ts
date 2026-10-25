@@ -64,6 +64,10 @@ export const estoqueApi = {
       qtd: Number(i.qtd ?? 0),
       fornecedor: String(i.fornecedor || i.fornecedor_nome || ''),
       observacoes: i.observacoes || '',
+      criadoPor: String(i.criado_por || i.criadoPor || 'Arthur'),
+      atualizadoPor: String(i.atualizado_por || i.atualizadoPor || 'Arthur'),
+      createdAt: String(i.created_at || i.createdAt || ''),
+      updatedAt: String(i.updated_at || i.updatedAt || ''),
     }));
   },
 
@@ -82,6 +86,8 @@ export const estoqueApi = {
       custo_unitario: dados.custoUnitario,
       qtd: dados.qtd,
       observacoes: dados.observacoes,
+      criado_por: dados.criadoPor || 'Arthur',
+      atualizado_por: dados.atualizadoPor || dados.criadoPor || 'Arthur',
     };
     const response = await fetch(`${API_URL}/insumos`, {
       method: 'POST',
@@ -100,6 +106,10 @@ export const estoqueApi = {
       qtd: Number(i.qtd ?? 0),
       fornecedor: String(i.fornecedor || i.fornecedor_nome || ''),
       observacoes: i.observacoes || '',
+      criadoPor: String(i.criado_por || i.criadoPor || 'Arthur'),
+      atualizadoPor: String(i.atualizado_por || i.atualizadoPor || 'Arthur'),
+      createdAt: String(i.created_at || i.createdAt || ''),
+      updatedAt: String(i.updated_at || i.updatedAt || ''),
     };
   },
 
@@ -118,6 +128,8 @@ export const estoqueApi = {
         fornecedor: item.fornecedor || item.fornecedor_nome || undefined,
         fornecedor_id: item.fornecedor_id ?? item.fornecedorId ?? undefined,
         observacoes: item.observacoes,
+        criado_por: item.criadoPor || item.criado_por || 'Arthur',
+        atualizado_por: item.atualizadoPor || item.atualizado_por || 'Arthur',
       })),
     };
 
@@ -138,6 +150,9 @@ export const estoqueApi = {
     if (dados.custoUnitario !== undefined) {
       payload.custo_unitario = dados.custoUnitario;
     }
+    if (dados.atualizadoPor !== undefined) {
+      payload.atualizado_por = dados.atualizadoPor;
+    }
     const response = await fetch(`${API_URL}/insumos/${id}`, {
       method: 'PUT',
       headers: headers(),
@@ -155,6 +170,10 @@ export const estoqueApi = {
       qtd: Number(i.qtd ?? 0),
       fornecedor: String(i.fornecedor || i.fornecedor_nome || ''),
       observacoes: i.observacoes || '',
+      criadoPor: String(i.criado_por || i.criadoPor || 'Arthur'),
+      atualizadoPor: String(i.atualizado_por || i.atualizadoPor || 'Arthur'),
+      createdAt: String(i.created_at || i.createdAt || ''),
+      updatedAt: String(i.updated_at || i.updatedAt || ''),
     };
   },
 

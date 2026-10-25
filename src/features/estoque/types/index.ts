@@ -58,6 +58,14 @@ export interface Insumo {
   fornecedor: string;
   /** Notas adicionais ou observações de armazenagem/lote */
   observacoes?: string;
+  /** Usuário que realizou o cadastro inicial */
+  criadoPor?: string;
+  /** Usuário que realizou a última alteração */
+  atualizadoPor?: string;
+  /** Data e hora de criação no banco de dados */
+  createdAt?: string;
+  /** Data e hora da última modificação */
+  updatedAt?: string;
 }
 
 export type NovoInsumo = Omit<Insumo, 'id'>;

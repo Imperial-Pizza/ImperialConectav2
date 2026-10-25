@@ -11,3 +11,22 @@ export function formatPercent(value: number): string {
     maximumFractionDigits: 1,
   })}%`;
 }
+
+export function formatDateTime(dateStr?: string | null): string {
+  if (!dateStr) return '-';
+  try {
+    const cleanStr = dateStr.includes('T') ? dateStr : dateStr.replace(' ', 'T');
+    const d = new Date(cleanStr);
+    if (isNaN(d.getTime())) return dateStr;
+    return d.toLocaleString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  } catch {
+    return dateStr;
+  }
+}
+
