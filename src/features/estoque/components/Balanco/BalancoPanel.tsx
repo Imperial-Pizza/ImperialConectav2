@@ -28,7 +28,7 @@ export function BalancoPanel({ estoque }: BalancoPanelProps) {
   const [showFinalizarModal, setShowFinalizarModal] = useState(false);
   const [showHistoricoModal, setShowHistoricoModal] = useState(false);
 
-  const balanco = useBalanco(estoque.items, estoque.aplicarBalanco);
+  const balanco = useBalanco(estoque.items);
 
   const {
     itensBalanco,
