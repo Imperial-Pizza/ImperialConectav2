@@ -16,7 +16,6 @@ const STORAGE_KEY_HISTORICO_LEGADO = 'imperial_estoque_balanco_historico_v1';
 
 export function useBalanco(
   items: Insumo[],
-  aplicarBalancoEstoque: (ajustes: { id: number; novaQtd: number }[]) => Promise<void>
 ) {
   // Guarda a contagem física digitada pelo usuário para cada insumo (id -> qtd ou null)
   const [contagens, setContagens] = useState<Record<number, number | null>>({});
@@ -211,16 +210,9 @@ export function useBalanco(
         throw new Error('Nenhum item foi contado.');
       }
 
-      // Aplica as novas quantidades físicas no estoque
-      const ajustesParaEstoque = itensContados.map((i) => ({
-        id: i.insumoId,
-        novaQtd: i.qtdFisica!,
-      }));
-
-      await aplicarBalancoEstoque(ajustesParaEstoque);
-
-      // Salva no banco de dados através da API
-      await estoqueApi.finalizarBalanco({
+      // A API compara o saldo do banco, grava a auditoria e atualiza o estoque
+      // em uma única transação. Não alterar os saldos antes deste ponto.
+      const resultado = await estoqueApi.finalizarBalanco({
         responsavel: responsavel.trim() || 'Equipe de Estoque',
         itens: itensContados.map((i) => ({
           insumoId: i.insumoId,
@@ -229,26 +221,26 @@ export function useBalanco(
         })),
       });
 
-      const historicoItens: HistoricoBalancoItem[] = itensContados.map((i) => ({
-        codigo: i.codigo,
-        nome: i.nome,
-        unidade: i.unidade,
-        qtdSistema: i.qtdSistema,
-        qtdFisica: i.qtdFisica!,
-        divergenciaQtd: i.divergenciaQtd,
-        divergenciaValor: i.divergenciaValor,
-        motivo: i.motivo,
+      const historicoItens: HistoricoBalancoItem[] = (resultado.itens || []).map((i: any) => ({
+        codigo: String(i.codigo || ''),
+        nome: String(i.nome || ''),
+        unidade: String(i.unidade || ''),
+        qtdSistema: Number(i.qtd_sistema ?? 0),
+        qtdFisica: Number(i.qtd_fisica ?? 0),
+        divergenciaQtd: Number(i.divergencia_qtd ?? 0),
+        divergenciaValor: Number(i.divergencia_valor ?? 0),
+        motivo: i.motivo || undefined,
       }));
 
       const novoHistorico: HistoricoBalanco = {
-        id: `BAL-${Date.now()}`,
-        dataHora: new Date().toISOString(),
-        responsavel: responsavel.trim() || 'Equipe de Estoque',
-        totalItensContados: itensContados.length,
-        totalItensDivergentes: metrics.divergentesCount,
-        impactoFinanceiroTotal: metrics.impactoLiquido,
-        totalPerdas: metrics.totalPerdas,
-        totalSobras: metrics.totalSobras,
+        id: `BAL-${resultado.id}`,
+        dataHora: resultado.data_balanco || new Date().toISOString(),
+        responsavel: resultado.responsavel || responsavel.trim() || 'Equipe de Estoque',
+        totalItensContados: Number(resultado.total_itens ?? itensContados.length),
+        totalItensDivergentes: Number(resultado.total_divergentes ?? 0),
+        impactoFinanceiroTotal: Number(resultado.impacto_financeiro ?? 0),
+        totalPerdas: Number(resultado.total_perdas ?? 0),
+        totalSobras: Number(resultado.total_sobras ?? 0),
         itens: historicoItens,
       };
 
@@ -260,7 +252,7 @@ export function useBalanco(
 
       return novoHistorico;
     },
-    [itensBalanco, aplicarBalancoEstoque, metrics, carregarHistorico, limparContagem]
+    [itensBalanco, carregarHistorico, limparContagem]
   );
 
   return {

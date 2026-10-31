@@ -8,9 +8,12 @@ import {
   fetchInsumos, 
   importarInsumosService,
   isEstoqueBaixo, 
+  movimentarInsumo,
   updateInsumo as updateInsumoService 
 } from '../services/estoqueService';
 import { FILTRO_TODAS } from '../utils/constants';
+import { usePollingRefresh } from './usePollingRefresh';
+import { estoqueApi } from '../apis/estoqueApi';
 import { useUser } from '@/components/ui/header/hooks/user';
 import type { EstoqueViewMode, Insumo, InsumoStatusFilter, NovoInsumo } from '../types';
 
@@ -18,27 +21,16 @@ export function useEstoque() {
   const { user } = useUser();
   const currentUserName = user?.name || 'Arthur';
 
-  const [items, setItems] = useState<Insumo[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { items, setItems, isLoading, error } = usePollingRefresh(
+    fetchInsumos,
+    'Não foi possível carregar o estoque.',
+    estoqueApi.versaoEstoque,
+  );
 
   const [search, setSearch] = useState('');
   const [categoria, setCategoria] = useState<string>(FILTRO_TODAS);
   const [statusFilter, setStatusFilter] = useState<InsumoStatusFilter>('todos');
   const [viewMode, setViewMode] = useState<EstoqueViewMode>('table');
-
-  useEffect(() => {
-    let active = true;
-
-    fetchInsumos()
-      .then((data) => active && setItems(data))
-      .catch(() => active && setError('Não foi possível carregar o estoque.'))
-      .finally(() => active && setIsLoading(false));
-
-    return () => {
-      active = false;
-    };
-  }, []);
 
   // Remove cache local legado — os dados vêm exclusivamente da API
   useEffect(() => {
@@ -147,43 +139,23 @@ export function useEstoque() {
   };
 
   const ajustarEstoque = async (id: number, delta: number) => {
-    const item = items.find((i) => i.id === id);
-    if (!item) return;
-    const novaQtd = Math.max(0, Number((item.qtd + delta).toFixed(2)));
-    const updated = await updateInsumoService(id, {
-      qtd: novaQtd,
-      atualizadoPor: currentUserName,
-    });
+    if (!Number.isFinite(delta) || delta === 0) return;
+    const resultado = await movimentarInsumo(
+      id,
+      delta > 0 ? 'entrada' : 'saida',
+      Math.abs(Number(delta.toFixed(2))),
+      'Ajuste Rápido',
+    );
+    const novaQtd = Number(resultado?.saldo_novo ?? resultado?.insumo?.qtd);
+    if (!Number.isFinite(novaQtd)) throw new Error('A API não retornou o novo saldo do insumo.');
     setItems((prev) =>
       prev.map((i) =>
         i.id === id
-          ? { ...i, qtd: novaQtd, atualizadoPor: currentUserName, updatedAt: updated.updatedAt }
+          ? { ...i, ...resultado.insumo, qtd: novaQtd, atualizadoPor: currentUserName }
           : i
       )
     );
     return novaQtd;
-  };
-
-  const aplicarBalanco = async (ajustes: { id: number; novaQtd: number }[]) => {
-    const mapa = new Map(ajustes.map((a) => [a.id, a.novaQtd]));
-    for (const ajuste of ajustes) {
-      await updateInsumoService(ajuste.id, {
-        qtd: Math.max(0, Number(ajuste.novaQtd.toFixed(2))),
-        atualizadoPor: currentUserName,
-      });
-    }
-    setItems((prev) =>
-      prev.map((item) => {
-        if (mapa.has(item.id)) {
-          return {
-            ...item,
-            qtd: Math.max(0, Number(mapa.get(item.id)!.toFixed(2))),
-            atualizadoPor: currentUserName,
-          };
-        }
-        return item;
-      })
-    );
   };
 
   return {
@@ -208,7 +180,6 @@ export function useEstoque() {
     deleteInsumo,
     importInsumos,
     ajustarEstoque,
-    aplicarBalanco,
   };
 
 }
