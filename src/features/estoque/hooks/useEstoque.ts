@@ -12,6 +12,8 @@ import {
   updateInsumo as updateInsumoService 
 } from '../services/estoqueService';
 import { FILTRO_TODAS } from '../utils/constants';
+import { usePollingRefresh } from './usePollingRefresh';
+import { estoqueApi } from '../apis/estoqueApi';
 import { useUser } from '@/components/ui/header/hooks/user';
 import type { EstoqueViewMode, Insumo, InsumoStatusFilter, NovoInsumo } from '../types';
 
@@ -19,27 +21,16 @@ export function useEstoque() {
   const { user } = useUser();
   const currentUserName = user?.name || 'Arthur';
 
-  const [items, setItems] = useState<Insumo[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { items, setItems, isLoading, error } = usePollingRefresh(
+    fetchInsumos,
+    'Não foi possível carregar o estoque.',
+    estoqueApi.versaoEstoque,
+  );
 
   const [search, setSearch] = useState('');
   const [categoria, setCategoria] = useState<string>(FILTRO_TODAS);
   const [statusFilter, setStatusFilter] = useState<InsumoStatusFilter>('todos');
   const [viewMode, setViewMode] = useState<EstoqueViewMode>('table');
-
-  useEffect(() => {
-    let active = true;
-
-    fetchInsumos()
-      .then((data) => active && setItems(data))
-      .catch(() => active && setError('Não foi possível carregar o estoque.'))
-      .finally(() => active && setIsLoading(false));
-
-    return () => {
-      active = false;
-    };
-  }, []);
 
   // Remove cache local legado — os dados vêm exclusivamente da API
   useEffect(() => {

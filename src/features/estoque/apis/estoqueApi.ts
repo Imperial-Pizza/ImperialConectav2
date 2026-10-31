@@ -45,6 +45,15 @@ export const estoqueApi = {
   // ==========================================
   // 1. INSUMOS
   // ==========================================
+  versaoEstoque: async (): Promise<string> => {
+    const response = await fetch(`${API_URL}/estoque/versao`, { headers: headers() });
+    const version = await handle<{ insumos: string; produtos_pesados: string }>(
+      response,
+      'Erro ao verificar atualizações do estoque',
+    );
+    return `${version.insumos}|${version.produtos_pesados}`;
+  },
+
   listarInsumos: async (params?: { busca?: string; categoria?: string; status?: string }): Promise<Insumo[]> => {
     const url = new URL(`${API_URL}/insumos`);
     if (params?.busca) url.searchParams.set('busca', params.busca);

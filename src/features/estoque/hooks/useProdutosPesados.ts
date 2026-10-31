@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   createProdutoPesado,
   deleteProdutoPesado as deleteProdutoPesadoService,
@@ -9,30 +9,21 @@ import {
   updateProdutoPesado as updateProdutoPesadoService,
 } from '../services/produtosPesadosService';
 import { FILTRO_TODAS } from '../utils/constants';
+import { usePollingRefresh } from './usePollingRefresh';
+import { estoqueApi } from '../apis/estoqueApi';
 import type { EstoqueViewMode, NovoProdutoPesado, ProdutoPesado } from '../types';
 
 export function useProdutosPesados() {
-  const [items, setItems] = useState<ProdutoPesado[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { items, setItems, isLoading, error } = usePollingRefresh(
+    fetchProdutosPesados,
+    'Não foi possível carregar os produtos pesados.',
+    estoqueApi.versaoEstoque,
+  );
 
   const [search, setSearch] = useState('');
   const [categoria, setCategoria] = useState<string>(FILTRO_TODAS);
   const [viewMode, setViewMode] = useState<EstoqueViewMode>('table');
   const [apenasBaixo, setApenasBaixo] = useState(false);
-
-  useEffect(() => {
-    let active = true;
-
-    fetchProdutosPesados()
-      .then((data) => active && setItems(data))
-      .catch(() => active && setError('Não foi possível carregar os produtos pesados.'))
-      .finally(() => active && setIsLoading(false));
-
-    return () => {
-      active = false;
-    };
-  }, []);
 
   const filteredItems = useMemo(() => {
     const termo = search.trim().toLocaleLowerCase('pt-BR');
