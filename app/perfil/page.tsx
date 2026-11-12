@@ -6,6 +6,7 @@ import { StatusBanner } from '@/components/ui/StatusBanner';
 import { usePerfil } from '@/features/perfil/hooks/usePerfil';
 import { ProfileTab } from '@/features/perfil/types';
 import { motion, AnimatePresence } from 'framer-motion';
+import toast, { Toaster } from 'react-hot-toast';
 import { 
   User as UserIcon, 
   Briefcase, 
@@ -26,12 +27,19 @@ import {
   Download,
   Eye,
   MessageSquare,
-  AlertCircle
+  AlertCircle,
+  Pencil,
+  X,
+  Check,
+  Save
 } from 'lucide-react';
 
 const formatDate = (dateString?: string | null) => {
   if (!dateString) return 'Não informado';
   if (dateString.includes('/')) return dateString;
+  // 'YYYY-MM-DD' ou 'YYYY-MM-DD HH:mm:ss' → evita deslocamento de fuso ao usar new Date()
+  const m = dateString.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return `${m[3]}/${m[2]}/${m[1]}`;
   const date = new Date(dateString);
   if (isNaN(date.getTime())) return dateString;
   return date.toLocaleDateString('pt-BR');
@@ -40,9 +48,172 @@ const formatDate = (dateString?: string | null) => {
 
 
 export default function PerfilPage() {
-  const { data: apiData, isLoading, error } = usePerfil();
+  const { data: apiData, isLoading, isSaving, error, save } = usePerfil();
   
   const [profileTab, setProfileTab] = useState<ProfileTab>('pessoal');
+
+  // Controle de edição por Card
+  type EditCardType = 'cadastrais' | 'contato' | 'emergencia' | 'endereco' | null;
+  const [editingCard, setEditingCard] = useState<EditCardType>(null);
+
+  // Estados dos formulários de edição
+  const [formData, setFormData] = useState({
+    // Cadastrais
+    nome: '',
+    nome_social: '',
+    cpf: '',
+    data_nascimento: '',
+    // Contato
+    email_pessoal: '',
+    telefone_pessoal: '',
+    // Emergência
+    contato_emergencia_nome: '',
+    contato_emergencia_parentesco: '',
+    contato_emergencia_telefone: '',
+    // Endereço
+    cep: '',
+    logradouro: '',
+    numero: '',
+    complemento: '',
+    bairro: '',
+    cidade: '',
+    estado: 'SP',
+  });
+
+  const [loadingCep, setLoadingCep] = useState(false);
+
+  // Máscaras de entrada
+  const maskCpf = (val: string) => {
+    return val
+      .replace(/\D/g, '')
+      .slice(0, 11)
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+  };
+
+  const maskPhone = (val: string) => {
+    const raw = val.replace(/\D/g, '').slice(0, 11);
+    if (raw.length <= 10) {
+      return raw.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3').replace(/-$/, '');
+    }
+    return raw.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3').replace(/-$/, '');
+  };
+
+  const maskCep = (val: string) => {
+    return val
+      .replace(/\D/g, '')
+      .slice(0, 8)
+      .replace(/(\d{5})(\d{1,3})/, '$1-$2');
+  };
+
+  const handleCepLookup = async (cepValue: string) => {
+    const cleanCep = cepValue.replace(/\D/g, '');
+    if (cleanCep.length === 8) {
+      try {
+        setLoadingCep(true);
+        const res = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
+        const json = await res.json();
+        if (!json.erro) {
+          setFormData(prev => ({
+            ...prev,
+            logradouro: json.logradouro || prev.logradouro,
+            bairro: json.bairro || prev.bairro,
+            cidade: json.localidade || prev.cidade,
+            estado: json.uf || prev.estado,
+          }));
+          toast.success('Endereço autocompletado pelo CEP!');
+        }
+      } catch (e) {
+        // Ignora silenciosamente
+      } finally {
+        setLoadingCep(false);
+      }
+    }
+  };
+
+  const handleOpenEdit = (card: EditCardType) => {
+    if (!apiData) return;
+    const { user, profile } = apiData;
+    const end = profile?.endereco_detalhes;
+
+    setFormData({
+      nome: user.name || '',
+      nome_social: profile?.nome_social || '',
+      cpf: profile?.cpf || '',
+      data_nascimento: profile?.data_nascimento ? profile.data_nascimento.substring(0, 10) : '',
+      email_pessoal: profile?.email_pessoal || user.email || '',
+      telefone_pessoal: profile?.telefone || '',
+      contato_emergencia_nome: profile?.contato_emergencia_nome || '',
+      contato_emergencia_parentesco: profile?.contato_emergencia_parentesco || '',
+      contato_emergencia_telefone: profile?.contato_emergencia_telefone || '',
+      cep: end?.cep || '',
+      logradouro: end?.logradouro || '',
+      numero: end?.numero || '',
+      complemento: end?.complemento || '',
+      bairro: end?.bairro || '',
+      cidade: end?.cidade || '',
+      estado: end?.estado || 'SP',
+    });
+
+    setEditingCard(card);
+  };
+
+  const handleCloseEdit = () => {
+    if (isSaving) return;
+    setEditingCard(null);
+  };
+
+  const handleSaveCard = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCard) return;
+
+    let payload: Record<string, any> = {};
+
+    if (editingCard === 'cadastrais') {
+      const cleanCpf = formData.cpf.replace(/\D/g, '');
+      if (cleanCpf && cleanCpf.length !== 11) {
+        toast.error('O CPF deve ter exatamente 11 dígitos numéricos.');
+        return;
+      }
+      payload = {
+        nome: formData.nome.trim(),
+        nome_social: formData.nome_social.trim(),
+        cpf: cleanCpf || null,
+        data_nascimento: formData.data_nascimento || null,
+      };
+    } else if (editingCard === 'contato') {
+      payload = {
+        email_pessoal: formData.email_pessoal.trim(),
+        telefone_pessoal: formData.telefone_pessoal.trim(),
+        telefone: formData.telefone_pessoal.trim(),
+      };
+    } else if (editingCard === 'emergencia') {
+      payload = {
+        contato_emergencia_nome: formData.contato_emergencia_nome.trim(),
+        contato_emergencia_parentesco: formData.contato_emergencia_parentesco.trim(),
+        contato_emergencia_telefone: formData.contato_emergencia_telefone.trim(),
+      };
+    } else if (editingCard === 'endereco') {
+      payload = {
+        cep: formData.cep.replace(/\D/g, ''),
+        logradouro: formData.logradouro.trim(),
+        numero: formData.numero.trim() || 'S/N',
+        complemento: formData.complemento.trim(),
+        bairro: formData.bairro.trim(),
+        cidade: formData.cidade.trim(),
+        estado: formData.estado.trim().toUpperCase(),
+      };
+    }
+
+    const ok = await save(payload);
+    if (ok) {
+      toast.success('Informações atualizadas com sucesso!');
+      setEditingCard(null);
+    } else {
+      toast.error('Não foi possível salvar as informações. Tente novamente.');
+    }
+  };
 
 
   if (isLoading) {
@@ -132,35 +303,71 @@ export default function PerfilPage() {
                 <AnimatePresence mode="wait">
                   {profileTab === 'pessoal' && (
                     <motion.div key="pessoal" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      
+                      {/* CARD 1: DADOS CADASTRAIS */}
                       <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-4">
-                        <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2">
-                          <UserIcon className="w-4 h-4 text-red-600" /> Dados Cadastrais
-                        </h3>
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2">
+                            <UserIcon className="w-4 h-4 text-red-600" /> Dados Cadastrais
+                          </h3>
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEdit('cadastrais')}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold text-slate-600 hover:text-red-600 bg-white hover:bg-red-50 border border-slate-200/80 rounded-lg shadow-2xs transition-all cursor-pointer"
+                            title="Editar Dados Cadastrais"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                            <span>Editar</span>
+                          </button>
+                        </div>
                         <div className="space-y-3 text-xs">
                           <div><span className="text-slate-400 font-semibold block">Nome Completo</span><span className="font-bold text-slate-800">{user.name} {profile?.sobrenome || ''}</span></div>
                           <div><span className="text-slate-400 font-semibold block">Nome Social / Apelido</span><span className="font-bold text-slate-800">{profile?.nome_social || '-'}</span></div>
                           <div><span className="text-slate-400 font-semibold block">CPF</span><span className="font-bold text-slate-800">{profile?.cpf || 'Não informado'}</span></div>
-                          <div><span className="text-slate-400 font-semibold block">RG</span><span className="font-bold text-slate-800">{profile?.rg || 'Não informado'}</span></div>
                           <div><span className="text-slate-400 font-semibold block">Data de Nascimento</span><span className="font-bold text-slate-800">{formatDate(profile?.data_nascimento)}</span></div>
                         </div>
                       </div>
 
                       <div className="space-y-6">
+                        {/* CARD 2: CONTATO */}
                         <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-4">
-                          <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2">
-                            <Mail className="w-4 h-4 text-indigo-600" /> Contato
-                          </h3>
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2">
+                              <Mail className="w-4 h-4 text-indigo-600" /> Contato
+                            </h3>
+                            <button
+                              type="button"
+                              onClick={() => handleOpenEdit('contato')}
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold text-slate-600 hover:text-indigo-600 bg-white hover:bg-indigo-50 border border-slate-200/80 rounded-lg shadow-2xs transition-all cursor-pointer"
+                              title="Editar Contato"
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                              <span>Editar</span>
+                            </button>
+                          </div>
                           <div className="space-y-3 text-xs">
                             <div><span className="text-slate-400 font-semibold block">E-mail Corporativo</span><span className="font-bold text-slate-800">{profile?.email_corporativo || 'Não informado'}</span></div>
-                            <div><span className="text-slate-400 font-semibold block">E-mail Pessoal</span><span className="font-bold text-slate-800">{user.email}</span></div>
+                            <div><span className="text-slate-400 font-semibold block">E-mail Pessoal</span><span className="font-bold text-slate-800">{profile?.email_pessoal || user.email}</span></div>
                             <div><span className="text-slate-400 font-semibold block">Telefone Pessoal</span><span className="font-bold text-slate-800">{profile?.telefone || 'Não informado'}</span></div>
                           </div>
                         </div>
 
+                        {/* CARD 3: EMERGÊNCIA */}
                         <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-4">
-                          <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2">
-                            <Phone className="w-4 h-4 text-rose-600" /> Emergência
-                          </h3>
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2">
+                              <Phone className="w-4 h-4 text-rose-600" /> Emergência
+                            </h3>
+                            <button
+                              type="button"
+                              onClick={() => handleOpenEdit('emergencia')}
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold text-slate-600 hover:text-rose-600 bg-white hover:bg-rose-50 border border-slate-200/80 rounded-lg shadow-2xs transition-all cursor-pointer"
+                              title="Editar Emergência"
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                              <span>Editar</span>
+                            </button>
+                          </div>
                           <div className="space-y-3 text-xs">
                             <div><span className="text-slate-400 font-semibold block">Nome</span><span className="font-bold text-slate-800">{profile?.contato_emergencia_nome || 'Não informado'}</span></div>
                             <div><span className="text-slate-400 font-semibold block">Grau de Parentesco</span><span className="font-bold text-slate-800">{profile?.contato_emergencia_parentesco || 'Não informado'}</span></div>
@@ -169,10 +376,22 @@ export default function PerfilPage() {
                         </div>
                       </div>
                       
+                      {/* CARD 4: ENDEREÇO */}
                       <div className="md:col-span-2 bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-4">
-                        <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2">
-                          <MapPin className="w-4 h-4 text-emerald-600" /> Endereço
-                        </h3>
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2">
+                            <MapPin className="w-4 h-4 text-emerald-600" /> Endereço
+                          </h3>
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEdit('endereco')}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold text-slate-600 hover:text-emerald-600 bg-white hover:bg-emerald-50 border border-slate-200/80 rounded-lg shadow-2xs transition-all cursor-pointer"
+                            title="Editar Endereço"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                            <span>Editar</span>
+                          </button>
+                        </div>
                         <div className="text-xs">
                           <span className="text-slate-400 font-semibold block">Residencial</span>
                           <span className="font-bold text-slate-800">{profile?.endereco || 'Não informado'}</span>
@@ -183,17 +402,7 @@ export default function PerfilPage() {
 
                   {profileTab === 'seguranca' && (
                     <motion.div key="seguranca" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-4">
-                          <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2">
-                            <Shield className="w-4 h-4 text-red-600" /> Status da Conta
-                          </h3>
-                          <div className="space-y-3 text-xs">
-                            <div><span className="text-slate-400 font-semibold block">Perfil de Permissão</span><span className="font-bold text-slate-800 uppercase">{user.role}</span></div>
-                            <div><span className="text-slate-400 font-semibold block">Status</span><span className="font-bold text-slate-800">{user.status_conta || 'Ativo'}</span></div>
-                            <div><span className="text-slate-400 font-semibold block">Data de Criação</span><span className="font-bold text-slate-800">{formatDate(user.data_criacao) || formatDate(profile?.created_at)}</span></div>
-                          </div>
-                        </div>
+                      <div className="grid grid-cols-1 gap-6">
                         <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-4">
                           <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2">
                             <Key className="w-4 h-4 text-amber-600" /> Credenciais
@@ -391,11 +600,32 @@ export default function PerfilPage() {
                             + Solicitar Documento
                           </button>
                         </div>
-                        <div className="text-center py-8 text-xs text-slate-500 bg-slate-50 rounded-xl border border-dashed border-slate-200 flex flex-col items-center gap-2">
-                          <FileText className="w-8 h-8 text-slate-300 mb-2" />
-                          <p>Nenhum documento anexado a este perfil.</p>
-                          <p className="text-[10px] text-slate-400">RGs, Contratos assinados, Comprovantes de residência aparecerão aqui.</p>
-                        </div>
+                        {profile?.documents?.length ? (
+                          <div className="space-y-2">
+                            {profile.documents.map((doc) => (
+                              <div key={doc.id} className="flex items-center justify-between gap-3 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+                                <div className="flex items-center gap-3 min-w-0">
+                                  <FileText className="w-5 h-5 text-red-600 shrink-0" />
+                                  <div className="min-w-0">
+                                    <p className="text-xs font-bold text-slate-800 truncate">{doc.nome}</p>
+                                    <p className="text-[10px] text-slate-400">Cadastrado em {formatDate(doc.data_envio)}</p>
+                                  </div>
+                                </div>
+                                {doc.url && (
+                                  <a href={doc.url} target="_blank" rel="noreferrer" className="text-[10px] font-bold text-red-600 hover:text-red-700 inline-flex items-center gap-1 shrink-0">
+                                    <Download className="w-3.5 h-3.5" /> Abrir
+                                  </a>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-center py-8 text-xs text-slate-500 bg-slate-50 rounded-xl border border-dashed border-slate-200 flex flex-col items-center gap-2">
+                            <FileText className="w-8 h-8 text-slate-300 mb-2" />
+                            <p>Nenhum documento anexado a este perfil.</p>
+                            <p className="text-[10px] text-slate-400">RGs, Contratos assinados, Comprovantes de residência aparecerão aqui.</p>
+                          </div>
+                        )}
                       </div>
                     </motion.div>
                   )}
@@ -409,6 +639,357 @@ export default function PerfilPage() {
 
         </div>
       </div>
+
+      {/* MODAL DE EDIÇÃO POR CARD */}
+      <AnimatePresence>
+        {editingCard && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+            {/* Backdrop escuro com blur */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={handleCloseEdit}
+              className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity"
+            />
+
+            {/* Conteúdo do Modal */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              transition={{ duration: 0.15 }}
+              className="relative bg-white rounded-3xl shadow-2xl border border-slate-100 w-full max-w-lg p-6 sm:p-7 z-10 max-h-[90vh] overflow-y-auto space-y-6"
+            >
+              {/* Header do Modal */}
+              <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 bg-red-50 text-red-600">
+                    {editingCard === 'cadastrais' && <UserIcon className="w-5 h-5 text-red-600" />}
+                    {editingCard === 'contato' && <Mail className="w-5 h-5 text-indigo-600" />}
+                    {editingCard === 'emergencia' && <Phone className="w-5 h-5 text-rose-600" />}
+                    {editingCard === 'endereco' && <MapPin className="w-5 h-5 text-emerald-600" />}
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black text-slate-900">
+                      {editingCard === 'cadastrais' && 'Editar Dados Cadastrais'}
+                      {editingCard === 'contato' && 'Editar Contatos'}
+                      {editingCard === 'emergencia' && 'Editar Contato de Emergência'}
+                      {editingCard === 'endereco' && 'Editar Endereço Residencial'}
+                    </h3>
+                    <p className="text-xs text-slate-500 font-medium">
+                      Atualize as informações cadastrais do prontuário
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleCloseEdit}
+                  disabled={isSaving}
+                  className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Formulário */}
+              <form onSubmit={handleSaveCard} className="space-y-4">
+                {/* CARD: DADOS CADASTRAIS */}
+                {editingCard === 'cadastrais' && (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                        Nome Completo *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.nome}
+                        onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                        className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-slate-900 font-medium"
+                        placeholder="Nome e sobrenome"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                        Nome Social / Apelido
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.nome_social}
+                        onChange={(e) => setFormData({ ...formData, nome_social: e.target.value })}
+                        className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-slate-900 font-medium"
+                        placeholder="Como prefere ser chamado"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                          CPF
+                        </label>
+                        <input
+                          type="text"
+                          maxLength={14}
+                          value={formData.cpf}
+                          onChange={(e) => setFormData({ ...formData, cpf: maskCpf(e.target.value) })}
+                          className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-slate-900 font-medium"
+                          placeholder="000.000.000-00"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                          Data de Nascimento
+                        </label>
+                        <input
+                          type="date"
+                          value={formData.data_nascimento}
+                          onChange={(e) => setFormData({ ...formData, data_nascimento: e.target.value })}
+                          className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-slate-900 font-medium"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* CARD: CONTATO */}
+                {editingCard === 'contato' && (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                        E-mail Corporativo
+                      </label>
+                      <input
+                        type="email"
+                        disabled
+                        value={profile?.email_corporativo || 'Não informado'}
+                        className="w-full px-3.5 py-2.5 text-xs bg-slate-100 border border-slate-200 rounded-xl text-slate-500 cursor-not-allowed font-medium"
+                      />
+                      <p className="text-[10px] text-slate-400 mt-1">
+                        O e-mail corporativo é gerenciado pelo setor de TI/RH.
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                        E-mail Pessoal
+                      </label>
+                      <input
+                        type="email"
+                        value={formData.email_pessoal}
+                        onChange={(e) => setFormData({ ...formData, email_pessoal: e.target.value })}
+                        className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-slate-900 font-medium"
+                        placeholder="seu.email@exemplo.com"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                        Telefone Pessoal
+                      </label>
+                      <input
+                        type="text"
+                        maxLength={15}
+                        value={formData.telefone_pessoal}
+                        onChange={(e) => setFormData({ ...formData, telefone_pessoal: maskPhone(e.target.value) })}
+                        className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-slate-900 font-medium"
+                        placeholder="(11) 99999-9999"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* CARD: EMERGÊNCIA */}
+                {editingCard === 'emergencia' && (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                        Nome do Contato
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.contato_emergencia_nome}
+                        onChange={(e) => setFormData({ ...formData, contato_emergencia_nome: e.target.value })}
+                        className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-slate-900 font-medium"
+                        placeholder="Ex: Maria dos Santos"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                        Grau de Parentesco
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.contato_emergencia_parentesco}
+                        onChange={(e) => setFormData({ ...formData, contato_emergencia_parentesco: e.target.value })}
+                        className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-slate-900 font-medium"
+                        placeholder="Ex: Mãe, Cônjuge, Irmão, Amigo"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                        Telefone de Emergência
+                      </label>
+                      <input
+                        type="text"
+                        maxLength={15}
+                        value={formData.contato_emergencia_telefone}
+                        onChange={(e) => setFormData({ ...formData, contato_emergencia_telefone: maskPhone(e.target.value) })}
+                        className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-slate-900 font-medium"
+                        placeholder="(11) 98888-8888"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* CARD: ENDEREÇO */}
+                {editingCard === 'endereco' && (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="sm:col-span-1">
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
+                          <span>CEP</span>
+                          {loadingCep && <Loader2 className="w-3 h-3 animate-spin text-red-600" />}
+                        </label>
+                        <input
+                          type="text"
+                          maxLength={9}
+                          value={formData.cep}
+                          onChange={(e) => {
+                            const v = maskCep(e.target.value);
+                            setFormData({ ...formData, cep: v });
+                            handleCepLookup(v);
+                          }}
+                          className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-slate-900 font-medium"
+                          placeholder="00000-000"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-2">
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                          Logradouro / Rua
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.logradouro}
+                          onChange={(e) => setFormData({ ...formData, logradouro: e.target.value })}
+                          className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-slate-900 font-medium"
+                          placeholder="Rua, Avenida, Praça..."
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                          Número
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.numero}
+                          onChange={(e) => setFormData({ ...formData, numero: e.target.value })}
+                          className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-slate-900 font-medium"
+                          placeholder="Ex: 123 ou S/N"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-2">
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                          Complemento
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.complemento}
+                          onChange={(e) => setFormData({ ...formData, complemento: e.target.value })}
+                          className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-slate-900 font-medium"
+                          placeholder="Apto 42, Bloco B..."
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                          Bairro
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.bairro}
+                          onChange={(e) => setFormData({ ...formData, bairro: e.target.value })}
+                          className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-slate-900 font-medium"
+                          placeholder="Bairro"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                          Cidade
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.cidade}
+                          onChange={(e) => setFormData({ ...formData, cidade: e.target.value })}
+                          className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-slate-900 font-medium"
+                          placeholder="Cidade"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                          UF / Estado
+                        </label>
+                        <input
+                          type="text"
+                          maxLength={2}
+                          value={formData.estado}
+                          onChange={(e) => setFormData({ ...formData, estado: e.target.value.toUpperCase() })}
+                          className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-slate-900 font-medium uppercase text-center"
+                          placeholder="SP"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Botões do Rodapé */}
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={handleCloseEdit}
+                    disabled={isSaving}
+                    className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSaving}
+                    className="inline-flex items-center gap-2 px-5 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl shadow-md shadow-red-600/20 transition-all cursor-pointer disabled:opacity-50"
+                  >
+                    {isSaving ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Salvando...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-4 h-4" />
+                        <span>Salvar Alterações</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <Toaster position="top-right" />
     </AppShell>
   );
 }

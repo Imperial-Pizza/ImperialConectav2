@@ -1,5 +1,5 @@
 export async function getMe() {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002/api';
+  const apiUrl = process.env.NEXT_PUBLIC_AUTH_API_URL || 'http://localhost:8020/api';
   
   if (typeof window === 'undefined') {
     return null;
@@ -53,7 +53,7 @@ export async function getMe() {
 }
 
 export async function logout() {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002/api';
+  const apiUrl = process.env.NEXT_PUBLIC_AUTH_API_URL || 'http://localhost:8020/api';
   
   const token = localStorage.getItem('imperial_token') || sessionStorage.getItem('imperial_token');
   const headers: HeadersInit = {

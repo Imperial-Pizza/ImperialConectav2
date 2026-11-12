@@ -96,11 +96,20 @@ export interface UserProfile {
   sobrenome: string | null;
   nome_social?: string | null;
   cpf?: string | null;
-  rg?: string | null;
   data_nascimento: string | null;
   telefone: string | null;
   email_corporativo?: string | null;
+  email_pessoal?: string | null;
   endereco?: string | null;
+  endereco_detalhes?: {
+    cep?: string | null;
+    logradouro?: string | null;
+    numero?: string | null;
+    complemento?: string | null;
+    bairro?: string | null;
+    cidade?: string | null;
+    estado?: string | null;
+  } | null;
   
   // Emergência
   contato_emergencia_nome: string | null;

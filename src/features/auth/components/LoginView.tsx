@@ -31,7 +31,7 @@ function LoginContent() {
     setIsLoading(true);
     
     try {
-      const response = await authApi.login(email, password);
+      const response = await authApi.login(email, password, rememberMe);
       
       if (rememberMe) {
         localStorage.setItem('imperial_token', response.token);

@@ -259,11 +259,10 @@ export function Header({
                   {/* Meu Perfil Completo */}
                   <button
                     onClick={() => {
-                      // onToggleUserDropdown();
-                      // router.push('/perfil');
+                      onToggleUserDropdown();
+                      router.push('/perfil');
                     }}
-                    className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors cursor-not-allowed"
-                    style={{ cursor: 'not-allowed' }}
+                    className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors cursor-pointer"
                   >
                     <UserIcon className="w-4 h-4 text-red-600" />
 

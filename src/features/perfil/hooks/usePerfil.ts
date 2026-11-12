@@ -28,13 +28,13 @@ export function usePerfil() {
   }, [reload]);
 
   /** Retorna true em caso de sucesso. */
-  const save = async (payload: UpdateProfilePayload): Promise<boolean> => {
+  const save = async (payload: Record<string, any>): Promise<boolean> => {
     if (!data) return false;
     setIsSaving(true);
     setError(null);
     try {
-      const profile = await saveMyProfile(data.user.id, payload);
-      setData({ ...data, profile });
+      const updated = await saveMyProfile(payload);
+      setData(updated);
       return true;
     } catch (err) {
       console.error('Falha ao salvar perfil', err);
