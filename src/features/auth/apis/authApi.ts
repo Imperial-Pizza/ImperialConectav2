@@ -2,6 +2,13 @@
 // Integração com a API unificada KodyVera (Auth + RH): http://localhost:8020/api
 
 const API_URL = process.env.NEXT_PUBLIC_AUTH_API_URL || 'http://localhost:8020/api';
+const APP_KEY = 'imperial-conecta';
+
+const defaultHeaders = {
+  'Content-Type': 'application/json',
+  Accept: 'application/json',
+  'X-Application-Key': APP_KEY,
+};
 
 export interface LoginApiResponse {
   success: boolean;
@@ -86,15 +93,54 @@ export const authApi = {
   loginWithGoogle: async (accessToken: string): Promise<LoginApiResponse> => {
     const response = await fetch(`${API_URL}/auth/google`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
+      headers: defaultHeaders,
       body: JSON.stringify({ access_token: accessToken }),
     });
 
     if (!response.ok) {
       throw new Error(await extractError(response, 'Erro ao realizar login com Google'));
+    }
+
+    return response.json();
+  },
+
+  forgotPassword: async (email: string): Promise<{ success: boolean; message: string }> => {
+    const response = await fetch(`${API_URL}/auth/forgot-password`, {
+      method: 'POST',
+      headers: defaultHeaders,
+      body: JSON.stringify({ email }),
+    });
+
+    if (!response.ok) {
+      throw new Error(await extractError(response, 'Erro ao solicitar redefinição de senha.'));
+    }
+
+    return response.json();
+  },
+
+  verifyResetToken: async (email: string, token: string): Promise<{ success: boolean; email: string; remaining_seconds: number }> => {
+    const params = new URLSearchParams({ email, token });
+    const response = await fetch(`${API_URL}/auth/verify-reset-token?${params.toString()}`, {
+      method: 'GET',
+      headers: defaultHeaders,
+    });
+
+    if (!response.ok) {
+      throw new Error(await extractError(response, 'Link de redefinição inválido ou expirado.'));
+    }
+
+    return response.json();
+  },
+
+  resetPassword: async (email: string, token: string, password: string): Promise<{ success: boolean; message: string }> => {
+    const response = await fetch(`${API_URL}/auth/reset-password`, {
+      method: 'POST',
+      headers: defaultHeaders,
+      body: JSON.stringify({ email, token, password }),
+    });
+
+    if (!response.ok) {
+      throw new Error(await extractError(response, 'Erro ao redefinir a senha.'));
     }
 
     return response.json();

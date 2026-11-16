@@ -31,6 +31,11 @@ interface LoginFormProps {
   onTwoFactorCodeChange?: (code: string) => void;
   onVerifyTwoFactor?: (event: React.FormEvent<HTMLFormElement>) => void;
   onCancelTwoFactor?: () => void;
+  isForgotPasswordStep?: boolean;
+  forgotPasswordSent?: boolean;
+  onOpenForgotPassword?: () => void;
+  onCancelForgotPassword?: () => void;
+  onSubmitForgotPassword?: (event: React.FormEvent<HTMLFormElement>) => void;
 }
 
 export function LoginForm({
@@ -50,6 +55,11 @@ export function LoginForm({
   onTwoFactorCodeChange,
   onVerifyTwoFactor,
   onCancelTwoFactor,
+  isForgotPasswordStep = false,
+  forgotPasswordSent = false,
+  onOpenForgotPassword,
+  onCancelForgotPassword,
+  onSubmitForgotPassword,
 }: LoginFormProps) {
   return (
     <div className="w-full lg:w-1/2 flex flex-col justify-between p-8 sm:p-12 lg:p-16 xl:p-20 relative z-10 bg-white min-h-screen">
@@ -155,6 +165,88 @@ export function LoginForm({
               </button>
             </form>
           </>
+        ) : isForgotPasswordStep ? (
+          <>
+            <div className="space-y-3 mb-8">
+              <div className="w-12 h-12 rounded-2xl bg-red-50 text-red-600 border border-red-100 flex items-center justify-center shadow-xs">
+                <Mail className="w-6 h-6" />
+              </div>
+
+              <h1 className="text-3xl font-black tracking-tight text-slate-900">
+                Recuperar Senha
+              </h1>
+
+              <p className="text-slate-500 text-sm leading-relaxed">
+                {forgotPasswordSent
+                  ? 'Se o e-mail informado estiver cadastrado, você receberá um link seguro para redefinir sua senha em instantes.'
+                  : 'Informe seu e-mail corporativo para receber o link de redefinição de senha.'}
+              </p>
+            </div>
+
+            {forgotPasswordSent ? (
+              <div className="space-y-4">
+                <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium leading-relaxed">
+                  Verifique sua caixa de entrada e spam. O link tem validade de <strong>15 minutos</strong>.
+                </div>
+
+                <button
+                  type="button"
+                  onClick={onCancelForgotPassword}
+                  className="w-full cursor-pointer py-3.5 px-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg shadow-red-600/25 flex items-center justify-center gap-2 transition-all duration-200 text-sm"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>Voltar para o Login</span>
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={onSubmitForgotPassword} className="space-y-5">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                    E-mail
+                  </label>
+                  <div className="relative group">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-red-600 transition-colors">
+                      <Mail className="w-5 h-5" />
+                    </div>
+                    <input
+                      type="email"
+                      required
+                      autoFocus
+                      value={email}
+                      onChange={(e) => onEmailChange(e.target.value)}
+                      placeholder="seu@email.com"
+                      className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-red-600 hover:border-slate-300 transition-all text-sm font-medium"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isLoading || !email.trim()}
+                  className="w-full cursor-pointer py-3.5 px-4 bg-red-600 hover:bg-red-700 active:scale-[0.99] text-white font-bold rounded-xl shadow-lg shadow-red-600/25 flex items-center justify-center gap-2 transition-all duration-200 group disabled:opacity-75"
+                >
+                  {isLoading ? (
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      <span>Enviar link de redefinição</span>
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={onCancelForgotPassword}
+                  disabled={isLoading}
+                  className="w-full cursor-pointer py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl flex items-center justify-center gap-2 transition-all duration-200 text-xs disabled:opacity-60"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>Voltar para o Login</span>
+                </button>
+              </form>
+            )}
+          </>
         ) : (
           <>
             <div className="space-y-2 mb-8">
@@ -226,7 +318,89 @@ export function LoginForm({
                   >
                     {showPassword ? (
                       <EyeOff className="w-5 h-5" />
-                    ) : (
+                    ) : isForgotPasswordStep ? (
+          <>
+            <div className="space-y-3 mb-8">
+              <div className="w-12 h-12 rounded-2xl bg-red-50 text-red-600 border border-red-100 flex items-center justify-center shadow-xs">
+                <Mail className="w-6 h-6" />
+              </div>
+
+              <h1 className="text-3xl font-black tracking-tight text-slate-900">
+                Recuperar Senha
+              </h1>
+
+              <p className="text-slate-500 text-sm leading-relaxed">
+                {forgotPasswordSent
+                  ? 'Se o e-mail informado estiver cadastrado, você receberá um link seguro para redefinir sua senha em instantes.'
+                  : 'Informe seu e-mail corporativo para receber o link de redefinição de senha.'}
+              </p>
+            </div>
+
+            {forgotPasswordSent ? (
+              <div className="space-y-4">
+                <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium leading-relaxed">
+                  Verifique sua caixa de entrada e spam. O link tem validade de <strong>15 minutos</strong>.
+                </div>
+
+                <button
+                  type="button"
+                  onClick={onCancelForgotPassword}
+                  className="w-full cursor-pointer py-3.5 px-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg shadow-red-600/25 flex items-center justify-center gap-2 transition-all duration-200 text-sm"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>Voltar para o Login</span>
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={onSubmitForgotPassword} className="space-y-5">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                    E-mail
+                  </label>
+                  <div className="relative group">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-red-600 transition-colors">
+                      <Mail className="w-5 h-5" />
+                    </div>
+                    <input
+                      type="email"
+                      required
+                      autoFocus
+                      value={email}
+                      onChange={(e) => onEmailChange(e.target.value)}
+                      placeholder="seu@email.com"
+                      className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-red-600 hover:border-slate-300 transition-all text-sm font-medium"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isLoading || !email.trim()}
+                  className="w-full cursor-pointer py-3.5 px-4 bg-red-600 hover:bg-red-700 active:scale-[0.99] text-white font-bold rounded-xl shadow-lg shadow-red-600/25 flex items-center justify-center gap-2 transition-all duration-200 group disabled:opacity-75"
+                >
+                  {isLoading ? (
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      <span>Enviar link de redefinição</span>
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={onCancelForgotPassword}
+                  disabled={isLoading}
+                  className="w-full cursor-pointer py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl flex items-center justify-center gap-2 transition-all duration-200 text-xs disabled:opacity-60"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>Voltar para o Login</span>
+                </button>
+              </form>
+            )}
+          </>
+        ) : (
                       <Eye className="w-5 h-5" />
                     )}
                   </button>
@@ -251,6 +425,16 @@ export function LoginForm({
                   </span>
 
                 </label>
+
+                {onOpenForgotPassword && (
+                  <button
+                    type="button"
+                    onClick={onOpenForgotPassword}
+                    className="text-xs font-bold text-red-600 hover:text-red-700 hover:underline cursor-pointer transition-colors"
+                  >
+                    Esqueceu sua senha?
+                  </button>
+                )}
 
               </div>
 

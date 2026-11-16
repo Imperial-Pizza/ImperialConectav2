@@ -12,6 +12,7 @@ const getHeaders = () => {
   return {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
+    'X-Application-Key': 'imperial-conecta',
     ...(token ? { 'Authorization': `Bearer ${token}` } : {})
   };
 };
@@ -132,6 +133,25 @@ export const perfilApi = {
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
       throw new Error(errorData?.message || errorData?.error || 'Senha incorreta ou erro ao desativar 2FA.');
+    }
+
+    return response.json();
+  },
+
+  /** POST /api/auth/change-password — altera a senha do usuário autenticado */
+  changePassword: async (currentPassword: string, newPassword: string): Promise<{ success: boolean; message: string }> => {
+    const response = await fetch(`${AUTH_API_URL}/auth/change-password`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({
+        current_password: currentPassword,
+        new_password: newPassword,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.message || errorData?.error || 'Não foi possível alterar a senha.');
     }
 
     return response.json();

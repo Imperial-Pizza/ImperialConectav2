@@ -19,6 +19,8 @@ function LoginContent() {
   const [rememberMe, setRememberMe] = useState(true);
   const [twoFactorTempToken, setTwoFactorTempToken] = useState<string | null>(null);
   const [twoFactorCode, setTwoFactorCode] = useState('');
+  const [isForgotPasswordStep, setIsForgotPasswordStep] = useState(false);
+  const [forgotPasswordSent, setForgotPasswordSent] = useState(false);
   
   const [shineIndex, setShineIndex] = useState(0);
   useEffect(() => {
@@ -82,6 +84,30 @@ function LoginContent() {
     setTwoFactorCode('');
   };
 
+  const handleOpenForgotPassword = () => {
+    setIsForgotPasswordStep(true);
+    setForgotPasswordSent(false);
+  };
+
+  const handleCancelForgotPassword = () => {
+    setIsForgotPasswordStep(false);
+    setForgotPasswordSent(false);
+  };
+
+  const handleSubmitForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      const response = await authApi.forgotPassword(email.trim());
+      setForgotPasswordSent(true);
+      toast.success(response.message || 'Solicitação processada!');
+    } catch (error: any) {
+      toast.error(error.message || 'Não foi possível enviar o link de recuperação.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       setIsLoading(true);
@@ -128,6 +154,11 @@ function LoginContent() {
         onTwoFactorCodeChange={setTwoFactorCode}
         onVerifyTwoFactor={handleVerify2fa}
         onCancelTwoFactor={handleCancel2fa}
+        isForgotPasswordStep={isForgotPasswordStep}
+        forgotPasswordSent={forgotPasswordSent}
+        onOpenForgotPassword={handleOpenForgotPassword}
+        onCancelForgotPassword={handleCancelForgotPassword}
+        onSubmitForgotPassword={handleSubmitForgotPassword}
       />
 
       <LoginHero shineIndex={shineIndex} />
