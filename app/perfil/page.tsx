@@ -590,7 +590,7 @@ export default function PerfilPage() {
 
   return (
     <AppShell activeModule="perfil">
-      <div className="max-w-6xl mx-auto space-y-6">
+      <div className="w-full max-w-7xl mx-auto space-y-6">
         
         {error && (
           <StatusBanner variant="error" message={error} />
@@ -658,7 +658,7 @@ export default function PerfilPage() {
                           <button
                             type="button"
                             onClick={() => handleOpenEdit('cadastrais')}
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold text-slate-600 hover:text-red-600 bg-white hover:bg-red-50 border border-slate-200/80 rounded-lg shadow-2xs transition-all cursor-pointer"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-red-600 bg-red-50 hover:bg-red-600 hover:text-white border border-red-200/80 hover:border-red-600 rounded-xl shadow-2xs hover:shadow-xs transition-all cursor-pointer"
                             title="Editar Dados Cadastrais"
                           >
                             <Pencil className="w-3.5 h-3.5" />
@@ -683,7 +683,7 @@ export default function PerfilPage() {
                             <button
                               type="button"
                               onClick={() => handleOpenEdit('contato')}
-                              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold text-slate-600 hover:text-indigo-600 bg-white hover:bg-indigo-50 border border-slate-200/80 rounded-lg shadow-2xs transition-all cursor-pointer"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-red-600 bg-red-50 hover:bg-red-600 hover:text-white border border-red-200/80 hover:border-red-600 rounded-xl shadow-2xs hover:shadow-xs transition-all cursor-pointer"
                               title="Editar Contato"
                             >
                               <Pencil className="w-3.5 h-3.5" />
@@ -706,7 +706,7 @@ export default function PerfilPage() {
                             <button
                               type="button"
                               onClick={() => handleOpenEdit('emergencia')}
-                              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold text-slate-600 hover:text-rose-600 bg-white hover:bg-rose-50 border border-slate-200/80 rounded-lg shadow-2xs transition-all cursor-pointer"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-red-600 bg-red-50 hover:bg-red-600 hover:text-white border border-red-200/80 hover:border-red-600 rounded-xl shadow-2xs hover:shadow-xs transition-all cursor-pointer"
                               title="Editar Emergência"
                             >
                               <Pencil className="w-3.5 h-3.5" />
@@ -730,7 +730,7 @@ export default function PerfilPage() {
                           <button
                             type="button"
                             onClick={() => handleOpenEdit('endereco')}
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold text-slate-600 hover:text-emerald-600 bg-white hover:bg-emerald-50 border border-slate-200/80 rounded-lg shadow-2xs transition-all cursor-pointer"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-red-600 bg-red-50 hover:bg-red-600 hover:text-white border border-red-200/80 hover:border-red-600 rounded-xl shadow-2xs hover:shadow-xs transition-all cursor-pointer"
                             title="Editar Endereço"
                           >
                             <Pencil className="w-3.5 h-3.5" />
@@ -877,7 +877,7 @@ export default function PerfilPage() {
                             <button
                               type="button"
                               onClick={() => handleOpenEdit('bancario')}
-                              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold text-slate-600 hover:text-emerald-600 bg-white hover:bg-emerald-50 border border-slate-200/80 rounded-lg shadow-2xs transition-all cursor-pointer"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-red-600 bg-red-50 hover:bg-red-600 hover:text-white border border-red-200/80 hover:border-red-600 rounded-xl shadow-2xs hover:shadow-xs transition-all cursor-pointer"
                               title="Editar Dados Bancários e PIX"
                             >
                               <Pencil className="w-3.5 h-3.5" />
@@ -903,7 +903,7 @@ export default function PerfilPage() {
                             <button
                               type="button"
                               onClick={() => handleOpenEdit('pagamento')}
-                              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold text-slate-600 hover:text-blue-600 bg-white hover:bg-blue-50 border border-slate-200/80 rounded-lg shadow-2xs transition-all cursor-pointer"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-red-600 bg-red-50 hover:bg-red-600 hover:text-white border border-red-200/80 hover:border-red-600 rounded-xl shadow-2xs hover:shadow-xs transition-all cursor-pointer"
                               title="Editar Parâmetros de Pagamento"
                             >
                               <Pencil className="w-3.5 h-3.5" />
@@ -1555,14 +1555,15 @@ export default function PerfilPage() {
                     type="button"
                     onClick={handleCloseEdit}
                     disabled={isSaving}
-                    className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
                   >
-                    Cancelar
+                    <X className="w-4 h-4" />
+                    <span>Cancelar</span>
                   </button>
                   <button
                     type="submit"
                     disabled={isSaving}
-                    className="inline-flex items-center gap-2 px-5 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl shadow-md shadow-red-600/20 transition-all cursor-pointer disabled:opacity-50"
+                    className="inline-flex items-center gap-2 px-5 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-md shadow-emerald-600/20 transition-all cursor-pointer disabled:opacity-50"
                   >
                     {isSaving ? (
                       <>
@@ -1691,9 +1692,10 @@ export default function PerfilPage() {
                       type="button"
                       onClick={() => setTwoFaModal(null)}
                       disabled={twoFaLoading}
-                      className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
                     >
-                      Cancelar
+                      <X className="w-4 h-4" />
+                      <span>Cancelar</span>
                     </button>
                     <button
                       type="submit"
@@ -1833,9 +1835,10 @@ export default function PerfilPage() {
                     type="button"
                     onClick={() => setTwoFaModal(null)}
                     disabled={twoFaLoading}
-                    className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
                   >
-                    Cancelar
+                    <X className="w-4 h-4" />
+                    <span>Cancelar</span>
                   </button>
                   <button
                     type="submit"
@@ -1929,14 +1932,15 @@ export default function PerfilPage() {
                     type="button"
                     onClick={() => setPasswordModalOpen(false)}
                     disabled={passwordLoading}
-                    className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
                   >
-                    Cancelar
+                    <X className="w-4 h-4" />
+                    <span>Cancelar</span>
                   </button>
                   <button
                     type="submit"
                     disabled={passwordLoading}
-                    className="inline-flex items-center gap-2 px-5 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl shadow-md shadow-red-600/20 transition-all cursor-pointer disabled:opacity-50"
+                    className="inline-flex items-center gap-2 px-5 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-md shadow-emerald-600/20 transition-all cursor-pointer disabled:opacity-50"
                   >
                     {passwordLoading ? (
                       <>
@@ -2055,14 +2059,15 @@ export default function PerfilPage() {
                     type="button"
                     onClick={() => setDocModalOpen(false)}
                     disabled={docSaving}
-                    className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
                   >
-                    Cancelar
+                    <X className="w-4 h-4" />
+                    <span>Cancelar</span>
                   </button>
                   <button
                     type="submit"
                     disabled={docSaving || docCompressing || !docImageDataUrl || !docTitle.trim()}
-                    className="inline-flex items-center gap-2 px-5 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl shadow-md shadow-red-600/20 transition-all cursor-pointer disabled:opacity-50"
+                    className="inline-flex items-center gap-2 px-5 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-md shadow-emerald-600/20 transition-all cursor-pointer disabled:opacity-50"
                   >
                     {docSaving ? (
                       <>
