@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import toast, { Toaster } from 'react-hot-toast';
 
 import { AppShell } from '@/layouts/AppShell';
+import { useUser } from '@/components/ui/header/hooks/user';
+import { Preloader } from '@/components/ui/Preloader';
 
 import { EstoqueSidebar } from './Sidebar/EstoqueSidebar';
 import { EstoquePanel } from './Estoque/EstoquePanel';
@@ -23,7 +25,17 @@ import { useCmv } from '../hooks/useCmv';
 import type { EstoqueSubModule, Fornecedor, Insumo, NovoFornecedor, NovoInsumo } from '../types';
 
 export default function EstoqueView() {
+  const { user, isLoading: isUserLoading } = useUser();
+  const isFornecedoresOnly = user?.role === 'fornecedores';
   const [activeSubModule, setActiveSubModule] = useState<EstoqueSubModule>('estoque');
+
+  useEffect(() => {
+    if (isFornecedoresOnly && activeSubModule !== 'fornecedores') {
+      setActiveSubModule('fornecedores');
+    }
+  }, [isFornecedoresOnly, activeSubModule]);
+
+  const effectiveSubModule: EstoqueSubModule = isFornecedoresOnly ? 'fornecedores' : activeSubModule;
 
   // Estados de Modais de Insumos
   const [showAddModal, setShowAddModal] = useState(false);
@@ -115,16 +127,24 @@ export default function EstoqueView() {
       <Toaster position="top-right" />
 
       <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-start w-full pb-20 md:pb-0">
+        {isUserLoading ? (
+          <Preloader fullScreen={false} message="VERIFICANDO PERMISSÕES DE ACESSO..." />
+        ) : (
+          <>
         <EstoqueSidebar
-          active={activeSubModule}
+          active={effectiveSubModule}
           lowStockCount={estoque.lowStockCount}
           lowWeighedCount={produtosPesadosHook.lowWeighedCount}
-          onChange={setActiveSubModule}
+          allowedModules={isFornecedoresOnly ? ['fornecedores'] : undefined}
+          onChange={(subModule) => {
+            if (isFornecedoresOnly && subModule !== 'fornecedores') return;
+            setActiveSubModule(subModule);
+          }}
         />
 
         <div className="flex-1 min-w-0 w-full">
           <AnimatePresence mode="wait">
-            {activeSubModule === 'estoque' ? (
+            {effectiveSubModule === 'estoque' ? (
               <EstoquePanel
                 key="estoque"
                 estoque={estoque}
@@ -142,13 +162,13 @@ export default function EstoqueView() {
                 onNavigateToFornecedores={() => setActiveSubModule('fornecedores')}
                 onNavigateToBalanco={() => setActiveSubModule('balanco')}
               />
-            ) : activeSubModule === 'produtos-pesados' ? (
+            ) : effectiveSubModule === 'produtos-pesados' ? (
               <ProdutosPesadosPanel
                 key="produtos-pesados"
                 produtosPesados={produtosPesadosHook}
                 insumosDisponiveis={estoque.items.map((i) => `${i.nome} (${i.codigo})`)}
               />
-            ) : activeSubModule === 'fornecedores' ? (
+            ) : effectiveSubModule === 'fornecedores' ? (
               <FornecedoresPanel
                 key="fornecedores"
                 fornecedoresHook={fornecedoresHook}
@@ -163,7 +183,7 @@ export default function EstoqueView() {
                   setDeletingFornecedor(fornecedor);
                 }}
               />
-            ) : activeSubModule === 'balanco' ? (
+            ) : effectiveSubModule === 'balanco' ? (
               <BalancoPanel key="balanco" estoque={estoque} />
             ) : (
               <CmvPanel
@@ -175,6 +195,8 @@ export default function EstoqueView() {
             )}
           </AnimatePresence>
         </div>
+          </>
+        )}
       </div>
 
       {/* Modal de Cadastro de Insumo */}

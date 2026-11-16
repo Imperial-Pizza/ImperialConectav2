@@ -61,6 +61,8 @@ export function Header({
     return <header className="w-full h-[76px] bg-white/90 backdrop-blur-md sticky top-0 z-40 shadow-sm border-b border-slate-200/80 flex items-center px-4 sm:px-6"><div className="w-full animate-pulse bg-slate-100 h-10 rounded-xl"></div></header>;
   }
 
+  const isFornecedoresOnly = user.role === 'fornecedores';
+
   return (
     <motion.header
       initial={{ y: -20, opacity: 0 }}
@@ -74,8 +76,10 @@ export function Header({
             BRAND
         ====================================================== */}
         <div
-          className="flex items-center gap-2.5 sm:gap-3 cursor-pointer shrink-0 min-w-0"
-          onClick={onGoToHub}
+          className={`flex items-center gap-2.5 sm:gap-3 shrink-0 min-w-0 ${isFornecedoresOnly ? 'cursor-default' : 'cursor-pointer'}`}
+          onClick={() => {
+            if (!isFornecedoresOnly) onGoToHub();
+          }}
         >
           <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-tr from-red-600 to-amber-500 flex items-center justify-center shadow-md shadow-red-600/20 shrink-0">
             <Pizza className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
@@ -106,7 +110,7 @@ export function Header({
           {/* =================================================
               BACK TO HUB
           ================================================== */}
-          {activeModule !== 'hub' && (
+          {activeModule !== 'hub' && !isFornecedoresOnly && (
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}

@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { Header } from '@/components/ui/header/Header';
 import { logout } from '@/components/ui/header/api/auth';
+import { useUser } from '@/components/ui/header/hooks/user';
 
 import { WelcomeSection } from './welcome/WelcomeSection';
 import BeneficiosSection from './Beneficios/BeneficiosSection';
@@ -19,6 +20,17 @@ export default function DashboardView() {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const router = useRouter();
+  const { user, isLoading: isUserLoading } = useUser();
+
+  useEffect(() => {
+    if (!isUserLoading && user?.role === 'fornecedores') {
+      router.replace('/estoque');
+    }
+  }, [isUserLoading, user, router]);
+
+  if (!isUserLoading && user?.role === 'fornecedores') {
+    return null;
+  }
 
   const handleSelectModule = (moduleId: string) => {
     const target = modules.find((module) => module.id === moduleId);

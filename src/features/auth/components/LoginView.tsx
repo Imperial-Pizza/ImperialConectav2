@@ -40,7 +40,8 @@ function LoginContent() {
       }
       
       toast.success('Login realizado com sucesso! 🎉');
-      router.push('/dashboard');
+      const targetRoute = response.user?.role === 'fornecedores' ? '/estoque' : '/dashboard';
+      router.push(targetRoute);
     } catch (error: any) {
       toast.error(error.message || 'Falha na autenticação. Verifique os dados!');
     } finally {
@@ -61,7 +62,8 @@ function LoginContent() {
         }
         
         toast.success('Login com Google realizado com sucesso! 🎉');
-        router.push('/dashboard');
+        const targetRoute = response.user?.role === 'fornecedores' ? '/estoque' : '/dashboard';
+        router.push(targetRoute);
       } catch (error: any) {
         toast.error(error.message || 'Falha no login com Google.');
       } finally {

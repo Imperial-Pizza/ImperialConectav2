@@ -1,6 +1,6 @@
 'use client';
 
-import { BarChart3, ClipboardCheck, Package, Scale, Sparkles, Truck } from 'lucide-react';
+import { BarChart3, ClipboardCheck, Lock, Package, Scale, Sparkles, Truck } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 import type { EstoqueSubModule } from '../../types';
@@ -9,6 +9,7 @@ interface EstoqueSidebarProps {
   active: EstoqueSubModule;
   lowStockCount?: number;
   lowWeighedCount?: number;
+  allowedModules?: EstoqueSubModule[];
   onChange: (subModule: EstoqueSubModule) => void;
 }
 
@@ -26,7 +27,7 @@ const ITEMS: {
   { id: 'cmv', label: 'Cálculo de CMV Global', mobileLabel: 'CMV', icon: BarChart3, activeIconColor: 'text-red-400' },
 ];
 
-export function EstoqueSidebar({ active, lowStockCount = 0, lowWeighedCount = 0, onChange }: EstoqueSidebarProps) {
+export function EstoqueSidebar({ active, lowStockCount = 0, lowWeighedCount = 0, allowedModules, onChange }: EstoqueSidebarProps) {
   return (
     <>
       {/* =========================================================
@@ -38,6 +39,7 @@ export function EstoqueSidebar({ active, lowStockCount = 0, lowWeighedCount = 0,
       >
         <div className="grid grid-cols-5 items-center w-full max-w-md mx-auto gap-1">
           {ITEMS.map(({ id, mobileLabel, icon: Icon }) => {
+            const isLocked = Boolean(allowedModules && !allowedModules.includes(id));
             const isActive = active === id;
             const badgeCount =
               id === 'estoque'
@@ -45,25 +47,35 @@ export function EstoqueSidebar({ active, lowStockCount = 0, lowWeighedCount = 0,
                 : id === 'produtos-pesados'
                 ? lowWeighedCount
                 : 0;
-            const showBadge = badgeCount > 0;
+            const showBadge = !isLocked && badgeCount > 0;
 
             return (
               <button
                 key={id}
                 type="button"
+                disabled={isLocked}
+                aria-disabled={isLocked}
+                title={isLocked ? 'Acesso restrito' : undefined}
                 onClick={() => {
+                  if (isLocked) return;
                   onChange(id);
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
                 aria-current={isActive ? 'page' : undefined}
-                className={`flex flex-col items-center justify-center py-2 px-1 rounded-2xl transition-all cursor-pointer relative ${
-                  isActive
-                    ? 'bg-red-50 text-red-600 font-black shadow-xs'
-                    : 'text-slate-500 hover:text-slate-800 font-bold hover:bg-slate-50'
+                className={`flex flex-col items-center justify-center py-2 px-1 rounded-2xl transition-all relative ${
+                  isLocked
+                    ? 'opacity-45 cursor-not-allowed text-slate-400'
+                    : isActive
+                    ? 'bg-red-50 text-red-600 font-black shadow-xs cursor-pointer'
+                    : 'text-slate-500 hover:text-slate-800 font-bold hover:bg-slate-50 cursor-pointer'
                 }`}
               >
                 <div className="relative flex items-center justify-center">
-                  <Icon className={`w-5 h-5 ${isActive ? 'text-red-600 stroke-[2.3]' : 'text-slate-500 stroke-[1.8]'}`} />
+                  <Icon className={`w-5 h-5 ${isLocked ? 'text-slate-400 stroke-[1.8]' : isActive ? 'text-red-600 stroke-[2.3]' : 'text-slate-500 stroke-[1.8]'}`} />
+
+                  {isLocked && (
+                    <Lock className="w-2.5 h-2.5 text-slate-500 absolute -top-1 -right-1.5" />
+                  )}
 
                   {showBadge && (
                     <span className="absolute -top-1 -right-2 min-w-[15px] h-[15px] px-1 rounded-full bg-red-600 text-white text-[9px] font-black flex items-center justify-center ring-2 ring-white">
@@ -74,7 +86,7 @@ export function EstoqueSidebar({ active, lowStockCount = 0, lowWeighedCount = 0,
 
                 <span
                   className={`text-[10px] mt-1 tracking-tight truncate max-w-full ${
-                    isActive ? 'text-red-600 font-bold' : 'text-slate-600 font-medium'
+                    isLocked ? 'text-slate-400 font-medium' : isActive ? 'text-red-600 font-bold' : 'text-slate-600 font-medium'
                   }`}
                 >
                   {mobileLabel}
@@ -98,6 +110,7 @@ export function EstoqueSidebar({ active, lowStockCount = 0, lowWeighedCount = 0,
           </div>
 
           {ITEMS.map(({ id, label, icon: Icon, activeIconColor }) => {
+            const isLocked = Boolean(allowedModules && !allowedModules.includes(id));
             const isActive = active === id;
             const badgeCount =
               id === 'estoque'
@@ -105,36 +118,47 @@ export function EstoqueSidebar({ active, lowStockCount = 0, lowWeighedCount = 0,
                 : id === 'produtos-pesados'
                 ? lowWeighedCount
                 : 0;
-            const showBadge = badgeCount > 0;
+            const showBadge = !isLocked && badgeCount > 0;
 
             return (
               <button
                 key={id}
                 type="button"
-                onClick={() => onChange(id)}
+                disabled={isLocked}
+                aria-disabled={isLocked}
+                title={isLocked ? 'Acesso restrito' : undefined}
+                onClick={() => {
+                  if (!isLocked) onChange(id);
+                }}
                 aria-current={isActive ? 'page' : undefined}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
-                  isActive
-                    ? 'bg-gradient-to-r from-slate-900 to-slate-800 text-white shadow-md shadow-slate-900/10'
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold transition-all ${
+                  isLocked
+                    ? 'opacity-50 cursor-not-allowed bg-slate-50/70 text-slate-400'
+                    : isActive
+                    ? 'bg-gradient-to-r from-slate-900 to-slate-800 text-white shadow-md shadow-slate-900/10 cursor-pointer'
+                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 cursor-pointer'
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <Icon className={`w-4 h-4 ${isActive ? activeIconColor : 'text-slate-500'}`} />
+                  <Icon className={`w-4 h-4 ${isLocked ? 'text-slate-400' : isActive ? activeIconColor : 'text-slate-500'}`} />
                   <span>{label}</span>
                 </div>
 
-                {showBadge && (
-                  <span
-                    title={`${badgeCount} itens com estoque/lote baixo`}
-                    className={`px-2 py-0.5 rounded-full text-[10px] font-black tracking-tight ${
-                      isActive
-                        ? 'bg-red-500 text-white shadow-xs'
-                        : 'bg-red-100 text-red-600'
-                    }`}
-                  >
-                    {badgeCount}
-                  </span>
+                {isLocked ? (
+                  <Lock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                ) : (
+                  showBadge && (
+                    <span
+                      title={`${badgeCount} itens com estoque/lote baixo`}
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-black tracking-tight ${
+                        isActive
+                          ? 'bg-red-500 text-white shadow-xs'
+                          : 'bg-red-100 text-red-600'
+                      }`}
+                    >
+                      {badgeCount}
+                    </span>
+                  )
                 )}
               </button>
             );
