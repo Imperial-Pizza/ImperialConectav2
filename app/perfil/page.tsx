@@ -12,7 +12,6 @@ import { QRCodeSVG } from 'qrcode.react';
 import { 
   User as UserIcon, 
   CreditCard, 
-  HeartHandshake, 
   Shield, 
   ShieldCheck,
   ShieldAlert,
@@ -29,7 +28,6 @@ import {
   Mail,
   Download,
   Eye,
-  MessageSquare,
   AlertCircle,
   Pencil,
   X,
@@ -486,9 +484,6 @@ export default function PerfilPage() {
                   { id: 'pessoal', icon: UserIcon, label: 'Credenciais & Pessoal' },
                   { id: 'seguranca', icon: Shield, label: 'Segurança & Acesso' },
                   { id: 'financeiro', icon: CreditCard, label: 'Financeiro & PIX' },
-                  { id: 'frequencia', icon: Activity, label: 'Frequência' },
-                  { id: 'feedback', icon: HeartHandshake, label: 'Avaliação & Feedback' },
-                  { id: '1on1', icon: MessageSquare, label: '1:1 & Gestão' },
                   { id: 'documentos', icon: FileText, label: 'Documentos' },
                 ].map((tab) => (
                   <button
@@ -813,75 +808,6 @@ export default function PerfilPage() {
                             Nenhum pagamento registrado no histórico.
                           </div>
                         )}
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {profileTab === 'frequencia' && (
-                    <motion.div key="frequencia" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="space-y-6">
-                      <div className="grid grid-cols-3 gap-4">
-                        <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl text-center">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Dias Trabalhados (Mês)</span>
-                          <span className="text-2xl font-black text-slate-800">0</span>
-                        </div>
-                        <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl text-center">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Faltas (Mês)</span>
-                          <span className="text-2xl font-black text-red-600">0</span>
-                        </div>
-                        <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl text-center">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Banco de Horas</span>
-                          <span className="text-2xl font-black text-emerald-600">0h</span>
-                        </div>
-                      </div>
-
-                      <div className="bg-white border border-slate-200 rounded-2xl p-6">
-                        <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 mb-4 flex justify-between items-center">
-                          Registro Diário
-                          <button className="text-red-600 hover:text-red-700 underline text-[10px]">Ver Mês Completo</button>
-                        </h3>
-                        <div className="text-center py-6 text-xs text-slate-500 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                          Nenhum registro de ponto encontrado para este período.
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {profileTab === 'feedback' && (
-                    <motion.div key="feedback" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-4">
-                          <h3 className="text-xs font-black uppercase tracking-wider text-emerald-600 flex items-center gap-2">Pontos Fortes</h3>
-                          <p className="text-xs text-slate-700 bg-white p-3 rounded-xl border border-slate-200 min-h-[80px]">{profile?.pontos_fortes || 'Nenhum registro.'}</p>
-                        </div>
-                        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-4">
-                          <h3 className="text-xs font-black uppercase tracking-wider text-amber-600 flex items-center gap-2">Pontos de Melhoria</h3>
-                          <p className="text-xs text-slate-700 bg-white p-3 rounded-xl border border-slate-200 min-h-[80px]">{profile?.pontos_melhoria || 'Nenhum registro.'}</p>
-                        </div>
-                      </div>
-
-                      <div className="bg-white border border-slate-200 rounded-2xl p-6">
-                        <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 mb-4">Avaliações de Desempenho</h3>
-                        <div className="text-center py-6 text-xs text-slate-500 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                          Nenhuma avaliação estruturada registrada no histórico.
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {profileTab === '1on1' && (
-                    <motion.div key="1on1" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="space-y-6">
-                      <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6">
-                        <h3 className="text-xs font-black uppercase tracking-wider text-indigo-600 flex items-center gap-2 mb-4">
-                          <MessageSquare className="w-4 h-4" /> Anotações Rápidas (Gestão)
-                        </h3>
-                        <p className="text-xs text-slate-700 bg-white p-4 rounded-xl border border-slate-200">{profile?.observacoes_gestor || 'Nenhuma anotação de gestão registrada.'}</p>
-                      </div>
-
-                      <div className="bg-white border border-slate-200 rounded-2xl p-6">
-                        <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 mb-4">Histórico de Reuniões 1:1</h3>
-                        <div className="text-center py-6 text-xs text-slate-500 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                          Nenhuma reunião registrada no histórico.
-                        </div>
                       </div>
                     </motion.div>
                   )}
