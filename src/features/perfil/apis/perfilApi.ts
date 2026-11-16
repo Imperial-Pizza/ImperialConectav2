@@ -218,4 +218,50 @@ export const perfilApi = {
 
     return response.json();
   },
+
+  /** GET /api/auth/me/documents — lista documentos anexados do usuário */
+  getDocuments: async (): Promise<{ success: boolean; items: Record<string, any>[] }> => {
+    const response = await fetch(`${AUTH_API_URL}/auth/me/documents`, {
+      method: 'GET',
+      headers: getHeaders(),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.message || 'Erro ao carregar documentos.');
+    }
+
+    return response.json();
+  },
+
+  /** POST /api/auth/me/documents — adiciona documento com foto comprimida */
+  addDocument: async (payload: { titulo: string; arquivo_url: string; numero?: string; observacoes?: string }): Promise<MyProfileApiResponse> => {
+    const response = await fetch(`${AUTH_API_URL}/auth/me/documents`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.message || 'Erro ao anexar documento.');
+    }
+
+    return response.json();
+  },
+
+  /** DELETE /api/auth/me/documents/{id} — remove documento anexado */
+  deleteDocument: async (docId: number): Promise<MyProfileApiResponse> => {
+    const response = await fetch(`${AUTH_API_URL}/auth/me/documents/${docId}`, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.message || 'Erro ao remover documento.');
+    }
+
+    return response.json();
+  },
 };

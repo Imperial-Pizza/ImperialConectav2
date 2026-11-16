@@ -36,7 +36,10 @@ import {
   Save,
   QrCode,
   Copy,
-  Lock
+  Lock,
+  Upload,
+  Trash2,
+  Image as ImageIcon
 } from 'lucide-react';
 
 const formatDate = (dateString?: string | null) => {
@@ -73,6 +76,146 @@ export default function PerfilPage() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [passwordLoading, setPasswordLoading] = useState(false);
+
+  // Controle de Upload e Visualização de Documentos (com compressão leve no cliente)
+  const [docModalOpen, setDocModalOpen] = useState(false);
+  const [docTitle, setDocTitle] = useState('');
+  const [docImageDataUrl, setDocImageDataUrl] = useState('');
+  const [docOriginalSizeKb, setDocOriginalSizeKb] = useState(0);
+  const [docCompressedSizeKb, setDocCompressedSizeKb] = useState(0);
+  const [docCompressing, setDocCompressing] = useState(false);
+  const [docSaving, setDocSaving] = useState(false);
+  const [docDeletingId, setDocDeletingId] = useState<number | null>(null);
+  const [previewDoc, setPreviewDoc] = useState<{ nome: string; url: string; data?: string } | null>(null);
+
+  const compressImageToLightweightDataUrl = (file: File): Promise<{ dataUrl: string; compressedKb: number; originalKb: number }> => {
+    return new Promise((resolve, reject) => {
+      const originalKb = Math.max(1, Math.round(file.size / 1024));
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('Não foi possível ler o arquivo de imagem.'));
+      reader.onload = () => {
+        const img = new window.Image();
+        img.onerror = () => reject(new Error('Formato de imagem inválido.'));
+        img.onload = () => {
+          const MAX_DIMENSION = 1200;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+            if (width >= height) {
+              height = Math.round((height * MAX_DIMENSION) / width);
+              width = MAX_DIMENSION;
+            } else {
+              width = Math.round((width * MAX_DIMENSION) / height);
+              height = MAX_DIMENSION;
+            }
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('Não foi possível processar a imagem.'));
+            return;
+          }
+
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(0, 0, width, height);
+          ctx.drawImage(img, 0, 0, width, height);
+
+          let dataUrl = canvas.toDataURL('image/webp', 0.72);
+          if (!dataUrl.startsWith('data:image/webp')) {
+            dataUrl = canvas.toDataURL('image/jpeg', 0.72);
+          }
+
+          // Se ainda passar de ~220 KB, reduz mais um nível a qualidade para garantir leveza no banco
+          if (dataUrl.length > 300000) {
+            dataUrl = canvas.toDataURL('image/webp', 0.55);
+            if (!dataUrl.startsWith('data:image/webp')) {
+              dataUrl = canvas.toDataURL('image/jpeg', 0.55);
+            }
+          }
+
+          const compressedBytes = Math.round((dataUrl.length * 3) / 4);
+          const compressedKb = Math.max(1, Math.round(compressedBytes / 1024));
+
+          resolve({ dataUrl, compressedKb, originalKb });
+        };
+        img.src = String(reader.result);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleSelectDocFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Selecione um arquivo de imagem (JPG, PNG ou WebP).');
+      return;
+    }
+
+    try {
+      setDocCompressing(true);
+      const { dataUrl, compressedKb, originalKb } = await compressImageToLightweightDataUrl(file);
+      setDocImageDataUrl(dataUrl);
+      setDocOriginalSizeKb(originalKb);
+      setDocCompressedSizeKb(compressedKb);
+      if (!docTitle.trim()) {
+        const cleanFileName = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
+        setDocTitle(cleanFileName);
+      }
+      toast.success(`Foto otimizada para ${compressedKb} KB!`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Erro ao comprimir imagem.');
+    } finally {
+      setDocCompressing(false);
+    }
+  };
+
+  const handleSaveDocument = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!docTitle.trim() || docTitle.trim().length < 2) {
+      toast.error('Informe um título para o documento.');
+      return;
+    }
+    if (!docImageDataUrl) {
+      toast.error('Selecione a foto do documento.');
+      return;
+    }
+
+    try {
+      setDocSaving(true);
+      await perfilApi.addDocument({
+        titulo: docTitle.trim(),
+        arquivo_url: docImageDataUrl,
+      });
+      toast.success('Documento adicionado com sucesso!');
+      setDocModalOpen(false);
+      setDocTitle('');
+      setDocImageDataUrl('');
+      await reload();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Erro ao salvar documento.');
+    } finally {
+      setDocSaving(false);
+    }
+  };
+
+  const handleDeleteDocument = async (docId: number) => {
+    try {
+      setDocDeletingId(docId);
+      await perfilApi.deleteDocument(docId);
+      toast.success('Documento removido!');
+      await reload();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Erro ao remover documento.');
+    } finally {
+      setDocDeletingId(null);
+    }
+  };
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -815,36 +958,83 @@ export default function PerfilPage() {
                   {profileTab === 'documentos' && (
                     <motion.div key="documentos" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="space-y-6">
                       <div className="bg-white border border-slate-200 rounded-2xl p-6">
-                        <div className="flex items-center justify-between mb-4">
-                          <h3 className="text-xs font-black uppercase tracking-wider text-slate-900">Documentos Anexados</h3>
-                          <button className="text-[10px] bg-red-50 text-red-600 px-3 py-1.5 rounded-lg font-bold border border-red-200 hover:bg-red-100 transition-colors">
-                            + Solicitar Documento
+                        <div className="flex items-center justify-between mb-5">
+                          <div>
+                            <h3 className="text-xs font-black uppercase tracking-wider text-slate-900">Documentos Anexados</h3>
+                            <p className="text-[11px] text-slate-400 mt-0.5">Fotos comprimidas automaticamente para armazenamento leve</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setDocTitle('');
+                              setDocImageDataUrl('');
+                              setDocOriginalSizeKb(0);
+                              setDocCompressedSizeKb(0);
+                              setDocModalOpen(true);
+                            }}
+                            className="inline-flex items-center gap-1.5 text-xs bg-red-600 text-white px-3.5 py-2 rounded-xl font-bold shadow-sm shadow-red-600/20 hover:bg-red-700 transition-all cursor-pointer"
+                          >
+                            <Upload className="w-3.5 h-3.5" />
+                            <span>+ Adicionar Documento</span>
                           </button>
                         </div>
                         {profile?.documents?.length ? (
-                          <div className="space-y-2">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {profile.documents.map((doc) => (
-                              <div key={doc.id} className="flex items-center justify-between gap-3 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+                              <div key={doc.id} className="flex items-center justify-between gap-3 bg-slate-50 border border-slate-200/90 rounded-2xl p-3.5 hover:border-slate-300 transition-all">
                                 <div className="flex items-center gap-3 min-w-0">
-                                  <FileText className="w-5 h-5 text-red-600 shrink-0" />
+                                  {doc.url && doc.url.startsWith('data:image/') ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => setPreviewDoc({ nome: doc.nome, url: doc.url!, data: doc.data_envio })}
+                                      className="w-12 h-12 rounded-xl overflow-hidden border border-slate-200 bg-white shrink-0 cursor-pointer group relative"
+                                      title="Clique para ampliar"
+                                    >
+                                      <img src={doc.url} alt={doc.nome} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                                    </button>
+                                  ) : (
+                                    <div className="w-12 h-12 rounded-xl bg-red-50 text-red-600 flex items-center justify-center shrink-0">
+                                      <FileText className="w-5 h-5" />
+                                    </div>
+                                  )}
                                   <div className="min-w-0">
-                                    <p className="text-xs font-bold text-slate-800 truncate">{doc.nome}</p>
-                                    <p className="text-[10px] text-slate-400">Cadastrado em {formatDate(doc.data_envio)}</p>
+                                    <p className="text-xs font-bold text-slate-900 truncate">{doc.nome}</p>
+                                    <p className="text-[10px] text-slate-400">Anexado em {formatDate(doc.data_envio)}</p>
                                   </div>
                                 </div>
-                                {doc.url && (
-                                  <a href={doc.url} target="_blank" rel="noreferrer" className="text-[10px] font-bold text-red-600 hover:text-red-700 inline-flex items-center gap-1 shrink-0">
-                                    <Download className="w-3.5 h-3.5" /> Abrir
-                                  </a>
-                                )}
+                                <div className="flex items-center gap-1.5 shrink-0">
+                                  {doc.url && (
+                                    <button
+                                      type="button"
+                                      onClick={() => setPreviewDoc({ nome: doc.nome, url: doc.url!, data: doc.data_envio })}
+                                      className="p-2 text-slate-600 hover:text-red-600 bg-white hover:bg-red-50 border border-slate-200 rounded-xl transition-colors cursor-pointer"
+                                      title="Visualizar foto"
+                                    >
+                                      <Eye className="w-3.5 h-3.5" />
+                                    </button>
+                                  )}
+                                  <button
+                                    type="button"
+                                    disabled={docDeletingId === doc.id}
+                                    onClick={() => handleDeleteDocument(doc.id)}
+                                    className="p-2 text-slate-400 hover:text-rose-600 bg-white hover:bg-rose-50 border border-slate-200 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
+                                    title="Remover documento"
+                                  >
+                                    {docDeletingId === doc.id ? (
+                                      <Loader2 className="w-3.5 h-3.5 animate-spin text-rose-600" />
+                                    ) : (
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    )}
+                                  </button>
+                                </div>
                               </div>
                             ))}
                           </div>
                         ) : (
-                          <div className="text-center py-8 text-xs text-slate-500 bg-slate-50 rounded-xl border border-dashed border-slate-200 flex flex-col items-center gap-2">
-                            <FileText className="w-8 h-8 text-slate-300 mb-2" />
-                            <p>Nenhum documento anexado a este perfil.</p>
-                            <p className="text-[10px] text-slate-400">RGs, Contratos assinados, Comprovantes de residência aparecerão aqui.</p>
+                          <div className="text-center py-10 text-xs text-slate-500 bg-slate-50 rounded-2xl border border-dashed border-slate-200 flex flex-col items-center gap-2">
+                            <ImageIcon className="w-9 h-9 text-slate-300 mb-1" />
+                            <p className="font-bold text-slate-700">Nenhum documento anexado a este perfil.</p>
+                            <p className="text-[11px] text-slate-400">Clique em &ldquo;+ Adicionar Documento&rdquo; para enviar a foto do RG, CNH, Comprovante ou Contrato.</p>
                           </div>
                         )}
                       </div>
@@ -1759,6 +1949,186 @@ export default function PerfilPage() {
                   </button>
                 </div>
               </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* MODAL ADICIONAR DOCUMENTO (COM COMPRESSÃO LEVE) */}
+      <AnimatePresence>
+        {docModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="bg-white border border-slate-200 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden"
+            >
+              <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center">
+                    <Upload className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black text-slate-900">Anexar Documento</h3>
+                    <p className="text-[10px] text-slate-400 font-medium">Compressão automática WebP para não pesar no banco</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => !docSaving && setDocModalOpen(false)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveDocument} className="p-6 space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">Título do Documento *</label>
+                  <input
+                    type="text"
+                    required
+                    value={docTitle}
+                    onChange={(e) => setDocTitle(e.target.value)}
+                    className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-slate-900 font-medium"
+                    placeholder="Ex: RG Frente e Verso, CNH, Comprovante..."
+                  />
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {['RG (Frente/Verso)', 'CNH', 'CPF', 'Comprovante de Residência', 'Contrato Assinado'].map((sugestao) => (
+                      <button
+                        key={sugestao}
+                        type="button"
+                        onClick={() => setDocTitle(sugestao)}
+                        className="text-[10px] px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 font-semibold transition-colors cursor-pointer"
+                      >
+                        {sugestao}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">Foto do Documento *</label>
+                  <label className="flex flex-col items-center justify-center w-full min-h-[160px] border-2 border-dashed border-slate-200 hover:border-red-400 bg-slate-50 hover:bg-red-50/20 rounded-2xl p-4 cursor-pointer transition-all text-center relative overflow-hidden">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleSelectDocFile}
+                      className="hidden"
+                    />
+                    {docCompressing ? (
+                      <div className="flex flex-col items-center gap-2 py-6">
+                        <Loader2 className="w-6 h-6 animate-spin text-red-600" />
+                        <span className="text-xs font-bold text-slate-600">Otimizando imagem...</span>
+                      </div>
+                    ) : docImageDataUrl ? (
+                      <div className="space-y-2.5 w-full flex flex-col items-center">
+                        <img
+                          src={docImageDataUrl}
+                          alt="Preview do documento"
+                          className="max-h-36 rounded-xl border border-slate-200 object-contain bg-white shadow-xs"
+                        />
+                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-bold">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>
+                            Tamanho leve: {docCompressedSizeKb} KB
+                            {docOriginalSizeKb > docCompressedSizeKb ? ` (original: ${docOriginalSizeKb} KB)` : ''}
+                          </span>
+                        </div>
+                        <span className="text-[10px] text-slate-400 underline">Clique para trocar a foto</span>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-1.5 py-4">
+                        <div className="w-10 h-10 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mb-1">
+                          <ImageIcon className="w-5 h-5" />
+                        </div>
+                        <span className="text-xs font-bold text-slate-700">Clique para selecionar a foto</span>
+                        <span className="text-[10px] text-slate-400">JPG, PNG ou WebP • Compressão automática inteligente</span>
+                      </div>
+                    )}
+                  </label>
+                </div>
+
+                <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => setDocModalOpen(false)}
+                    disabled={docSaving}
+                    className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={docSaving || docCompressing || !docImageDataUrl || !docTitle.trim()}
+                    className="inline-flex items-center gap-2 px-5 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl shadow-md shadow-red-600/20 transition-all cursor-pointer disabled:opacity-50"
+                  >
+                    {docSaving ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Salvando...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-4 h-4" />
+                        <span>Salvar Documento</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* MODAL DE VISUALIZAÇÃO AMPLIADA DO DOCUMENTO */}
+      <AnimatePresence>
+        {previewDoc && (
+          <div
+            onClick={() => setPreviewDoc(null)}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/75 backdrop-blur-xs p-4"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white border border-slate-200 rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden"
+            >
+              <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-black text-slate-900">{previewDoc.nome}</h3>
+                  {previewDoc.data && (
+                    <p className="text-[10px] text-slate-400">Anexado em {formatDate(previewDoc.data)}</p>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <a
+                    href={previewDoc.url}
+                    download={`${previewDoc.nome.replace(/\s+/g, '-').toLowerCase()}.webp`}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Baixar</span>
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => setPreviewDoc(null)}
+                    className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+              <div className="p-6 bg-slate-50 flex items-center justify-center max-h-[75vh] overflow-auto">
+                <img
+                  src={previewDoc.url}
+                  alt={previewDoc.nome}
+                  className="max-w-full max-h-[65vh] rounded-xl border border-slate-200 object-contain bg-white shadow-sm"
+                />
+              </div>
             </motion.div>
           </div>
         )}
