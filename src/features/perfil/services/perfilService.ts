@@ -36,6 +36,13 @@ const TIPO_CHAVE_PIX: Record<string, string> = {
   aleatoria: 'Chave Aleatória',
 };
 
+const PERIODICIDADE_REM: Record<string, string> = {
+  mensal: 'Mensal',
+  quinzenal: 'Quinzenal',
+  horista: 'Diária / Semanal',
+  pj_fechado: 'PJ Mensal',
+};
+
 const brl = (value: unknown) =>
   Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
@@ -137,14 +144,28 @@ function mapToProfileData({ user, item }: MyProfileApiResponse): ProfileData {
 
     chave_pix: nn(conta?.chave_pix),
     tipo_chave_pix: conta?.tipo_chave_pix ? TIPO_CHAVE_PIX[conta.tipo_chave_pix] ?? conta.tipo_chave_pix : null,
-    valor_diaria: null,
-    tipo_pagamento: remAtual?.tipo_remuneracao ? String(remAtual.tipo_remuneracao) : null,
-    periodicidade_pagamento: null,
+    valor_diaria: remAtual?.salario_base !== undefined && remAtual?.salario_base !== null ? Number(remAtual.salario_base) : null,
+    tipo_pagamento: nn(remAtual?.comissoes_info) ?? (conta?.chave_pix ? 'PIX' : null),
+    periodicidade_pagamento: remAtual?.tipo_remuneracao
+      ? PERIODICIDADE_REM[String(remAtual.tipo_remuneracao)] ?? String(remAtual.tipo_remuneracao)
+      : null,
     nome_titular: nn(conta?.titular_nome),
     cpf_cnpj_titular: nn(conta?.titular_cpf),
     banco_agencia: conta ? `${conta.banco_nome} (${conta.banco_codigo}) • Ag. ${conta.agencia}` : null,
     banco_conta: conta ? `${conta.conta}${conta.digito_conta ? `-${conta.digito_conta}` : ''}` : null,
     tipo_conta: conta ? TIPO_CONTA[conta.tipo_conta] ?? conta.tipo_conta : null,
+    dados_bancarios_detalhes: conta ? {
+      banco_nome: nn(conta.banco_nome),
+      banco_codigo: nn(conta.banco_codigo),
+      agencia: nn(conta.agencia),
+      conta: nn(conta.conta),
+      digito_conta: nn(conta.digito_conta),
+      tipo_conta: nn(conta.tipo_conta),
+      tipo_chave_pix: nn(conta.tipo_chave_pix),
+      chave_pix: nn(conta.chave_pix),
+      titular_nome: nn(conta.titular_nome),
+      titular_cpf: nn(conta.titular_cpf),
+    } : null,
 
     pontos_fortes: null,
     pontos_melhoria: null,
@@ -152,6 +173,15 @@ function mapToProfileData({ user, item }: MyProfileApiResponse): ProfileData {
     ultimo_one_on_one: null,
     proximo_one_on_one: null,
 
+    payments_history: Array.isArray(item.remuneracao?.historico)
+      ? item.remuneracao.historico.map((h: any) => ({
+          id: Number(h.id),
+          data: String(h.vigencia_inicio || h.created_at || ''),
+          periodo: String(h.motivo_alteracao || PERIODICIDADE_REM[String(h.tipo_remuneracao)] || 'Pagamento'),
+          valor: brl(h.salario_base ?? 0),
+          status: h.is_atual ? 'Pago' : 'Pago',
+        }))
+      : [],
     documents,
 
     created_at: nn(item.createdAt),

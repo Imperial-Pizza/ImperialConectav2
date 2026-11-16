@@ -156,4 +156,66 @@ export const perfilApi = {
 
     return response.json();
   },
+
+  /** GET /api/auth/me/bank-accounts — obtém dados bancários e PIX do usuário logado */
+  getBankAccounts: async (): Promise<{ success: boolean; items: Record<string, any>[] }> => {
+    const response = await fetch(`${AUTH_API_URL}/auth/me/bank-accounts`, {
+      method: 'GET',
+      headers: getHeaders(),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.message || 'Erro ao carregar dados bancários.');
+    }
+
+    return response.json();
+  },
+
+  /** POST /api/auth/me/bank-accounts — salva/atualiza dados bancários e PIX */
+  saveBankAccount: async (payload: Record<string, any>): Promise<MyProfileApiResponse> => {
+    const response = await fetch(`${AUTH_API_URL}/auth/me/bank-accounts`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.message || 'Erro ao salvar dados bancários.');
+    }
+
+    return response.json();
+  },
+
+  /** GET /api/auth/me/compensation — obtém parâmetros e histórico de pagamentos */
+  getCompensation: async (): Promise<{ success: boolean; items: Record<string, any>[] }> => {
+    const response = await fetch(`${AUTH_API_URL}/auth/me/compensation`, {
+      method: 'GET',
+      headers: getHeaders(),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.message || 'Erro ao carregar parâmetros de pagamento.');
+    }
+
+    return response.json();
+  },
+
+  /** POST /api/auth/me/compensation — salva parâmetros/histórico de pagamento */
+  saveCompensation: async (payload: Record<string, any>): Promise<MyProfileApiResponse> => {
+    const response = await fetch(`${AUTH_API_URL}/auth/me/compensation`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.message || 'Erro ao salvar parâmetros de pagamento.');
+    }
+
+    return response.json();
+  },
 };

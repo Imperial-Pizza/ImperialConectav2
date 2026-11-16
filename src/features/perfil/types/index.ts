@@ -157,6 +157,18 @@ export interface UserProfile {
   banco_agencia: string | null;
   banco_conta: string | null;
   tipo_conta: TipoConta | string | null;
+  dados_bancarios_detalhes?: {
+    banco_nome?: string | null;
+    banco_codigo?: string | null;
+    agencia?: string | null;
+    conta?: string | null;
+    digito_conta?: string | null;
+    tipo_conta?: string | null;
+    tipo_chave_pix?: string | null;
+    chave_pix?: string | null;
+    titular_nome?: string | null;
+    titular_cpf?: string | null;
+  } | null;
   
   // Avaliação & Feedback (Campos legados)
   pontos_fortes: string | null;
@@ -194,4 +206,4 @@ export interface UpdateProfileResponse {
   profile: UserProfile | null;
 }
 
-export type ProfileTab = 'pessoal' | 'seguranca' | 'contrato' | 'financeiro' | 'frequencia' | 'feedback' | '1on1' | 'documentos';
+export type ProfileTab = 'pessoal' | 'seguranca' | 'financeiro' | 'frequencia' | 'feedback' | '1on1' | 'documentos';

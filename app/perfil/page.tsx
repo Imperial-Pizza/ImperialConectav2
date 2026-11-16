@@ -11,7 +11,6 @@ import toast, { Toaster } from 'react-hot-toast';
 import { QRCodeSVG } from 'qrcode.react';
 import { 
   User as UserIcon, 
-  Briefcase, 
   CreditCard, 
   HeartHandshake, 
   Shield, 
@@ -203,7 +202,7 @@ export default function PerfilPage() {
   };
 
   // Controle de edição por Card
-  type EditCardType = 'cadastrais' | 'contato' | 'emergencia' | 'endereco' | null;
+  type EditCardType = 'cadastrais' | 'contato' | 'emergencia' | 'endereco' | 'bancario' | 'pagamento' | 'novo_pagamento' | null;
   const [editingCard, setEditingCard] = useState<EditCardType>(null);
 
   // Estados dos formulários de edição
@@ -228,6 +227,22 @@ export default function PerfilPage() {
     bairro: '',
     cidade: '',
     estado: 'SP',
+    // Bancário & PIX
+    chave_pix: '',
+    tipo_chave_pix: 'cpf',
+    banco_nome: '',
+    banco_codigo: '',
+    agencia: '',
+    conta: '',
+    digito_conta: '',
+    tipo_conta: 'corrente',
+    titular_nome: '',
+    titular_cpf: '',
+    // Parâmetros de Pagamento
+    tipo_pagamento: 'PIX',
+    periodicidade_pagamento: 'mensal',
+    valor_diaria: '',
+    motivo_alteracao: '',
   });
 
   const [loadingCep, setLoadingCep] = useState(false);
@@ -286,6 +301,14 @@ export default function PerfilPage() {
     if (!apiData) return;
     const { user, profile } = apiData;
     const end = profile?.endereco_detalhes;
+    const bank = profile?.dados_bancarios_detalhes;
+
+    const periodicidadeReverseMap: Record<string, string> = {
+      'Mensal': 'mensal',
+      'Quinzenal': 'quinzenal',
+      'Diária / Semanal': 'horista',
+      'PJ Mensal': 'pj_fechado',
+    };
 
     setFormData({
       nome: user.name || '',
@@ -304,6 +327,20 @@ export default function PerfilPage() {
       bairro: end?.bairro || '',
       cidade: end?.cidade || '',
       estado: end?.estado || 'SP',
+      chave_pix: bank?.chave_pix || profile?.chave_pix || '',
+      tipo_chave_pix: bank?.tipo_chave_pix || 'cpf',
+      banco_nome: bank?.banco_nome || '',
+      banco_codigo: bank?.banco_codigo || '',
+      agencia: bank?.agencia || '',
+      conta: bank?.conta || '',
+      digito_conta: bank?.digito_conta || '',
+      tipo_conta: bank?.tipo_conta || 'corrente',
+      titular_nome: bank?.titular_nome || profile?.nome_titular || user.name || '',
+      titular_cpf: bank?.titular_cpf || profile?.cpf_cnpj_titular || profile?.cpf || '',
+      tipo_pagamento: profile?.tipo_pagamento || 'PIX',
+      periodicidade_pagamento: (profile?.periodicidade_pagamento && periodicidadeReverseMap[profile.periodicidade_pagamento]) || 'mensal',
+      valor_diaria: profile?.valor_diaria !== null && profile?.valor_diaria !== undefined ? String(profile.valor_diaria) : '',
+      motivo_alteracao: card === 'novo_pagamento' ? `Pagamento ref. ${new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}` : 'Atualização de parâmetros de pagamento',
     });
 
     setEditingCard(card);
@@ -353,6 +390,27 @@ export default function PerfilPage() {
         bairro: formData.bairro.trim(),
         cidade: formData.cidade.trim(),
         estado: formData.estado.trim().toUpperCase(),
+      };
+    } else if (editingCard === 'bancario') {
+      payload = {
+        chave_pix: formData.chave_pix.trim(),
+        tipo_chave_pix: formData.tipo_chave_pix,
+        banco_nome: formData.banco_nome.trim(),
+        banco_codigo: formData.banco_codigo.trim(),
+        agencia: formData.agencia.trim(),
+        conta: formData.conta.trim(),
+        digito_conta: formData.digito_conta.trim(),
+        tipo_conta: formData.tipo_conta,
+        titular_nome: formData.titular_nome.trim(),
+        titular_cpf: formData.titular_cpf.replace(/\D/g, ''),
+      };
+    } else if (editingCard === 'pagamento' || editingCard === 'novo_pagamento') {
+      payload = {
+        tipo_pagamento: formData.tipo_pagamento.trim(),
+        periodicidade_pagamento: formData.periodicidade_pagamento,
+        valor_diaria: formData.valor_diaria,
+        motivo_alteracao: formData.motivo_alteracao.trim() || 'Pagamento registrado',
+        novo_pagamento: editingCard === 'novo_pagamento',
       };
     }
 
@@ -427,7 +485,6 @@ export default function PerfilPage() {
                 {[
                   { id: 'pessoal', icon: UserIcon, label: 'Credenciais & Pessoal' },
                   { id: 'seguranca', icon: Shield, label: 'Segurança & Acesso' },
-                  { id: 'contrato', icon: Briefcase, label: 'Contrato & Jornada' },
                   { id: 'financeiro', icon: CreditCard, label: 'Financeiro & PIX' },
                   { id: 'frequencia', icon: Activity, label: 'Frequência' },
                   { id: 'feedback', icon: HeartHandshake, label: 'Avaliação & Feedback' },
@@ -671,75 +728,24 @@ export default function PerfilPage() {
                     </motion.div>
                   )}
 
-                  {profileTab === 'contrato' && (
-                    <motion.div key="contrato" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-4">
-                          <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2">
-                            <Briefcase className="w-4 h-4 text-indigo-600" /> Vínculo Empregatício
-                          </h3>
-                          <div className="space-y-3 text-xs">
-                            <div><span className="text-slate-400 font-semibold block">Tipo de Contratação</span><span className="font-bold text-slate-800">{profile?.tipo_contratacao || 'Não informado'}</span></div>
-                            <div><span className="text-slate-400 font-semibold block">Função Principal</span><span className="font-bold text-slate-800">{profile?.funcao_principal || 'Não informado'}</span></div>
-                            <div><span className="text-slate-400 font-semibold block">Supervisor / Responsável</span><span className="font-bold text-slate-800">{profile?.supervisor_nome || 'Não informado'}</span></div>
-                            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-slate-200/60 mt-2">
-                              <div><span className="text-slate-400 font-semibold block">Data de Admissão</span><span className="font-bold text-slate-800">{formatDate(profile?.data_admissao)}</span></div>
-                              <div><span className="text-slate-400 font-semibold block">Data de Desligamento</span><span className="font-bold text-slate-800">{formatDate(profile?.data_desligamento) || '-'}</span></div>
-                            </div>
-                            <div><span className="text-slate-400 font-semibold block">Salário Base</span><span className="font-bold text-emerald-600">{profile?.salario_base || 'Não informado'}</span></div>
-                            <div><span className="text-slate-400 font-semibold block">Benefícios</span><span className="font-bold text-slate-800">{profile?.beneficios || 'Não informado'}</span></div>
-                          </div>
-                        </div>
-
-                        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-4">
-                          <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2">
-                            <Clock className="w-4 h-4 text-amber-500" /> Jornada Prevista
-                          </h3>
-                          <div className="space-y-3 text-xs">
-                            <div className="grid grid-cols-2 gap-4">
-                              <div><span className="text-slate-400 font-semibold block">Carga Horária Diária</span><span className="font-bold text-slate-800">{profile?.jornada_horas || '-'}h</span></div>
-                              <div><span className="text-slate-400 font-semibold block">Intervalo</span><span className="font-bold text-slate-800">{profile?.tempo_descanso_min || '-'} min</span></div>
-                            </div>
-                            <div className="pt-2 border-t border-slate-200/60 mt-2">
-                              <span className="text-slate-400 font-semibold block mb-2">Grade Semanal</span>
-                              <div className="space-y-1">
-                                {['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'].map(dia => {
-                                  const horario = dia === 'Sábado' || dia === 'Domingo' ? 'Folga' : `${profile?.horario_entrada || '08:00'} - ${profile?.horario_saida || '18:00'}`;
-                                  return (
-                                    <div key={dia} className="flex justify-between items-center border-b border-slate-100 last:border-0 pb-1">
-                                      <span className="font-semibold text-slate-600">{dia}</span>
-                                      <span className={`font-bold ${horario === 'Folga' ? 'text-slate-400' : 'text-slate-800'}`}>{horario}</span>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="bg-white border border-slate-200 rounded-2xl p-6">
-                        <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 mb-4">Histórico Contratual</h3>
-                        {profile?.contract_history?.length ? (
-                          <div className="space-y-4 relative before:absolute before:inset-0 before:ml-2 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-200 before:to-transparent">
-                            {/* Renderizar histórico real aqui depois */}
-                          </div>
-                        ) : (
-                          <div className="text-center py-6 text-xs text-slate-500 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                            Nenhum histórico contratual registrado.
-                          </div>
-                        )}
-                      </div>
-                    </motion.div>
-                  )}
-
                   {profileTab === 'financeiro' && (
                     <motion.div key="financeiro" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="space-y-6">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-4">
-                          <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2">
-                            <CreditCard className="w-4 h-4 text-emerald-600" /> Dados Bancários & PIX
-                          </h3>
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2">
+                              <CreditCard className="w-4 h-4 text-emerald-600" /> Dados Bancários & PIX
+                            </h3>
+                            <button
+                              type="button"
+                              onClick={() => handleOpenEdit('bancario')}
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold text-slate-600 hover:text-emerald-600 bg-white hover:bg-emerald-50 border border-slate-200/80 rounded-lg shadow-2xs transition-all cursor-pointer"
+                              title="Editar Dados Bancários e PIX"
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                              <span>Editar</span>
+                            </button>
+                          </div>
                           <div className="space-y-3 text-xs">
                             <div><span className="text-slate-400 font-semibold block">Chave PIX</span><span className="font-mono font-bold text-slate-800 bg-white border border-slate-200 px-3 py-1.5 rounded-lg inline-block mt-1">{profile?.chave_pix || 'Não informada'}</span></div>
                             <div><span className="text-slate-400 font-semibold block">Tipo de Chave</span><span className="font-bold text-slate-800">{profile?.tipo_chave_pix || 'Não informado'}</span></div>
@@ -747,27 +753,66 @@ export default function PerfilPage() {
                               <div><span className="text-slate-400 font-semibold block">Banco</span><span className="font-bold text-slate-800">{profile?.banco_agencia || 'Não informado'}</span></div>
                               <div><span className="text-slate-400 font-semibold block">Conta</span><span className="font-bold text-slate-800">{profile?.banco_conta || 'Não informada'}</span></div>
                             </div>
-                            <div><span className="text-slate-400 font-semibold block">Titular</span><span className="font-bold text-slate-800">{profile?.nome_titular || 'Não informado'} ({profile?.cpf_cnpj_titular || '-'})</span></div>
+                            <div><span className="text-slate-400 font-semibold block">Titular</span><span className="font-bold text-slate-800">{profile?.nome_titular || 'Não informado'} ({profile?.cpf_cnpj_titular ? maskCpf(profile.cpf_cnpj_titular) : '-'})</span></div>
                           </div>
                         </div>
 
                         <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-4">
-                          <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2">
-                            <Activity className="w-4 h-4 text-blue-600" /> Parâmetros de Pagamento
-                          </h3>
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2">
+                              <Activity className="w-4 h-4 text-blue-600" /> Parâmetros de Pagamento
+                            </h3>
+                            <button
+                              type="button"
+                              onClick={() => handleOpenEdit('pagamento')}
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold text-slate-600 hover:text-blue-600 bg-white hover:bg-blue-50 border border-slate-200/80 rounded-lg shadow-2xs transition-all cursor-pointer"
+                              title="Editar Parâmetros de Pagamento"
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                              <span>Editar</span>
+                            </button>
+                          </div>
                           <div className="space-y-3 text-xs">
                             <div><span className="text-slate-400 font-semibold block">Tipo de Pagamento</span><span className="font-bold text-slate-800">{profile?.tipo_pagamento || 'Não informado'}</span></div>
                             <div><span className="text-slate-400 font-semibold block">Periodicidade</span><span className="font-bold text-slate-800">{profile?.periodicidade_pagamento || 'Não informado'}</span></div>
-                            <div><span className="text-slate-400 font-semibold block">Valor da Diária</span><span className="font-bold text-emerald-600 text-sm">{profile?.valor_diaria ? `R$ ${Number(profile.valor_diaria).toFixed(2)}` : 'Não informado'}</span></div>
+                            <div><span className="text-slate-400 font-semibold block">Valor da Diária / Base</span><span className="font-bold text-emerald-600 text-sm">{profile?.valor_diaria !== null && profile?.valor_diaria !== undefined ? Number(profile.valor_diaria).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'Não informado'}</span></div>
                           </div>
                         </div>
                       </div>
                       
                       <div className="bg-white border border-slate-200 rounded-2xl p-6">
-                        <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 mb-4">Histórico de Pagamentos</h3>
-                        <div className="text-center py-6 text-xs text-slate-500 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                          Nenhum pagamento registrado no histórico.
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="text-xs font-black uppercase tracking-wider text-slate-900">Histórico de Pagamentos</h3>
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEdit('novo_pagamento')}
+                            className="text-[11px] bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg font-bold border border-emerald-200 hover:bg-emerald-100 transition-colors cursor-pointer"
+                          >
+                            + Registrar Pagamento
+                          </button>
                         </div>
+                        {profile?.payments_history?.length ? (
+                          <div className="space-y-2.5">
+                            {profile.payments_history.map((item) => (
+                              <div key={item.id} className="flex items-center justify-between gap-4 bg-slate-50 border border-slate-200/80 rounded-xl px-4 py-3 text-xs">
+                                <div className="space-y-0.5">
+                                  <p className="font-bold text-slate-900">{item.periodo}</p>
+                                  <p className="text-[11px] text-slate-500">Data: {formatDate(item.data)}</p>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                  <span className="font-black text-emerald-600 text-sm">{item.valor}</span>
+                                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                    {item.status}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-center py-6 text-xs text-slate-500 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                            Nenhum pagamento registrado no histórico.
+                          </div>
+                        )}
                       </div>
                     </motion.div>
                   )}
@@ -919,6 +964,8 @@ export default function PerfilPage() {
                     {editingCard === 'contato' && <Mail className="w-5 h-5 text-indigo-600" />}
                     {editingCard === 'emergencia' && <Phone className="w-5 h-5 text-rose-600" />}
                     {editingCard === 'endereco' && <MapPin className="w-5 h-5 text-emerald-600" />}
+                    {editingCard === 'bancario' && <CreditCard className="w-5 h-5 text-emerald-600" />}
+                    {(editingCard === 'pagamento' || editingCard === 'novo_pagamento') && <Activity className="w-5 h-5 text-blue-600" />}
                   </div>
                   <div>
                     <h3 className="text-base font-black text-slate-900">
@@ -926,6 +973,9 @@ export default function PerfilPage() {
                       {editingCard === 'contato' && 'Editar Contatos'}
                       {editingCard === 'emergencia' && 'Editar Contato de Emergência'}
                       {editingCard === 'endereco' && 'Editar Endereço Residencial'}
+                      {editingCard === 'bancario' && 'Editar Dados Bancários & PIX'}
+                      {editingCard === 'pagamento' && 'Editar Parâmetros de Pagamento'}
+                      {editingCard === 'novo_pagamento' && 'Registrar Pagamento no Histórico'}
                     </h3>
                     <p className="text-xs text-slate-500 font-medium">
                       Atualize as informações cadastrais do prontuário
@@ -1201,6 +1251,184 @@ export default function PerfilPage() {
                           placeholder="SP"
                         />
                       </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* CARD: DADOS BANCÁRIOS & PIX */}
+                {editingCard === 'bancario' && (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5">Tipo de Chave PIX</label>
+                        <select
+                          value={formData.tipo_chave_pix}
+                          onChange={(e) => setFormData({ ...formData, tipo_chave_pix: e.target.value })}
+                          className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-slate-900 font-medium"
+                        >
+                          <option value="cpf">CPF</option>
+                          <option value="email">E-mail</option>
+                          <option value="telefone">Telefone</option>
+                          <option value="aleatoria">Chave Aleatória</option>
+                        </select>
+                      </div>
+                      <div className="sm:col-span-2">
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5">Chave PIX</label>
+                        <input
+                          type="text"
+                          value={formData.chave_pix}
+                          onChange={(e) => setFormData({ ...formData, chave_pix: e.target.value })}
+                          className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-slate-900 font-mono font-medium"
+                          placeholder="CPF, e-mail, celular ou chave aleatória"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="sm:col-span-2">
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5">Nome do Banco *</label>
+                        <input
+                          type="text"
+                          required
+                          value={formData.banco_nome}
+                          onChange={(e) => setFormData({ ...formData, banco_nome: e.target.value })}
+                          className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-slate-900 font-medium"
+                          placeholder="Ex: Nubank, Itaú, Bradesco..."
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5">Cód. Banco</label>
+                        <input
+                          type="text"
+                          maxLength={6}
+                          value={formData.banco_codigo}
+                          onChange={(e) => setFormData({ ...formData, banco_codigo: e.target.value })}
+                          className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-slate-900 font-medium"
+                          placeholder="Ex: 260"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5">Agência *</label>
+                        <input
+                          type="text"
+                          required
+                          value={formData.agencia}
+                          onChange={(e) => setFormData({ ...formData, agencia: e.target.value })}
+                          className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-slate-900 font-medium"
+                          placeholder="0001"
+                        />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5">Conta *</label>
+                        <input
+                          type="text"
+                          required
+                          value={formData.conta}
+                          onChange={(e) => setFormData({ ...formData, conta: e.target.value })}
+                          className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-slate-900 font-medium"
+                          placeholder="Número da conta"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5">Dígito</label>
+                        <input
+                          type="text"
+                          maxLength={3}
+                          value={formData.digito_conta}
+                          onChange={(e) => setFormData({ ...formData, digito_conta: e.target.value })}
+                          className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-slate-900 font-medium text-center"
+                          placeholder="0"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5">Titular da Conta *</label>
+                        <input
+                          type="text"
+                          required
+                          value={formData.titular_nome}
+                          onChange={(e) => setFormData({ ...formData, titular_nome: e.target.value })}
+                          className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-slate-900 font-medium"
+                          placeholder="Nome completo do titular"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5">CPF do Titular *</label>
+                        <input
+                          type="text"
+                          required
+                          maxLength={14}
+                          value={maskCpf(formData.titular_cpf)}
+                          onChange={(e) => setFormData({ ...formData, titular_cpf: maskCpf(e.target.value) })}
+                          className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-slate-900 font-medium"
+                          placeholder="000.000.000-00"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* CARD: PARÂMETROS DE PAGAMENTO / NOVO PAGAMENTO */}
+                {(editingCard === 'pagamento' || editingCard === 'novo_pagamento') && (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5">Tipo de Pagamento *</label>
+                        <select
+                          value={formData.tipo_pagamento}
+                          onChange={(e) => setFormData({ ...formData, tipo_pagamento: e.target.value })}
+                          className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-slate-900 font-medium"
+                        >
+                          <option value="PIX">PIX</option>
+                          <option value="Transferência Bancária (TED)">Transferência Bancária (TED)</option>
+                          <option value="Depósito em Conta">Depósito em Conta</option>
+                          <option value="Espécie / Dinheiro">Espécie / Dinheiro</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5">Periodicidade *</label>
+                        <select
+                          value={formData.periodicidade_pagamento}
+                          onChange={(e) => setFormData({ ...formData, periodicidade_pagamento: e.target.value })}
+                          className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-slate-900 font-medium"
+                        >
+                          <option value="horista">Diária / Semanal</option>
+                          <option value="quinzenal">Quinzenal</option>
+                          <option value="mensal">Mensal</option>
+                          <option value="pj_fechado">PJ Mensal</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5">Valor da Diária / Base (R$) *</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        required
+                        value={formData.valor_diaria}
+                        onChange={(e) => setFormData({ ...formData, valor_diaria: e.target.value })}
+                        className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-slate-900 font-bold"
+                        placeholder="Ex: 250.00"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5">Descrição / Referência</label>
+                      <input
+                        type="text"
+                        value={formData.motivo_alteracao}
+                        onChange={(e) => setFormData({ ...formData, motivo_alteracao: e.target.value })}
+                        className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-slate-900 font-medium"
+                        placeholder="Ex: Pagamento ref. Novembro/2026"
+                      />
                     </div>
                   </div>
                 )}
