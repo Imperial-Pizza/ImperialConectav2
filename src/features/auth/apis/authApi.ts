@@ -6,10 +6,12 @@ const API_URL = process.env.NEXT_PUBLIC_AUTH_API_URL || 'http://localhost:8020/a
 export interface LoginApiResponse {
   success: boolean;
   message?: string;
-  token: string;
+  requires_2fa?: boolean;
+  temp_token?: string;
+  token?: string;
   refresh_token?: string;
   expires_in?: number;
-  user: {
+  user?: {
     id: number | string;
     name: string;
     email: string;
@@ -46,10 +48,33 @@ export const authApi = {
 
     const data = await response.json();
 
-    // Conta com 2FA ativo: a API devolve um token temporário em vez do token de sessão
-    if (data?.requires_2fa) {
-      throw new Error('Esta conta exige autenticação em dois fatores (2FA), ainda não disponível nesta tela.');
+    // Conta com 2FA ativo: a API devolve um token temporário para a segunda etapa
+    if (data?.requires_2fa && data?.temp_token) {
+      return data;
     }
+
+    if (!data?.token) {
+      throw new Error('Resposta inválida do servidor de autenticação.');
+    }
+
+    return data;
+  },
+
+  verifyTwoFactor: async (tempToken: string, code: string): Promise<LoginApiResponse> => {
+    const response = await fetch(`${API_URL}/auth/2fa/verify`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({ temp_token: tempToken, code }),
+    });
+
+    if (!response.ok) {
+      throw new Error(await extractError(response, 'Código 2FA inválido ou expirado.'));
+    }
+
+    const data = await response.json();
 
     if (!data?.token) {
       throw new Error('Resposta inválida do servidor de autenticação.');

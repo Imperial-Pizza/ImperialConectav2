@@ -4,15 +4,19 @@ import React, { useState, useEffect } from 'react';
 import { AppShell } from '@/layouts/AppShell';
 import { StatusBanner } from '@/components/ui/StatusBanner';
 import { usePerfil } from '@/features/perfil/hooks/usePerfil';
+import { perfilApi, type TwoFactorSetupResponse } from '@/features/perfil/apis/perfilApi';
 import { ProfileTab } from '@/features/perfil/types';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast, { Toaster } from 'react-hot-toast';
+import { QRCodeSVG } from 'qrcode.react';
 import { 
   User as UserIcon, 
   Briefcase, 
   CreditCard, 
   HeartHandshake, 
   Shield, 
+  ShieldCheck,
+  ShieldAlert,
   Key, 
   Phone, 
   Clock, 
@@ -31,7 +35,11 @@ import {
   Pencil,
   X,
   Check,
-  Save
+  CheckCircle2,
+  Save,
+  QrCode,
+  Copy,
+  Lock
 } from 'lucide-react';
 
 const formatDate = (dateString?: string | null) => {
@@ -48,9 +56,118 @@ const formatDate = (dateString?: string | null) => {
 
 
 export default function PerfilPage() {
-  const { data: apiData, isLoading, isSaving, error, save } = usePerfil();
+  const { data: apiData, isLoading, isSaving, error, save, reload } = usePerfil();
   
   const [profileTab, setProfileTab] = useState<ProfileTab>('pessoal');
+
+  // Controle de 2FA (Autenticação de 2 Fatores)
+  const [twoFaModal, setTwoFaModal] = useState<'setup' | 'disable' | null>(null);
+  const [twoFaStep, setTwoFaStep] = useState<'qr' | 'backup'>('qr');
+  const [twoFaSetupData, setTwoFaSetupData] = useState<TwoFactorSetupResponse | null>(null);
+  const [twoFaCode, setTwoFaCode] = useState('');
+  const [twoFaPassword, setTwoFaPassword] = useState('');
+  const [twoFaLoading, setTwoFaLoading] = useState(false);
+  const [copiedSecret, setCopiedSecret] = useState(false);
+  const [copiedBackup, setCopiedBackup] = useState(false);
+
+  const handleStart2faSetup = async () => {
+    try {
+      setTwoFaLoading(true);
+      const data = await perfilApi.setupTwoFactor();
+      setTwoFaSetupData(data);
+      setTwoFaCode('');
+      setTwoFaStep('qr');
+      setCopiedSecret(false);
+      setCopiedBackup(false);
+      setTwoFaModal('setup');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Erro ao gerar configuração de 2FA.');
+    } finally {
+      setTwoFaLoading(false);
+    }
+  };
+
+  const handleEnable2fa = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanCode = twoFaCode.replace(/\D/g, '');
+    if (cleanCode.length !== 6) {
+      toast.error('Digite os 6 dígitos gerados pelo aplicativo autenticador.');
+      return;
+    }
+    try {
+      setTwoFaLoading(true);
+      await perfilApi.enableTwoFactor(cleanCode);
+      toast.success('Autenticação de 2 fatores ativada!');
+      setTwoFaStep('backup');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Código incorreto. Tente novamente.');
+    } finally {
+      setTwoFaLoading(false);
+    }
+  };
+
+  const handleFinish2faSetup = async () => {
+    setTwoFaModal(null);
+    setTwoFaSetupData(null);
+    await reload();
+  };
+
+  const handleDisable2fa = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!twoFaPassword) {
+      toast.error('Informe sua senha atual para confirmar.');
+      return;
+    }
+    try {
+      setTwoFaLoading(true);
+      await perfilApi.disableTwoFactor(twoFaPassword);
+      toast.success('Autenticação de 2 fatores desativada.');
+      setTwoFaModal(null);
+      setTwoFaPassword('');
+      await reload();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Senha incorreta ou falha ao desativar.');
+    } finally {
+      setTwoFaLoading(false);
+    }
+  };
+
+  const handleCopySecret = async () => {
+    if (!twoFaSetupData?.secret) return;
+    await navigator.clipboard.writeText(twoFaSetupData.secret);
+    setCopiedSecret(true);
+    toast.success('Chave secreta copiada!');
+    setTimeout(() => setCopiedSecret(false), 2500);
+  };
+
+  const handleCopyBackupCodes = async () => {
+    if (!twoFaSetupData?.backup_codes?.length) return;
+    await navigator.clipboard.writeText(twoFaSetupData.backup_codes.join('\n'));
+    setCopiedBackup(true);
+    toast.success('Códigos de recuperação copiados!');
+    setTimeout(() => setCopiedBackup(false), 2500);
+  };
+
+  const handleDownloadBackupCodes = () => {
+    if (!twoFaSetupData?.backup_codes?.length) return;
+    const content = [
+      'KodyVera / Imperial Conecta - Códigos de Recuperação 2FA',
+      `Usuário: ${apiData?.user.email || ''}`,
+      `Data: ${new Date().toLocaleDateString('pt-BR')}`,
+      '',
+      'Guarde estes códigos em local seguro. Cada código só pode ser usado uma vez:',
+      '',
+      ...twoFaSetupData.backup_codes.map((c, i) => `${i + 1}. ${c}`),
+    ].join('\n');
+
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'imperial-2fa-codigos-recuperacao.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   // Controle de edição por Card
   type EditCardType = 'cadastrais' | 'contato' | 'emergencia' | 'endereco' | null;
@@ -402,19 +519,105 @@ export default function PerfilPage() {
 
                   {profileTab === 'seguranca' && (
                     <motion.div key="seguranca" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="space-y-6">
-                      <div className="grid grid-cols-1 gap-6">
-                        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-4">
+                      <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-5">
+                        <div className="flex items-center justify-between">
                           <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2">
-                            <Key className="w-4 h-4 text-amber-600" /> Credenciais
+                            <Key className="w-4 h-4 text-amber-600" /> Credenciais & Autenticação
                           </h3>
-                          <div className="space-y-3 text-xs">
-                            <div>
-                              <span className="text-slate-400 font-semibold block">Autenticação de 2 Fatores (2FA)</span>
-                              <span className={`font-bold inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] mt-1 ${user.two_factor_enabled ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-slate-200 text-slate-600'}`}>
-                                {user.two_factor_enabled ? 'Ativado' : 'Desativado'}
-                              </span>
+                          <span
+                            className={`font-bold inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] ${
+                              user.two_factor_enabled
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                : 'bg-slate-200/80 text-slate-600 border border-slate-300/60'
+                            }`}
+                          >
+                            {user.two_factor_enabled ? (
+                              <>
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                2FA Protegido
+                              </>
+                            ) : (
+                              '2FA Desativado'
+                            )}
+                          </span>
+                        </div>
+
+                        {/* Bloco Premium 2FA */}
+                        <div className="bg-white border border-slate-200/90 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+                          <div className="flex items-start gap-4">
+                            <div
+                              className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ${
+                                user.two_factor_enabled
+                                  ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
+                                  : 'bg-red-50 text-red-600 border border-red-100'
+                              }`}
+                            >
+                              {user.two_factor_enabled ? (
+                                <ShieldCheck className="w-5 h-5" />
+                              ) : (
+                                <QrCode className="w-5 h-5" />
+                              )}
                             </div>
-                            <div><span className="text-slate-400 font-semibold block">Última Alteração de Senha</span><span className="font-bold text-slate-800">{formatDate(user.ultima_alteracao_senha) || 'Não informado'}</span></div>
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <h4 className="text-xs font-black text-slate-900">
+                                  Autenticação em 2 Fatores (2FA)
+                                </h4>
+                              </div>
+                              <p className="text-[11px] text-slate-500 leading-relaxed max-w-md">
+                                {user.two_factor_enabled
+                                  ? 'Sua conta está protegida com verificação em duas etapas via aplicativo autenticador (TOTP).'
+                                  : 'Adicione uma camada extra de proteção exigindo um código de 6 dígitos do Google Authenticator, Authy ou Microsoft Authenticator ao entrar.'}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="shrink-0 flex items-center">
+                            {user.two_factor_enabled ? (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setTwoFaPassword('');
+                                  setTwoFaModal('disable');
+                                }}
+                                className="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-all cursor-pointer"
+                              >
+                                <ShieldAlert className="w-4 h-4" />
+                                <span>Desativar 2FA</span>
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={handleStart2faSetup}
+                                disabled={twoFaLoading}
+                                className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl shadow-md shadow-red-600/20 transition-all cursor-pointer disabled:opacity-50"
+                              >
+                                {twoFaLoading ? (
+                                  <>
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    <span>Preparando...</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <ShieldCheck className="w-4 h-4" />
+                                    <span>Ativar 2FA</span>
+                                  </>
+                                )}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Última Alteração de Senha */}
+                        <div className="bg-white border border-slate-200/90 rounded-2xl p-4 flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
+                              <Lock className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <span className="text-slate-400 font-semibold block text-[11px]">Última Alteração de Senha</span>
+                              <span className="font-bold text-slate-800">{formatDate(user.ultima_alteracao_senha) || 'Não informado'}</span>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -980,6 +1183,281 @@ export default function PerfilPage() {
                         <Save className="w-4 h-4" />
                         <span>Salvar Alterações</span>
                       </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* MODAL DE CONFIGURAÇÃO 2FA (PREMIUM) */}
+      <AnimatePresence>
+        {twoFaModal === 'setup' && twoFaSetupData && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => !twoFaLoading && twoFaStep === 'qr' && setTwoFaModal(null)}
+              className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity"
+            />
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              transition={{ duration: 0.15 }}
+              className="relative bg-white rounded-3xl shadow-2xl border border-slate-100 w-full max-w-lg p-6 sm:p-7 z-10 max-h-[90vh] overflow-y-auto space-y-6"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 ${twoFaStep === 'backup' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
+                    {twoFaStep === 'backup' ? <CheckCircle2 className="w-5 h-5" /> : <ShieldCheck className="w-5 h-5" />}
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black text-slate-900">
+                      {twoFaStep === 'qr' ? 'Configurar Autenticação 2FA' : 'Autenticação 2FA Ativada!'}
+                    </h3>
+                    <p className="text-xs text-slate-500 font-medium">
+                      {twoFaStep === 'qr'
+                        ? 'Etapa 1 de 2 • Vincule seu aplicativo autenticador'
+                        : 'Etapa 2 de 2 • Salve seus códigos de recuperação'}
+                    </p>
+                  </div>
+                </div>
+                {twoFaStep === 'qr' && (
+                  <button
+                    type="button"
+                    onClick={() => !twoFaLoading && setTwoFaModal(null)}
+                    disabled={twoFaLoading}
+                    className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
+
+              {twoFaStep === 'qr' ? (
+                <form onSubmit={handleEnable2fa} className="space-y-5">
+                  {/* QR Code Container */}
+                  <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-5 flex flex-col items-center text-center space-y-4">
+                    <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs">
+                      <QRCodeSVG
+                        value={twoFaSetupData.qr_code_uri}
+                        size={172}
+                        level="M"
+                        includeMargin={false}
+                      />
+                    </div>
+                    <p className="text-[11px] text-slate-600 leading-relaxed max-w-sm">
+                      Abra seu app autenticador (<strong className="text-slate-800">Google Authenticator</strong>, <strong className="text-slate-800">Authy</strong> ou <strong className="text-slate-800">Microsoft Authenticator</strong>) e escaneie o QR Code acima.
+                    </p>
+                  </div>
+
+                  {/* Chave Secreta Manual */}
+                  <div className="space-y-1.5">
+                    <span className="block text-[11px] font-bold text-slate-500">
+                      Não consegue escanear? Copie a chave de configuração manual:
+                    </span>
+                    <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2">
+                      <code className="text-xs font-mono font-bold text-slate-800 tracking-wider flex-1 select-all">
+                        {twoFaSetupData.secret}
+                      </code>
+                      <button
+                        type="button"
+                        onClick={handleCopySecret}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold text-slate-600 hover:text-red-600 bg-white border border-slate-200 rounded-lg transition-colors cursor-pointer shrink-0"
+                      >
+                        {copiedSecret ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                        <span>{copiedSecret ? 'Copiado' : 'Copiar'}</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Input do Código de 6 dígitos */}
+                  <div className="space-y-2 pt-1">
+                    <label className="block text-xs font-bold text-slate-700">
+                      Digite o código de 6 dígitos exibido no app *
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={6}
+                      required
+                      autoFocus
+                      value={twoFaCode}
+                      onChange={(e) => setTwoFaCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      className="w-full px-4 py-3 text-lg font-mono font-black tracking-[0.45em] text-center bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-slate-900"
+                      placeholder="000000"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+                    <button
+                      type="button"
+                      onClick={() => setTwoFaModal(null)}
+                      disabled={twoFaLoading}
+                      className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={twoFaLoading || twoFaCode.length !== 6}
+                      className="inline-flex items-center gap-2 px-5 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl shadow-md shadow-red-600/20 transition-all cursor-pointer disabled:opacity-50"
+                    >
+                      {twoFaLoading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Verificando...</span>
+                        </>
+                      ) : (
+                        <>
+                          <ShieldCheck className="w-4 h-4" />
+                          <span>Verificar e Ativar</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <div className="space-y-5">
+                  <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-4 flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                    <p className="text-xs text-amber-900 leading-relaxed">
+                      <strong>Guarde seus códigos de recuperação!</strong> Se você perder acesso ao seu celular, cada código abaixo permite entrar na sua conta uma única vez.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2.5 bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                    {twoFaSetupData.backup_codes.map((code, idx) => (
+                      <div
+                        key={idx}
+                        className="bg-white border border-slate-200/80 rounded-xl px-3 py-2 text-center font-mono text-xs font-bold text-slate-800 tracking-wider select-all"
+                      >
+                        {code}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleCopyBackupCodes}
+                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+                    >
+                      {copiedBackup ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
+                      <span>{copiedBackup ? 'Códigos Copiados!' : 'Copiar Códigos'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleDownloadBackupCodes}
+                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+                    >
+                      <Download className="w-4 h-4" />
+                      <span>Baixar (.txt)</span>
+                    </button>
+                  </div>
+
+                  <div className="pt-3 border-t border-slate-100 flex justify-end">
+                    <button
+                      type="button"
+                      onClick={handleFinish2faSetup}
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>Concluir Configuração</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* MODAL DE DESATIVAÇÃO 2FA */}
+      <AnimatePresence>
+        {twoFaModal === 'disable' && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => !twoFaLoading && setTwoFaModal(null)}
+              className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity"
+            />
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              transition={{ duration: 0.15 }}
+              className="relative bg-white rounded-3xl shadow-2xl border border-slate-100 w-full max-w-md p-6 sm:p-7 z-10 space-y-5"
+            >
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
+                    <ShieldAlert className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black text-slate-900">Desativar 2FA</h3>
+                    <p className="text-xs text-slate-500 font-medium">Confirme sua identidade para continuar</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => !twoFaLoading && setTwoFaModal(null)}
+                  className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleDisable2fa} className="space-y-4">
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Ao desativar a autenticação em 2 fatores, sua conta voltará a exigir apenas e-mail e senha no login.
+                </p>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                    Digite sua senha atual *
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    autoFocus
+                    value={twoFaPassword}
+                    onChange={(e) => setTwoFaPassword(e.target.value)}
+                    className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all text-slate-900 font-medium"
+                    placeholder="Sua senha atual"
+                  />
+                </div>
+
+                <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => setTwoFaModal(null)}
+                    disabled={twoFaLoading}
+                    className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={twoFaLoading || !twoFaPassword}
+                    className="inline-flex items-center gap-2 px-5 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-md shadow-rose-600/20 transition-all cursor-pointer disabled:opacity-50"
+                  >
+                    {twoFaLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Desativando...</span>
+                      </>
+                    ) : (
+                      <span>Confirmar Desativação</span>
                     )}
                   </button>
                 </div>
