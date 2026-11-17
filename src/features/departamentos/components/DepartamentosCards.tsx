@@ -2,10 +2,9 @@
 
 import {
   Building2,
+  Clock,
   Eye,
   Hash,
-  Mail,
-  UserCheck,
   Users,
 } from 'lucide-react';
 import type { Departamento } from '../types';
@@ -16,22 +15,70 @@ interface DepartamentosCardsProps {
 }
 
 export function DepartamentosCards({ items, onViewDetail }: DepartamentosCardsProps) {
+  // Ativos primeiro (Administrativo, Estoque), e os que estão em desenvolvimento embaixo
+  const sortedItems = [...items].sort((a, b) => {
+    const aEmBreve =
+      ['ATD-01', 'COZ-01'].includes(a.codigo) ||
+      ['atendimento', 'cozinha'].includes(a.nome.toLowerCase());
+    const bEmBreve =
+      ['ATD-01', 'COZ-01'].includes(b.codigo) ||
+      ['atendimento', 'cozinha'].includes(b.nome.toLowerCase());
+    if (aEmBreve === bEmBreve) return 0;
+    return aEmBreve ? 1 : -1;
+  });
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {items.map((item) => {
+      {sortedItems.map((item) => {
         const initials = item.nome
           .split(' ')
           .slice(0, 2)
           .map((n) => n[0])
           .join('')
           .toUpperCase();
+        const isEmBreve =
+          ['ATD-01', 'COZ-01'].includes(item.codigo) ||
+          ['atendimento', 'cozinha'].includes(item.nome.toLowerCase());
 
         return (
           <article
             key={item.id}
-            onClick={() => onViewDetail(item)}
-            className="bg-white border border-slate-200/90 rounded-3xl p-5 shadow-xs space-y-4 hover:shadow-md transition-all flex flex-col justify-between group cursor-pointer"
+            onClick={() => {
+              if (!isEmBreve) onViewDetail(item);
+            }}
+            className={`relative overflow-hidden bg-white border border-slate-200/90 rounded-3xl p-5 shadow-xs transition-all flex flex-col justify-between group ${
+              isEmBreve
+                ? 'cursor-not-allowed select-none'
+                : 'hover:border-slate-300 hover:shadow-md cursor-pointer'
+            }`}
           >
+            {/* Overlay em Breve (Descentralizado) */}
+            {isEmBreve && (
+              <div
+                onClick={(e) => e.stopPropagation()}
+                className="absolute inset-0 z-10 bg-white/60 backdrop-blur-[2.5px] rounded-3xl flex flex-col items-start justify-center p-5 text-left cursor-not-allowed select-none"
+              >
+                <div className="bg-white/95 border border-slate-200/90 shadow-sm rounded-2xl p-4 flex items-start gap-3 w-full">
+                  <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200/80 flex items-center justify-center text-amber-600 shrink-0">
+                    <Clock className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-amber-700 bg-amber-100/70 px-2 py-0.5 rounded-md border border-amber-200/60 inline-block mb-1">
+                      Funcionalidade em Breve
+                    </span>
+                    <p className="text-xs font-bold text-slate-700 leading-snug">
+                      Esta área está sendo aprimorada e estará disponível nas próximas atualizações.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div
+              className={`space-y-4 flex-1 flex flex-col justify-between ${
+                isEmBreve ? 'filter blur-[1.5px] opacity-40 pointer-events-none' : ''
+              }`}
+            >
             <div className="space-y-3">
               {/* Topo: Avatar + Nome + Código */}
               <div className="flex items-start justify-between gap-3">
@@ -66,14 +113,6 @@ export function DepartamentosCards({ items, onViewDetail }: DepartamentosCardsPr
             <dl className="space-y-2 pt-3 border-t border-slate-100 text-xs">
               <div className="flex justify-between items-center gap-2">
                 <dt className="text-slate-400 font-medium flex items-center gap-1 shrink-0">
-                  <UserCheck className="w-3.5 h-3.5 text-red-500" />
-                  Gestor:
-                </dt>
-                <dd className="font-bold text-slate-800 truncate">{item.gestor || 'Não definido'}</dd>
-              </div>
-
-              <div className="flex justify-between items-center gap-2">
-                <dt className="text-slate-400 font-medium flex items-center gap-1 shrink-0">
                   <Hash className="w-3.5 h-3.5 text-amber-500" />
                   Centro de Custo:
                 </dt>
@@ -81,47 +120,27 @@ export function DepartamentosCards({ items, onViewDetail }: DepartamentosCardsPr
                   {item.centroCusto || 'N/A'}
                 </dd>
               </div>
-
-              {item.email && (
-                <div className="flex justify-between items-center gap-2">
-                  <dt className="text-slate-400 font-medium flex items-center gap-1 shrink-0">
-                    <Mail className="w-3.5 h-3.5 text-blue-500" />
-                    E-mail:
-                  </dt>
-                  <dd className="font-medium text-blue-600 truncate max-w-[170px]" title={item.email}>
-                    {item.email}
-                  </dd>
-                </div>
-              )}
             </dl>
 
             {/* Rodapé de Ação */}
             <div
-              className="flex items-center justify-between gap-2 pt-3 border-t border-slate-100"
+              className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100"
               onClick={(e) => e.stopPropagation()}
             >
               <button
                 type="button"
                 onClick={() => onViewDetail(item)}
-                className="flex-1 py-2 px-3 rounded-xl text-xs font-bold text-white bg-slate-900 hover:bg-red-600 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                title={`Ver equipe e detalhes de ${item.nome}`}
+                aria-label={`Ver detalhes de ${item.nome}`}
+                className="w-9 h-9 rounded-xl bg-red-600 hover:bg-red-700 text-white flex items-center justify-center transition-all shadow-sm shadow-red-600/20 active:scale-95 cursor-pointer"
               >
-                <Eye className="w-3.5 h-3.5" />
-                <span>Ver Equipe ({item.colaboradoresCount})</span>
+                <Eye className="w-4 h-4" />
               </button>
-
-              {item.email && (
-                <a
-                  href={`mailto:${item.email}`}
-                  title={`Enviar e-mail para ${item.email}`}
-                  className="w-9 h-9 rounded-xl border border-blue-200/80 bg-blue-50 text-blue-600 hover:bg-blue-100 flex items-center justify-center transition-all cursor-pointer shrink-0"
-                >
-                  <Mail className="w-4 h-4" />
-                </a>
-              )}
             </div>
-          </article>
-        );
-      })}
+          </div>
+        </article>
+      );
+    })}
     </div>
   );
 }
