@@ -635,7 +635,7 @@ export default function PerfilPage() {
                   <button
                     key={tab.id}
                     onClick={() => setProfileTab(tab.id as ProfileTab)}
-                    className={`w-full text-left px-4 py-3 rounded-2xl text-xs font-bold transition-all flex items-center gap-3 ${
+                    className={`w-full text-left px-4 py-3 rounded-2xl text-xs font-bold transition-all flex items-center gap-3 cursor-pointer ${
                       profileTab === tab.id 
                         ? 'bg-red-600 text-white shadow-md shadow-red-600/20' 
                         : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/60'
