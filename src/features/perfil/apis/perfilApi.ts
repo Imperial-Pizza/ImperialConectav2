@@ -1,14 +1,17 @@
 // src/features/perfil/apis/perfilApi.ts
 
+import { forceLogoutAndRedirect, getToken, isTokenExpired } from '@/lib/auth';
 import type { ProfileData, UpdateProfilePayload, UpdateProfileResponse } from '../types';
 
 // API unificada KodyVera (Auth + RH)
 const AUTH_API_URL = process.env.NEXT_PUBLIC_AUTH_API_URL || 'http://localhost:8020/api';
-// API legada (usada apenas pelo updateProfile até ser migrada)
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || AUTH_API_URL;
 
 const getHeaders = () => {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('imperial_token') || sessionStorage.getItem('imperial_token') : null;
+  const token = getToken();
+  if (!token || isTokenExpired(token)) {
+    forceLogoutAndRedirect();
+  }
   return {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -16,6 +19,15 @@ const getHeaders = () => {
     ...(token ? { 'Authorization': `Bearer ${token}` } : {})
   };
 };
+
+async function checkAuthOrThrow(response: Response, fallbackMsg: string) {
+  if (response.status === 401) {
+    forceLogoutAndRedirect();
+    return new Promise<never>(() => {});
+  }
+  const errorData = await response.json().catch(() => null);
+  throw new Error(errorData?.message || errorData?.error || fallbackMsg);
+}
 
 /** Resposta crua de GET /api/auth/me/profile (KodyVera) */
 export interface MyProfileApiResponse {
@@ -52,8 +64,7 @@ export const perfilApi = {
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      throw new Error(errorData?.message || errorData?.error || 'Erro ao carregar perfil');
+      return checkAuthOrThrow(response, 'Erro ao carregar perfil');
     }
 
     return response.json();
@@ -68,8 +79,7 @@ export const perfilApi = {
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      throw new Error(errorData?.message || errorData?.error || 'Erro ao atualizar perfil');
+      return checkAuthOrThrow(response, 'Erro ao atualizar perfil');
     }
 
     return response.json();

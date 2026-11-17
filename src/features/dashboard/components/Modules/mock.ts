@@ -3,6 +3,7 @@ import {
   UtensilsCrossed,
   ChefHat,
   Package,
+  Building2,
   DollarSign,
   BarChart3,
   FileText,
@@ -45,6 +46,15 @@ export const modules: DashboardModule[] = [
     color: 'from-emerald-600 to-teal-600',
     available: true,
     href: '/estoque',
+  },
+  {
+    id: 'departamentos',
+    name: 'Departamentos',
+    desc: 'Setores, centros de custo, gestores e equipes cadastradas',
+    icon: Building2,
+    color: 'from-indigo-600 to-blue-600',
+    available: true,
+    href: '/departamentos',
   },
   {
     id: 'financeiro',

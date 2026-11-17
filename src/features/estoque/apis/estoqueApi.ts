@@ -1,5 +1,6 @@
 // src/features/estoque/apis/estoqueApi.ts
 
+import { forceLogoutAndRedirect, getToken, isTokenExpired } from '@/lib/auth';
 import type {
   Fornecedor,
   Insumo,
@@ -12,16 +13,11 @@ import type {
 const API_URL =
   process.env.NEXT_PUBLIC_ESTOQUE_API_URL || 'http://localhost:8010/api';
 
-function getToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return (
-    localStorage.getItem('imperial_token') ||
-    sessionStorage.getItem('imperial_token')
-  );
-}
-
 function headers(): HeadersInit {
   const token = getToken();
+  if (!token || isTokenExpired(token)) {
+    forceLogoutAndRedirect();
+  }
   return {
     'Content-Type': 'application/json',
     Accept: 'application/json',
@@ -30,6 +26,14 @@ function headers(): HeadersInit {
 }
 
 async function handle<T>(response: Response, fallback: string): Promise<T> {
+  if (response.status === 401) {
+    // Só desloga automaticamente se o token em si já estiver expirado ou ausente;
+    // evita deslogar caso apenas a API de estoque rejeite a assinatura.
+    if (isTokenExpired(getToken())) {
+      forceLogoutAndRedirect();
+      return new Promise<T>(() => {});
+    }
+  }
   if (!response.ok) {
     const errorData = await response.json().catch(() => null);
     throw new Error(errorData?.message || errorData?.error || fallback);

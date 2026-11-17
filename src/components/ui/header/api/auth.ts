@@ -1,3 +1,5 @@
+import { forceLogoutAndRedirect, getToken, isTokenExpired } from '@/lib/auth';
+
 export async function getMe() {
   const apiUrl = process.env.NEXT_PUBLIC_AUTH_API_URL || 'http://localhost:8020/api';
   
@@ -6,11 +8,10 @@ export async function getMe() {
   }
 
   // Lê o token do localStorage ou sessionStorage
-  const token =
-    localStorage.getItem('imperial_token') ||
-    sessionStorage.getItem('imperial_token');
+  const token = getToken();
   
-  if (!token) {
+  if (!token || isTokenExpired(token)) {
+    forceLogoutAndRedirect();
     return null;
   }
 
@@ -26,13 +27,10 @@ export async function getMe() {
     });
     
     if (!response.ok) {
-      const errorText = await response.text().catch(() => '');
-      console.warn('Aviso na API auth/me:', response.status, errorText);
-      
-      // Se o token for inválido (400) ou não autorizado (401), limpa credenciais inválidas
+      // Se o token for inválido (400) ou não autorizado (401), desloga imediatamente
       if (response.status === 400 || response.status === 401) {
-        localStorage.removeItem('imperial_token');
-        sessionStorage.removeItem('imperial_token');
+        forceLogoutAndRedirect();
+        return null;
       }
       
       return null;

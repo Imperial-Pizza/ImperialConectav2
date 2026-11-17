@@ -1,3 +1,5 @@
+import { forceLogoutAndRedirect, getToken, isTokenExpired } from '@/lib/auth';
+
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
 export async function apiGet<T>(endpoint: string): Promise<T> {
@@ -20,12 +22,7 @@ export async function apiPost<T>(endpoint: string, body: unknown): Promise<T> {
 // Requisições autenticadas (Bearer token salvo no login)
 // =============================================================================
 
-const AUTH_API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002/api';
-
-function getStoredToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem('imperial_token') || sessionStorage.getItem('imperial_token');
-}
+const AUTH_API_URL = process.env.NEXT_PUBLIC_AUTH_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8020/api';
 
 interface ApiRequestOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
@@ -38,7 +35,10 @@ export async function apiRequest<T>(endpoint: string, { method = 'GET', body }: 
     Accept: 'application/json',
   };
 
-  const token = getStoredToken();
+  const token = getToken();
+  if (!token || isTokenExpired(token)) {
+    forceLogoutAndRedirect();
+  }
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
   const res = await fetch(`${AUTH_API_URL}${endpoint}`, {
@@ -46,6 +46,11 @@ export async function apiRequest<T>(endpoint: string, { method = 'GET', body }: 
     headers,
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
+
+  if (res.status === 401) {
+    forceLogoutAndRedirect();
+    return new Promise<T>(() => {});
+  }
 
   if (!res.ok) {
     const errorData = await res.json().catch(() => null);

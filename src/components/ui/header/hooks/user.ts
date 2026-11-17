@@ -1,5 +1,11 @@
 import { useState, useEffect } from 'react';
 import { getMe } from '../api/auth';
+import {
+  forceLogoutAndRedirect,
+  getToken,
+  getTokenExpirationMs,
+  isTokenExpired,
+} from '@/lib/auth';
 
 export interface User {
   name: string;
@@ -15,13 +21,30 @@ export function useUser() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    const token = getToken();
+
+    // Se não houver token ou já estiver expirado, desloga imediatamente
+    if (!token || isTokenExpired(token)) {
+      forceLogoutAndRedirect();
+      return;
+    }
+
+    // Agenda o deslogue automático exatamente quando o tempo do JWT acabar
+    let expiryTimeout: ReturnType<typeof setTimeout> | null = null;
+    const expMs = getTokenExpirationMs(token);
+    if (expMs !== null) {
+      const remainingMs = Math.max(0, expMs - Date.now());
+      expiryTimeout = setTimeout(() => {
+        forceLogoutAndRedirect();
+      }, remainingMs);
+    }
+
     async function loadUser() {
       try {
         const data = await getMe();
         if (data) {
           setUser(data);
         } else {
-          // Fallback padrão para exibição suave do Header
           setUser({
             name: 'Arthur',
             email: 'arthur@imperialpizza.com.br',
@@ -44,6 +67,10 @@ export function useUser() {
       }
     }
     loadUser();
+
+    return () => {
+      if (expiryTimeout) clearTimeout(expiryTimeout);
+    };
   }, []);
 
   return {
