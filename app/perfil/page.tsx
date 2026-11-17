@@ -86,6 +86,7 @@ export default function PerfilPage() {
   const [docCompressing, setDocCompressing] = useState(false);
   const [docSaving, setDocSaving] = useState(false);
   const [docDeletingId, setDocDeletingId] = useState<number | null>(null);
+  const [docToDelete, setDocToDelete] = useState<{ id: number; nome: string } | null>(null);
   const [previewDoc, setPreviewDoc] = useState<{ nome: string; url: string; data?: string } | null>(null);
 
   const compressImageToLightweightDataUrl = (file: File): Promise<{ dataUrl: string; compressedKb: number; originalKb: number }> => {
@@ -204,11 +205,13 @@ export default function PerfilPage() {
     }
   };
 
-  const handleDeleteDocument = async (docId: number) => {
+  const confirmDeleteDocument = async () => {
+    if (!docToDelete) return;
     try {
-      setDocDeletingId(docId);
-      await perfilApi.deleteDocument(docId);
-      toast.success('Documento removido!');
+      setDocDeletingId(docToDelete.id);
+      await perfilApi.deleteDocument(docToDelete.id);
+      toast.success('Documento removido com sucesso!');
+      setDocToDelete(null);
       await reload();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Erro ao remover documento.');
@@ -972,10 +975,10 @@ export default function PerfilPage() {
                               setDocCompressedSizeKb(0);
                               setDocModalOpen(true);
                             }}
-                            className="inline-flex items-center gap-1.5 text-xs bg-red-600 text-white px-3.5 py-2 rounded-xl font-bold shadow-sm shadow-red-600/20 hover:bg-red-700 transition-all cursor-pointer"
+                            className="inline-flex items-center gap-1.5 text-xs bg-blue-600 text-white px-3.5 py-2 rounded-xl font-bold shadow-sm shadow-blue-600/20 hover:bg-blue-700 transition-all cursor-pointer"
                           >
                             <Upload className="w-3.5 h-3.5" />
-                            <span>+ Adicionar Documento</span>
+                            <span>Adicionar Documento</span>
                           </button>
                         </div>
                         {profile?.documents?.length ? (
@@ -993,7 +996,7 @@ export default function PerfilPage() {
                                       <img src={doc.url} alt={doc.nome} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                                     </button>
                                   ) : (
-                                    <div className="w-12 h-12 rounded-xl bg-red-50 text-red-600 flex items-center justify-center shrink-0">
+                                    <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
                                       <FileText className="w-5 h-5" />
                                     </div>
                                   )}
@@ -1007,7 +1010,7 @@ export default function PerfilPage() {
                                     <button
                                       type="button"
                                       onClick={() => setPreviewDoc({ nome: doc.nome, url: doc.url!, data: doc.data_envio })}
-                                      className="p-2 text-slate-600 hover:text-red-600 bg-white hover:bg-red-50 border border-slate-200 rounded-xl transition-colors cursor-pointer"
+                                      className="p-2 text-blue-600 hover:text-white bg-blue-50 hover:bg-blue-600 border border-blue-200/80 hover:border-blue-600 rounded-xl shadow-2xs hover:shadow-xs transition-all cursor-pointer"
                                       title="Visualizar foto"
                                     >
                                       <Eye className="w-3.5 h-3.5" />
@@ -1015,16 +1018,11 @@ export default function PerfilPage() {
                                   )}
                                   <button
                                     type="button"
-                                    disabled={docDeletingId === doc.id}
-                                    onClick={() => handleDeleteDocument(doc.id)}
-                                    className="p-2 text-slate-400 hover:text-rose-600 bg-white hover:bg-rose-50 border border-slate-200 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
+                                    onClick={() => setDocToDelete({ id: doc.id, nome: doc.nome })}
+                                    className="p-2 text-rose-600 hover:text-white bg-rose-50 hover:bg-rose-600 border border-rose-200/80 hover:border-rose-600 rounded-xl shadow-2xs hover:shadow-xs transition-all cursor-pointer"
                                     title="Remover documento"
                                   >
-                                    {docDeletingId === doc.id ? (
-                                      <Loader2 className="w-3.5 h-3.5 animate-spin text-rose-600" />
-                                    ) : (
-                                      <Trash2 className="w-3.5 h-3.5" />
-                                    )}
+                                    <Trash2 className="w-3.5 h-3.5" />
                                   </button>
                                 </div>
                               </div>
@@ -1034,7 +1032,7 @@ export default function PerfilPage() {
                           <div className="text-center py-10 text-xs text-slate-500 bg-slate-50 rounded-2xl border border-dashed border-slate-200 flex flex-col items-center gap-2">
                             <ImageIcon className="w-9 h-9 text-slate-300 mb-1" />
                             <p className="font-bold text-slate-700">Nenhum documento anexado a este perfil.</p>
-                            <p className="text-[11px] text-slate-400">Clique em &ldquo;+ Adicionar Documento&rdquo; para enviar a foto do RG, CNH, Comprovante ou Contrato.</p>
+                            <p className="text-[11px] text-slate-400">Clique em &ldquo;Adicionar Documento&rdquo; para enviar a foto do RG, CNH, Comprovante ou Contrato.</p>
                           </div>
                         )}
                       </div>
@@ -1970,7 +1968,7 @@ export default function PerfilPage() {
             >
               <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
                     <Upload className="w-4 h-4" />
                   </div>
                   <div>
@@ -2133,6 +2131,66 @@ export default function PerfilPage() {
                   alt={previewDoc.nome}
                   className="max-w-full max-h-[65vh] rounded-xl border border-slate-200 object-contain bg-white shadow-sm"
                 />
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* MODAL DE CONFIRMAÇÃO DE EXCLUSÃO DE DOCUMENTO */}
+      <AnimatePresence>
+        {docToDelete && (
+          <div
+            onClick={() => docDeletingId === null && setDocToDelete(null)}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white border border-slate-200 rounded-3xl shadow-2xl max-w-sm w-full p-6 text-center space-y-4 overflow-hidden"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto shadow-sm shadow-rose-600/10">
+                <Trash2 className="w-6 h-6" />
+              </div>
+
+              <div className="space-y-1.5">
+                <h3 className="text-base font-black text-slate-900">Excluir Documento?</h3>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  Tem certeza que deseja remover o documento{' '}
+                  <span className="font-bold text-slate-800">&ldquo;{docToDelete.nome}&rdquo;</span>? Esta ação não pode ser desfeita.
+                </p>
+              </div>
+
+              <div className="flex items-center justify-center gap-2.5 pt-2">
+                <button
+                  type="button"
+                  disabled={docDeletingId !== null}
+                  onClick={() => setDocToDelete(null)}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  <X className="w-4 h-4" />
+                  <span>Cancelar</span>
+                </button>
+                <button
+                  type="button"
+                  disabled={docDeletingId !== null}
+                  onClick={confirmDeleteDocument}
+                  className="inline-flex items-center gap-2 px-5 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-md shadow-rose-600/20 transition-all cursor-pointer disabled:opacity-50"
+                >
+                  {docDeletingId !== null ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Excluindo...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-4 h-4" />
+                      <span>Sim, Excluir</span>
+                    </>
+                  )}
+                </button>
               </div>
             </motion.div>
           </div>
